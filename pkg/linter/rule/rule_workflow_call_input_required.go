@@ -25,11 +25,16 @@ func (r RuleWorkflowCallInputRequired) Validate() error {
 	return nil
 }
 
-func (r RuleWorkflowCallInputRequired) Lint(w *workflow.Workflow, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleWorkflowCallInputRequired) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
 	if len(r.Value) == 0 {
 		return
 	}
+	if f.GetType() != DotGithubFileTypeWorkflow {
+		return
+	}
+	w := f.(*workflow.Workflow)
+
 	if w.On == nil || w.On.WorkflowCall == nil || w.On.WorkflowCall.Inputs == nil || len(w.On.WorkflowCall.Inputs) == 0 {
 		return
 	}
@@ -38,7 +43,7 @@ func (r RuleWorkflowCallInputRequired) Lint(w *workflow.Workflow, d *dotgithub.D
 		for i, v := range r.Value {
 			if v == "description" && input.Description == "" {
 				compliant = false
-				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("workflow '%s' call input '%s' does not have a required %s", w.FileName, inputName, v))
+				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("workflow '%s' call input '%s' does not have a required %s", w.FileName, inputName, v), chWarnings, chErrors)
 			}
 		}
 	}

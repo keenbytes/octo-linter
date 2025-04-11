@@ -25,20 +25,26 @@ func (r RuleActionInputRequired) Validate() error {
 	return nil
 }
 
-func (r RuleActionInputRequired) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionInputRequired) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+	compliant = true
 	if len(r.Value) == 0 {
-		return true, nil
+		return
 	}
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
 
 	for inputName, input := range a.Inputs {
 		for i, v := range r.Value {
 			if v == "description" && input.Description == "" {
-				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("action '%s' input '%s' does not have a required %s", a.DirName, inputName, v))
+				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("action '%s' input '%s' does not have a required %s", a.DirName, inputName, v), chWarnings, chErrors)
+				compliant = false
 			}
 		}
 	}
 
-	return true, nil
+	return
 }
 
 func (r RuleActionInputRequired) GetConfigName() string {

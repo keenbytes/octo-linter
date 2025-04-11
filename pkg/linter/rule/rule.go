@@ -2,42 +2,32 @@ package rule
 
 import (
 	"fmt"
-	"os"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/action"
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
-	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
-type ActionRule interface {
+const (
+	DotGithubFileTypeAction = 1
+	DotGithubFileTypeWorkflow = 2
+)
+
+type Rule interface {
 	Validate() error
-	Lint(a *action.Action, d *dotgithub.DotGithub) (bool, error)
+	Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (bool, error)
 	GetConfigName() string
 }
 
-type WorkflowRule interface {
-	Validate() error
-	Lint(a *workflow.Workflow, d *dotgithub.DotGithub) (bool, error)
-	GetConfigName() string
-}
-
-type DotGithubRule interface {
-	Validate() error
-	Lint(d *dotgithub.DotGithub) (bool, error)
-	GetConfigName() string
-}
-
-func printErrOrWarn(configName string, isError bool, logLevel int, errStr string) {
+func printErrOrWarn(configName string, isError bool, logLevel int, errStr string, chWarnings chan<- string, chErrors chan<- string) {
 	if logLevel == loglevel.LogLevelNone {
 		return
 	}
 	if isError && logLevel != loglevel.LogLevelNone {
-		fmt.Fprintf(os.Stderr, "err:%s: %s\n", configName, errStr)
+		chErrors <- fmt.Sprintf("%s: %s", configName, errStr)
 		return
 	}
 	if !isError && logLevel != loglevel.LogLevelOnlyErrors {
-		fmt.Fprintf(os.Stderr, "wrn:%s: %s\n", configName, errStr)
+		chWarnings <- fmt.Sprintf("%s: %s", configName, errStr)
 		return
 	}
 }

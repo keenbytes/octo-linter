@@ -56,7 +56,7 @@ func (d *DotGithub) ReadDir(p string) error {
 		}
 	}
 	for _, w := range d.Workflows {
-		err := w.Unmarshal(d.LogLevel)
+		err := w.Unmarshal(d.LogLevel, false)
 		if err != nil {
 			return err
 		}

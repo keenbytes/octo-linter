@@ -29,10 +29,15 @@ func (r RuleActionInputValue) Validate() error {
 	return nil
 }
 
-func (r RuleActionInputValue) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionInputValue) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+	compliant = true
 	if len(r.Value) == 0 {
-		return true, nil
+		return
 	}
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
 
 	for inputName := range a.Inputs {
 		for k, v := range r.Value {
@@ -40,14 +45,14 @@ func (r RuleActionInputValue) Lint(a *action.Action, d *dotgithub.DotGithub) (co
 				regex := regexp.MustCompile(`^[a-z0-9][a-z0-9\-]+$`)
 				m := regex.MatchString(inputName)
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("action '%s' input '%s' must be lower-case and hyphens only", a.DirName, inputName))
+					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("action '%s' input '%s' must be lower-case and hyphens only", a.DirName, inputName), chWarnings, chErrors)
 					return false, nil
 				}
 			}
 		}
 	}
 
-	return true, nil
+	return
 }
 
 func (r RuleActionInputValue) GetConfigName() string {

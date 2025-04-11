@@ -29,11 +29,16 @@ func (r RuleWorkflowDispatchInputValue) Validate() error {
 	return nil
 }
 
-func (r RuleWorkflowDispatchInputValue) Lint(w *workflow.Workflow, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleWorkflowDispatchInputValue) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
 	if len(r.Value) == 0 {
 		return
 	}
+	if f.GetType() != DotGithubFileTypeWorkflow {
+		return
+	}
+	w := f.(*workflow.Workflow)
+
 	if w.On == nil || w.On.WorkflowDispatch == nil || w.On.WorkflowDispatch.Inputs == nil || len(w.On.WorkflowDispatch.Inputs) == 0 {
 		return
 	}
@@ -45,7 +50,7 @@ func (r RuleWorkflowDispatchInputValue) Lint(w *workflow.Workflow, d *dotgithub.
 				m := re.MatchString(inputName)
 				if !m {
 					compliant = false
-					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("workflow '%s' call input '%s' %s must be lower-case and hyphens only", w.FileName, inputName, v))
+					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("workflow '%s' call input '%s' %s must be lower-case and hyphens only", w.FileName, inputName, v), chWarnings, chErrors)
 				}
 			}
 		}

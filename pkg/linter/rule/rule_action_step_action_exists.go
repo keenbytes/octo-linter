@@ -27,8 +27,13 @@ func (r RuleActionStepActionExists) Validate() error {
 	return nil
 }
 
-func (r RuleActionStepActionExists) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionStepActionExists) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
+
 	if len(r.Value) == 0 || a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
 		return
 	}
@@ -47,14 +52,14 @@ func (r RuleActionStepActionExists) Lint(a *action.Action, d *dotgithub.DotGithu
 			action := d.GetAction(actionName)
 			if action == nil {
 				compliant = false
-				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("action '%s' step %d calls non-existing local action '%s'", a.DirName, i+1, actionName))
+				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("action '%s' step %d calls non-existing local action '%s'", a.DirName, i+1, actionName), chWarnings, chErrors)
 			}
 		}
 		if isExternal {
 			action := d.GetExternalAction(step.Uses)
 			if action == nil {
 				compliant = false
-				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("action '%s' step %d calls non-existing external action '%s'", a.DirName, i+1, step.Uses))
+				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("action '%s' step %d calls non-existing external action '%s'", a.DirName, i+1, step.Uses), chWarnings, chErrors)
 			}
 		}
 	}

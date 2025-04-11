@@ -24,17 +24,23 @@ func (r RuleActionDirectoryName) Validate() error {
 	return nil
 }
 
-func (r RuleActionDirectoryName) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionDirectoryName) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
+
 	if r.Value == "lowercase-hyphens" {
 		regex := regexp.MustCompile(`^[a-z0-9][a-z0-9\-]+$`)
 		m := regex.MatchString(a.DirName)
 		if !m {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action directory name '%s' must be lower-case and hyphens only", a.DirName))
+			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action directory name '%s' must be lower-case and hyphens only", a.DirName), chWarnings, chErrors)
 			return false, nil
 		}
 	}
 
-	return true, nil
+	return
 }
 
 func (r RuleActionDirectoryName) GetConfigName() string {

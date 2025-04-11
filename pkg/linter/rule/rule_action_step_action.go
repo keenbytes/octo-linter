@@ -24,8 +24,13 @@ func (r RuleActionStepAction) Validate() error {
 	return nil
 }
 
-func (r RuleActionStepAction) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionStepAction) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
+
 	if r.Value == "" || a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
 		return
 	}
@@ -40,15 +45,15 @@ func (r RuleActionStepAction) Lint(a *action.Action, d *dotgithub.DotGithub) (co
 		isLocal := reLocal.MatchString(step.Uses)
 		isExternal := reExternal.MatchString(step.Uses)
 		if r.Value == "local-only" && !isLocal {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d calls action '%s' that is not a valid local path", a.DirName, i+1, step.Uses))
+			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d calls action '%s' that is not a valid local path", a.DirName, i+1, step.Uses), chWarnings, chErrors)
 			compliant = false
 		}
 		if r.Value == "external-only" && !isExternal {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d calls action '%s' that is not external", a.DirName, i+1, step.Uses))
+			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d calls action '%s' that is not external", a.DirName, i+1, step.Uses), chWarnings, chErrors)
 			compliant = false
 		}
 		if r.Value == "local-or-external" && !isLocal && !isExternal {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d calls action '%s' that is neither external nor local", a.DirName, i+1, step.Uses))
+			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d calls action '%s' that is neither external nor local", a.DirName, i+1, step.Uses), chWarnings, chErrors)
 			compliant = false
 		}
 	}

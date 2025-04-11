@@ -19,14 +19,18 @@ func (r RuleActionCalledVariableNotInDoubleQuote) Validate() error {
 	return nil
 }
 
-func (r RuleActionCalledVariableNotInDoubleQuote) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionCalledVariableNotInDoubleQuote) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
 
 	if r.Value {
 		re := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\\-_.]+)[ ]*}}\"`)
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a variable '%s' that is in double quotes", a.DirName, string(f[1])))
+			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a variable '%s' that is in double quotes", a.DirName, string(f[1])), chWarnings, chErrors)
 			compliant = false
 		}
 	}

@@ -24,8 +24,12 @@ func (r RuleActionStepEnv) Validate() error {
 	return nil
 }
 
-func (r RuleActionStepEnv) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionStepEnv) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
 
 	if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
 		return
@@ -41,7 +45,8 @@ func (r RuleActionStepEnv) Lint(a *action.Action, d *dotgithub.DotGithub) (compl
 			for envName := range step.Env {
 				m := reName.MatchString(envName)
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d env '%s' must be alphanumeric uppercase and underscore only", a.DirName, i, envName))
+					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d env '%s' must be alphanumeric uppercase and underscore only", a.DirName, i, envName), chWarnings, chErrors)
+					compliant = false
 				}
 			}
 		}

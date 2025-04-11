@@ -14,9 +14,7 @@ var defaultConfig []byte
 type Config struct {
 	Version        string                 `yaml:"version"`
 	RulesConfig    map[string]interface{} `yaml:"rules"`
-	ActionRules    []rule.ActionRule      `yaml:"-"`
-	WorkflowRules  []rule.WorkflowRule    `yaml:"-"`
-	DotGithubRules []rule.DotGithubRule   `yaml:"-"`
+	Rules    []rule.Rule      `yaml:"-"`
 	Errors         map[string]string      `yaml:"errors"`
 	LogLevel       int                    `yaml:"-"`
 }
@@ -45,24 +43,8 @@ func (cfg *Config) ReadDefaultFile() error {
 }
 
 func (cfg *Config) Validate() error {
-	if len(cfg.ActionRules) > 0 {
-		for _, r := range cfg.ActionRules {
-			err := r.Validate()
-			if err != nil {
-				return err
-			}
-		}
-	}
-	if len(cfg.WorkflowRules) > 0 {
-		for _, r := range cfg.WorkflowRules {
-			err := r.Validate()
-			if err != nil {
-				return err
-			}
-		}
-	}
-	if len(cfg.DotGithubRules) > 0 {
-		for _, r := range cfg.DotGithubRules {
+	if len(cfg.Rules) > 0 {
+		for _, r := range cfg.Rules {
 			err := r.Validate()
 			if err != nil {
 				return err

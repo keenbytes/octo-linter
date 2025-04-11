@@ -9,6 +9,10 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
 )
 
+const (
+	DotGithubFileTypeWorkflow = 2
+)
+
 type Workflow struct {
 	Path        string
 	Raw         []byte
@@ -21,7 +25,8 @@ type Workflow struct {
 	On          *WorkflowOn             `yaml:"on"`
 }
 
-func (w *Workflow) Unmarshal(logLevel int) error {
+func (w *Workflow) Unmarshal(logLevel int, fromRaw bool) error {
+	// TODO: fromRaw is not implemented
 	pathSplit := strings.Split(w.Path, "/")
 	w.FileName = pathSplit[len(pathSplit)-1]
 	workflowName := strings.Replace(w.FileName, ".yaml", "", -1)
@@ -46,4 +51,8 @@ func (w *Workflow) Unmarshal(logLevel int) error {
 		}
 	}
 	return nil
+}
+
+func (w *Workflow) GetType() int {
+	return DotGithubFileTypeWorkflow
 }

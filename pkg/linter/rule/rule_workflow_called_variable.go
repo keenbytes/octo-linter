@@ -24,8 +24,12 @@ func (r RuleWorkflowCalledVariable) Validate() error {
 	return nil
 }
 
-func (r RuleWorkflowCalledVariable) Lint(w *workflow.Workflow, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleWorkflowCalledVariable) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeWorkflow {
+		return
+	}
+	w := f.(*workflow.Workflow)
 
 	if r.Value == "uppercase-underscores" {
 		reName := regexp.MustCompile(`^[A-Z][A-Z0-9_]+$`)
@@ -37,7 +41,7 @@ func (r RuleWorkflowCalledVariable) Lint(w *workflow.Workflow, d *dotgithub.DotG
 			for _, f := range found {
 				m := reName.MatchString(string(f[1]))
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", w.FileName, string(f[1])))
+					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", w.FileName, string(f[1])), chWarnings, chErrors)
 					compliant = false
 				}
 			}

@@ -25,14 +25,19 @@ func (r RuleWorkflowRequired) Validate() error {
 	return nil
 }
 
-func (r RuleWorkflowRequired) Lint(w *workflow.Workflow, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleWorkflowRequired) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	if len(r.Value) == 0 {
 		return true, nil
 	}
 
+	if f.GetType() != DotGithubFileTypeWorkflow {
+		return
+	}
+	w := f.(*workflow.Workflow)
+
 	for i, v := range r.Value {
 		if v == "name" && w.Name == "" {
-			printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("workflow '%s' does not have a required %s", w.DisplayName, v))
+			printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("workflow '%s' does not have a required %s", w.DisplayName, v), chWarnings, chErrors)
 		}
 	}
 

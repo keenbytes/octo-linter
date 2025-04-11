@@ -27,7 +27,12 @@ func (r RuleWorkflowFileExtensions) Validate() error {
 	return nil
 }
 
-func (r RuleWorkflowFileExtensions) Lint(w *workflow.Workflow, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleWorkflowFileExtensions) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+	if f.GetType() != DotGithubFileTypeWorkflow {
+		return
+	}
+	w := f.(*workflow.Workflow)
+
 	fileParts := strings.Split(w.FileName, ".")
 	extension := fileParts[len(fileParts)-1]
 	for _, v := range r.Value {
@@ -37,6 +42,7 @@ func (r RuleWorkflowFileExtensions) Lint(w *workflow.Workflow, d *dotgithub.DotG
 	}
 	printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel,
 		fmt.Sprintf("workflow '%s' file extension must be one of: %s", w.DisplayName, strings.Join(r.Value, ",")),
+		chWarnings, chErrors,
 	)
 	return false, nil
 }

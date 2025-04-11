@@ -26,19 +26,27 @@ func (r RuleActionFileExtensions) Validate() error {
 	return nil
 }
 
-func (r RuleActionFileExtensions) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionFileExtensions) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
+
 	pathParts := strings.Split(a.Path, "/")
 	fileParts := strings.Split(pathParts[len(pathParts)-1], ".")
 	extension := fileParts[len(fileParts)-1]
 	for _, v := range r.Value {
 		if extension == v {
-			return true, nil
+			return
 		}
 	}
+	compliant = false
 	printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel,
 		fmt.Sprintf("action '%s' file extension must be one of: %s", a.DirName, strings.Join(r.Value, ",")),
+		chWarnings, chErrors,
 	)
-	return false, nil
+	return
 }
 
 func (r RuleActionFileExtensions) GetConfigName() string {

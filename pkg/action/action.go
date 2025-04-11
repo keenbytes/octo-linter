@@ -8,6 +8,10 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
 )
 
+const (
+	DotGithubFileTypeAction = 1
+)
+
 type Action struct {
 	Path        string
 	Raw         []byte
@@ -38,4 +42,8 @@ func (a *Action) Unmarshal(logLevel int, fromRaw bool) error {
 		a.Runs.SetParentType("action")
 	}
 	return nil
+}
+
+func (a *Action) GetType() int {
+	return DotGithubFileTypeAction
 }

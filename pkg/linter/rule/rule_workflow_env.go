@@ -24,8 +24,12 @@ func (r RuleWorkflowEnv) Validate() error {
 	return nil
 }
 
-func (r RuleWorkflowEnv) Lint(w *workflow.Workflow, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleWorkflowEnv) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeWorkflow {
+		return
+	}
+	w := f.(*workflow.Workflow)
 
 	if w.Env == nil || len(w.Env) == 0 {
 		return
@@ -37,7 +41,7 @@ func (r RuleWorkflowEnv) Lint(w *workflow.Workflow, d *dotgithub.DotGithub) (com
 		for envName := range w.Env {
 			m := reName.MatchString(envName)
 			if !m {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' env '%s' must be alphanumeric uppercase and underscore only", w.DisplayName, envName))
+				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' env '%s' must be alphanumeric uppercase and underscore only", w.DisplayName, envName), chWarnings, chErrors)
 			}
 		}
 	}

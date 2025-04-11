@@ -20,8 +20,13 @@ func (r RuleActionStepActionInputValid) Validate() error {
 	return nil
 }
 
-func (r RuleActionStepActionInputValid) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
+
 	if !r.Value || a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
 		return
 	}
@@ -52,7 +57,8 @@ func (r RuleActionStepActionInputValid) Lint(a *action.Action, d *dotgithub.DotG
 			for daInputName, daInput := range action.Inputs {
 				if daInput.Required {
 					if step.With == nil || step.With[daInputName] == "" {
-						printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d called action requires input '%s'", a.DirName, i+1, daInputName))
+						printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d called action requires input '%s'", a.DirName, i+1, daInputName), chWarnings, chErrors)
+						compliant = false
 					}
 				}
 			}
@@ -60,7 +66,8 @@ func (r RuleActionStepActionInputValid) Lint(a *action.Action, d *dotgithub.DotG
 		if step.With != nil {
 			for usedInput := range step.With {
 				if action.Inputs == nil || action.Inputs[usedInput] == nil {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d called action non-existing input '%s'", a.DirName, i+1, usedInput))
+					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d called action non-existing input '%s'", a.DirName, i+1, usedInput), chWarnings, chErrors)
+					compliant = false
 				}
 			}
 		}

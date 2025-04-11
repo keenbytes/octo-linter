@@ -24,8 +24,12 @@ func (r RuleActionCalledVariable) Validate() error {
 	return nil
 }
 
-func (r RuleActionCalledVariable) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionCalledVariable) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
 
 	if r.Value == "uppercase-underscores" {
 		reName := regexp.MustCompile(`^[A-Z][A-Z0-9_]+$`)
@@ -37,7 +41,7 @@ func (r RuleActionCalledVariable) Lint(a *action.Action, d *dotgithub.DotGithub)
 			for _, f := range found {
 				m := reName.MatchString(string(f[1]))
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", a.DirName, string(f[1])))
+					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", a.DirName, string(f[1])), chWarnings, chErrors)
 					compliant = false
 				}
 			}

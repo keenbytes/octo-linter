@@ -20,8 +20,12 @@ func (r RuleActionCalledStepOutputExists) Validate() error {
 	return nil
 }
 
-func (r RuleActionCalledStepOutputExists) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionCalledStepOutputExists) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
 
 	if r.Value {
 		re := regexp.MustCompile(`\${{[ ]*steps\.([a-zA-Z0-9\-_]+)\.outputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
@@ -35,13 +39,13 @@ func (r RuleActionCalledStepOutputExists) Lint(a *action.Action, d *dotgithub.Do
 			outputName := string(f[2])
 
 			if a.Runs == nil {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step output '%s' but 'runs' does not exist", a.DirName, stepName))
+				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step output '%s' but 'runs' does not exist", a.DirName, stepName), chWarnings, chErrors)
 				compliant = false
 				continue
 			}
 			step := a.Runs.GetStep(string(f[1]))
 			if step == nil {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step '%s' output '%s' but step does not exist", a.DirName, stepName, outputName))
+				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step '%s' output '%s' but step does not exist", a.DirName, stepName, outputName), chWarnings, chErrors)
 				compliant = false
 				continue
 			}
@@ -57,7 +61,7 @@ func (r RuleActionCalledStepOutputExists) Lint(a *action.Action, d *dotgithub.Do
 					}
 				}
 				if !foundOutput {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step '%s' output '%s' that does not exist", a.DirName, stepName, outputName))
+					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step '%s' output '%s' that does not exist", a.DirName, stepName, outputName), chWarnings, chErrors)
 					compliant = false
 					continue
 				}
@@ -78,7 +82,7 @@ func (r RuleActionCalledStepOutputExists) Lint(a *action.Action, d *dotgithub.Do
 				action = d.GetExternalAction(step.Uses)
 			}
 			if action == nil {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step '%s' output '%s' on action that does not exist", a.DirName, stepName, outputName))
+				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a step '%s' output '%s' on action that does not exist", a.DirName, stepName, outputName), chWarnings, chErrors)
 				compliant = false
 				continue
 			}
@@ -89,7 +93,7 @@ func (r RuleActionCalledStepOutputExists) Lint(a *action.Action, d *dotgithub.Do
 				}
 			}
 			if !foundOutput {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls step '%s' output '%s' on action and that output does not exist", a.DirName, stepName, outputName))
+				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls step '%s' output '%s' on action and that output does not exist", a.DirName, stepName, outputName), chWarnings, chErrors)
 				compliant = false
 				continue
 			}

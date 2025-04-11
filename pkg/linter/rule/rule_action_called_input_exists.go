@@ -19,15 +19,19 @@ func (r RuleActionCalledInputExists) Validate() error {
 	return nil
 }
 
-func (r RuleActionCalledInputExists) Lint(a *action.Action, d *dotgithub.DotGithub) (compliant bool, err error) {
+func (r RuleActionCalledInputExists) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
+	if f.GetType() != DotGithubFileTypeAction {
+		return
+	}
+	a := f.(*action.Action)
 
 	if r.Value {
 		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
 			if a.Inputs == nil || a.Inputs[string(f[1])] == nil {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls an input '%s' that does not exist", a.DirName, string(f[1])))
+				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls an input '%s' that does not exist", a.DirName, string(f[1])), chWarnings, chErrors)
 				compliant = false
 			}
 		}
