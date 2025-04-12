@@ -59,3 +59,4 @@ errors:
   workflow_called_variable_not_one_word:
   workflow_called_variable_not_in_double_quote:
   workflow_called_input_exists:
+  workflow_called_variable_exists_in_file:
