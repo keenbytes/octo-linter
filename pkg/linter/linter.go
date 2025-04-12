@@ -1,12 +1,10 @@
 package linter
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"runtime"
 	"sync"
-	"time"
 
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
@@ -93,9 +91,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 			for {
 				select {
 				case job := <- chJobs:
-					ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10 * time.Second))
-					compliant, err := job.Run(ctx, chWarnings, chErrors)
-					cancel()
+					compliant, err := job.Run(chWarnings, chErrors)
 					if err != nil {
 						if l.LogLevel != loglevel.LogLevelNone {
 							fmt.Fprintf(os.Stderr, "!!!: %s\n", err.Error())

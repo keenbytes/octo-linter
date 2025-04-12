@@ -1,8 +1,8 @@
 package linter
 
 import (
-	"context"
 	"fmt"
+	"time"
 
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 	"gopkg.pl/mikogs/octo-linter/pkg/linter/rule"
@@ -15,10 +15,11 @@ type Job struct {
 	isError bool
 }
 
-func (j *Job) Run(ctx context.Context, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+func (j *Job) Run(chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
 
 	done := make(chan struct{})
+	timer := time.NewTimer(time.Duration(10*time.Second))
 
 	go func() {
 		compliant, err = j.rule.Lint(j.file, j.dotGithub, chWarnings, chErrors)
@@ -26,7 +27,7 @@ func (j *Job) Run(ctx context.Context, chWarnings chan<- string, chErrors chan<-
 	}()
 
 	select {
-	case <-ctx.Done():
+	case <-timer.C:
 		return false, fmt.Errorf("rule %s timed out", j.rule.GetConfigName())
 	case <-done:
 		return compliant, err
