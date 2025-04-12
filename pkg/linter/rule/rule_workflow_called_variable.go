@@ -34,7 +34,7 @@ func (r RuleWorkflowCalledVariable) Lint(f dotgithub.File, d *dotgithub.DotGithu
 	if r.Value == "uppercase-underscores" {
 		reName := regexp.MustCompile(`^[A-Z][A-Z0-9_]+$`)
 
-		varTypes := []string{"env", "var", "secret"}
+		varTypes := []string{"env", "vars", "secrets"}
 		for _, v := range varTypes {
 			re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
 			found := re.FindAllSubmatch(w.Raw, -1)

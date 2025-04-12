@@ -3,7 +3,9 @@ package linter
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"runtime"
+	"strings"
 	"sync"
 
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
@@ -48,10 +50,35 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	go func() {
 		for _, action := range d.Actions {
 			for _, rule := range l.Config.Rules {
+				v := reflect.ValueOf(rule)
+				i := reflect.Indirect(v)
+				s := i.Type()
+				if !strings.HasPrefix(s.Name(), "RuleAction") {
+					continue
+				}
 				_, isError := l.Config.Errors[rule.GetConfigName()]
 				chJobs <- Job{
 					rule: rule,
 					file: action,
+					dotGithub: d,
+					isError: isError,
+				}
+				summary.numJob.Add(1)
+			}
+		}
+
+		for _, workflow := range d.Workflows {
+			for _, rule := range l.Config.Rules {
+				v := reflect.ValueOf(rule)
+				i := reflect.Indirect(v)
+				s := i.Type()
+				if !strings.HasPrefix(s.Name(), "RuleWorkflow") {
+					continue
+				}
+				_, isError := l.Config.Errors[rule.GetConfigName()]
+				chJobs <- Job{
+					rule: rule,
+					file: workflow,
 					dotGithub: d,
 					isError: isError,
 				}

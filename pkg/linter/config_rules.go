@@ -138,6 +138,15 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 					IsError:    isError,
 				})
 			}
+		case "workflow_called_variable_exists_in_file":
+			if ruleValue.(bool) {
+				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCalledVariableExistsInFile{
+					Value:      true,
+					ConfigName: "workflow_called_variable_exists_in_file",
+					LogLevel:   cfg.LogLevel,
+					IsError:    isError,
+				})
+			}
 		case "workflow_called_input_exists":
 			if ruleValue.(bool) {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCalledInputExists{

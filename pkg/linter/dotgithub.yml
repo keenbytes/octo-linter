@@ -28,6 +28,7 @@ rules:
   workflow_called_variable: uppercase-underscores
   workflow_called_variable_not_one_word: true
   workflow_called_variable_not_in_double_quote: true
+  workflow_called_variable_exists_in_file: true
   workflow_called_input_exists: true
 errors:
   action_file_extensions:
