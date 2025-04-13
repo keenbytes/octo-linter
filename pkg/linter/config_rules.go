@@ -192,6 +192,13 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 					IsError:    isError,
 				})
 			}
+		case "workflow_job_env":
+			cfg.Rules = append(cfg.Rules, rule.RuleWorkflowJobEnv{
+				Value:      ruleValue.(string),
+				ConfigName: "workflow_job_env",
+				LogLevel:   cfg.LogLevel,
+				IsError:    isError,
+			})
 		case "action_required__name", "action_required__description":
 		case "action_input_required__description", "action_input_value__name":
 		case "action_output_required__description", "action_output_value__name":
