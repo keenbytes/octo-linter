@@ -30,6 +30,7 @@ rules:
   workflow_called_variable_not_in_double_quote: true
   workflow_called_variable_exists_in_file: true
   workflow_called_input_exists: true
+  workflow_single_job_main: true
 errors:
   action_file_extensions:
   action_directory_name:
@@ -60,3 +61,4 @@ errors:
   workflow_called_variable_not_in_double_quote:
   workflow_called_input_exists:
   workflow_called_variable_exists_in_file:
+  workflow_single_job_main:
