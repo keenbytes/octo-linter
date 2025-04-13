@@ -34,6 +34,7 @@ rules:
   workflow_job_needs_exist: true
   workflow_required_uses_or_runs_on: true
   workflow_runs_on_not_latest: true
+  workflow_job_value__name: lowercase-hyphens
 errors:
   action_file_extensions:
   action_directory_name:
@@ -67,3 +68,4 @@ errors:
   workflow_single_job_main:
   workflow_job_needs_exist:
   workflow_required_uses_or_runs_on:
+  workflow_job_value__name:

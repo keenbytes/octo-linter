@@ -199,6 +199,7 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 		case "workflow_required__name":
 		case "workflow_dispatch_input_required__description", "workflow_dispatch_input_value__name":
 		case "workflow_call_input_required__description", "workflow_call_input_value__name":
+		case "workflow_job_value__name":
 		default:
 			return fmt.Errorf("invalid rule %s", ruleName)
 		}
@@ -215,6 +216,7 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 	cfg.addWorkflowCallInputValue()
 	cfg.addWorkflowDispatchInputRequired()
 	cfg.addWorkflowCallInputRequired()
+	cfg.addWorkflowJobValue()
 
 	err = cfg.Validate()
 	if err != nil {
@@ -350,6 +352,18 @@ func (cfg *Config) addWorkflowDispatchInputValue() {
 		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowDispatchInputValue{
 			Value:      ruleValue,
 			ConfigName: "workflow_dispatch_input_value",
+			LogLevel:   cfg.LogLevel,
+			IsError:    ruleIsError,
+		})
+	}
+}
+
+func (cfg *Config) addWorkflowJobValue() {
+	ruleValue, ruleIsError := cfg.mergeMultipleRulesWithMapValueIntoOne("workflow_job_value", []string{"name"})
+	if len(ruleValue) > 0 {
+		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowJobValue{
+			Value:      ruleValue,
+			ConfigName: "workflow_job_value",
 			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
