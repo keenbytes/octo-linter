@@ -2,7 +2,6 @@ version: '1'
 rules:
   action_file_extensions: ['yml']
   action_directory_name: lowercase-hyphens
-  workflow_file_extensions: ['yml']
   action_required__name: true
   action_required__description: true
   action_input_required__description: true
@@ -19,6 +18,7 @@ rules:
   action_step_action_exists__external: true
   action_step_action_input_valid: true
   action_step_env: uppercase-underscores
+  workflow_file_extensions: ['yml']
   workflow_env: uppercase-underscores
   workflow_required__name: true
   workflow_dispatch_input_required__description: true
@@ -31,10 +31,12 @@ rules:
   workflow_called_variable_exists_in_file: true
   workflow_called_input_exists: true
   workflow_single_job_main: true
+  workflow_job_needs_exist: true
+  workflow_required_uses_or_runs_on: true
+  workflow_runs_on_not_latest: true
 errors:
   action_file_extensions:
   action_directory_name:
-  workflow_file_extensions:
   action_required__name:
   action_required__description:
   action_input_required__description:
@@ -50,6 +52,7 @@ errors:
   action_step_action_exists__external:
   action_step_action_input_valid:
   action_step_env:
+  workflow_file_extensions:
   workflow_env:
   workflow_required__name:
   workflow_dispatch_input_required__description:
@@ -62,3 +65,5 @@ errors:
   workflow_called_input_exists:
   workflow_called_variable_exists_in_file:
   workflow_single_job_main:
+  workflow_job_needs_exist:
+  workflow_required_uses_or_runs_on:

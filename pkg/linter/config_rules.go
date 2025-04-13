@@ -165,6 +165,33 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 					IsError:    isError,
 				})
 			}
+		case "workflow_job_needs_exist":
+			if ruleValue.(bool) {
+				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowJobNeedsExist{
+					Value:      true,
+					ConfigName: "workflow_job_needs_exist",
+					LogLevel:   cfg.LogLevel,
+					IsError:    isError,
+				})
+			}
+		case "workflow_required_uses_or_runs_on":
+			if ruleValue.(bool) {
+				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowRequiredUsesOrRunsOn{
+					Value:      true,
+					ConfigName: "workflow_required_uses_or_runs_on",
+					LogLevel:   cfg.LogLevel,
+					IsError:    isError,
+				})
+			}
+		case "workflow_runs_on_not_latest":
+			if ruleValue.(bool) {
+				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowRunsOnNotLatest{
+					Value:      true,
+					ConfigName: "workflow_runs_on_not_latest",
+					LogLevel:   cfg.LogLevel,
+					IsError:    isError,
+				})
+			}
 		case "action_required__name", "action_required__description":
 		case "action_input_required__description", "action_input_value__name":
 		case "action_output_required__description", "action_output_value__name":

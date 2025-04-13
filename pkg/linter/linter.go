@@ -154,9 +154,9 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	}
 
 	if l.LogLevel == loglevel.LogLevelDebug {
-		fmt.Fprintf(os.Stderr, "dbg: number of errors: %d\n", summary.numError.Load())
-		fmt.Fprintf(os.Stderr, "dbg: number of warnings: %d\n", summary.numWarning.Load())
-		fmt.Fprintf(os.Stderr, "dbg: number of processed: %d\n", summary.numProcessed.Load())
+		fmt.Fprintf(os.Stderr, "dbg: number of rules returning errors: %d\n", summary.numError.Load())
+		fmt.Fprintf(os.Stderr, "dbg: number of rules returning warnings: %d\n", summary.numWarning.Load())
+		fmt.Fprintf(os.Stderr, "dbg: number of rules processed in total: %d\n", summary.numProcessed.Load())
 	}
 
 	return uint8(finalStatus), nil
