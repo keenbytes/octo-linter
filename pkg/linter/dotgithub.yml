@@ -36,6 +36,11 @@ rules:
   workflow_runs_on_not_latest: true
   workflow_job_value__name: lowercase-hyphens
   workflow_job_env: uppercase-underscores
+  workflow_job_step_action: local-or-external
+  workflow_job_step_action_exists__local: true
+  workflow_job_step_action_exists__external: true
+  workflow_job_step_action_input_valid: true
+  workflow_job_step_env: uppercase-underscores
 errors:
   action_file_extensions:
   action_required__name:
@@ -60,3 +65,7 @@ errors:
   workflow_single_job_main:
   workflow_job_needs_exist:
   workflow_required_uses_or_runs_on:
+  workflow_job_step_action:
+  workflow_job_step_action_exists__local:
+  workflow_job_step_action_exists__external:
+  workflow_job_step_action_input_valid:

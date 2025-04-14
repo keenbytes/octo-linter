@@ -60,6 +60,27 @@ func (d *DotGithub) ReadDir(p string) error {
 		if err != nil {
 			return err
 		}
+		for _, w := range d.Workflows {
+			err := w.Unmarshal(d.LogLevel, false)
+			if err != nil {
+				return err
+			}
+			if w.Jobs != nil && len(w.Jobs) > 0 {
+				for _, job := range w.Jobs {
+					if job.Steps == nil || len(job.Steps) == 0 {
+						continue
+					}
+					for i, step := range job.Steps {
+						if reExternal.MatchString(step.Uses) {
+							err := d.DownloadExternalAction(step.Uses)
+							if err != nil && d.LogLevel != loglevel.LogLevelNone {
+								fmt.Fprintf(os.Stderr, "!!!:workflow '%s' step %d: error downloading external action '%s': %s\n", w.FileName, i, step.Uses, err.Error())
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	return nil

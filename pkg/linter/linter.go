@@ -3,7 +3,6 @@ package linter
 import (
 	"fmt"
 	"os"
-	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -50,10 +49,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	go func() {
 		for _, action := range d.Actions {
 			for _, rule := range l.Config.Rules {
-				v := reflect.ValueOf(rule)
-				i := reflect.Indirect(v)
-				s := i.Type()
-				if !strings.HasPrefix(s.Name(), "RuleAction") {
+				if !strings.HasPrefix(rule.GetConfigName(), "action_") {
 					continue
 				}
 				_, isError := l.Config.Errors[rule.GetConfigName()]
@@ -69,10 +65,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 
 		for _, workflow := range d.Workflows {
 			for _, rule := range l.Config.Rules {
-				v := reflect.ValueOf(rule)
-				i := reflect.Indirect(v)
-				s := i.Type()
-				if !strings.HasPrefix(s.Name(), "RuleWorkflow") {
+				if !strings.HasPrefix(rule.GetConfigName(), "workflow_") {
 					continue
 				}
 				_, isError := l.Config.Errors[rule.GetConfigName()]
