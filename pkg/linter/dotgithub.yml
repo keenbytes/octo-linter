@@ -1,0 +1,71 @@
+version: '1'
+rules:
+  action_file_extensions: ['yml']
+  action_directory_name: lowercase-hyphens
+  action_required__name: true
+  action_required__description: true
+  action_input_required__description: true
+  action_input_value__name: lowercase-hyphens
+  action_output_required__description: true
+  action_output_value__name: lowercase-hyphens
+  action_called_variable: uppercase-underscores
+  action_called_variable_not_one_word: true
+  action_called_variable_not_in_double_quote: true
+  action_called_input_exists: true
+  action_called_step_output_exists: true
+  action_step_action: local-or-external
+  action_step_action_exists__local: true
+  action_step_action_exists__external: true
+  action_step_action_input_valid: true
+  action_step_env: uppercase-underscores
+  workflow_file_extensions: ['yml']
+  workflow_env: uppercase-underscores
+  workflow_required__name: true
+  workflow_dispatch_input_required__description: true
+  workflow_dispatch_input_value__name: lowercase-hyphens
+  workflow_call_input_required__description: true
+  workflow_call_input_value__name: lowercase-hyphens
+  workflow_called_variable: uppercase-underscores
+  workflow_called_variable_not_one_word: true
+  workflow_called_variable_not_in_double_quote: true
+  workflow_called_variable_exists_in_file: true
+  workflow_called_input_exists: true
+  workflow_single_job_main: true
+  workflow_job_needs_exist: true
+  workflow_required_uses_or_runs_on: true
+  workflow_runs_on_not_latest: true
+  workflow_job_value__name: lowercase-hyphens
+  workflow_job_env: uppercase-underscores
+  workflow_job_step_action: local-or-external
+  workflow_job_step_action_exists__local: true
+  workflow_job_step_action_exists__external: true
+  workflow_job_step_action_input_valid: true
+  workflow_job_step_env: uppercase-underscores
+errors:
+  action_file_extensions:
+  action_required__name:
+  action_required__description:
+  action_input_required__description:
+  action_output_required__description:
+  action_called_variables_not_one_word:
+  action_called_input_exists:
+  action_called_step_output_exists:
+  action_step_action_exists__local:
+  action_step_action_exists__external:
+  action_step_action_input_valid:
+  workflow_file_extensions:
+  workflow_required__name:
+  workflow_dispatch_input_required__description:
+  workflow_call_input_required__description:
+  workflow_call_input_value__name:
+  workflow_called_variable_not_one_word:
+  workflow_called_variable_not_in_double_quote:
+  workflow_called_input_exists:
+  workflow_called_variable_exists_in_file:
+  workflow_single_job_main:
+  workflow_job_needs_exist:
+  workflow_required_uses_or_runs_on:
+  workflow_job_step_action:
+  workflow_job_step_action_exists__local:
+  workflow_job_step_action_exists__external:
+  workflow_job_step_action_input_valid:
