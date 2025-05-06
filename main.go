@@ -9,7 +9,7 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 	"gopkg.pl/mikogs/octo-linter/pkg/linter"
 	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
-	"gopkg.pl/phings/broccli/v3"
+	"gopkg.pl/mikogs/broccli/v3"
 )
 
 func main() {
