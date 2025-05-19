@@ -52,28 +52,28 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 
 	err := dotGithub.ReadDir(c.Flag("path"))
 	if err != nil {
-		logger.Error(fmt.Sprintf("error initializing: %s", err.Error()))
+		slog.Error(fmt.Sprintf("error initializing: %s", err.Error()))
 		return 20
 	}
 
 	if varsFile != "" {
 		err = dotGithub.ReadVars(varsFile)
 		if err != nil {
-			logger.Error(fmt.Sprintf("error reading vars file: %s", err.Error()))
+			slog.Error(fmt.Sprintf("error reading vars file: %s", err.Error()))
 			return 41
 		}
 	}
 	if secretsFile != "" {
 		err = dotGithub.ReadSecrets(secretsFile)
 		if err != nil {
-			logger.Error(fmt.Sprintf("error reading secrets file: %s", err.Error()))
+			slog.Error(fmt.Sprintf("error reading secrets file: %s", err.Error()))
 			return 42
 		}
 	}
 
 	cfgFile, err := getConfigFilePath(c.Flag("config"), c.Flag("path"))
 	if err != nil {
-		logger.Error(fmt.Sprintf("error getting config file: %s", err.Error()))
+		slog.Error(fmt.Sprintf("error getting config file: %s", err.Error()))
 		return 21
 	}
 
@@ -81,13 +81,13 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 	if cfgFile != "" {
 		err := cfg.ReadFile(cfgFile)
 		if err != nil {
-			logger.Error(fmt.Sprintf("error reading config file: %s", err.Error()))
+			slog.Error(fmt.Sprintf("error reading config file: %s", err.Error()))
 			return 31
 		}
 	} else {
 		err := cfg.ReadDefaultFile()
 		if err != nil {
-			logger.Error(fmt.Sprintf("error reading default config file: %s", err.Error()))
+			slog.Error(fmt.Sprintf("error reading default config file: %s", err.Error()))
 			return 32
 		}
 	}
@@ -96,7 +96,7 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 
 	status, err := lint.Lint(&dotGithub)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error linting: %s", err.Error()))
+		slog.Error(fmt.Sprintf("error linting: %s", err.Error()))
 		return 22
 	}
 
