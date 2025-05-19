@@ -11,7 +11,6 @@ import (
 type RuleActionDirectoryName struct {
 	Value      string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -35,7 +34,7 @@ func (r RuleActionDirectoryName) Lint(f dotgithub.File, d *dotgithub.DotGithub, 
 		regex := regexp.MustCompile(`^[a-z0-9][a-z0-9\-]+$`)
 		m := regex.MatchString(a.DirName)
 		if !m {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action directory name '%s' must be lower-case and hyphens only", a.DirName), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("action directory name '%s' must be lower-case and hyphens only", a.DirName), chWarnings, chErrors)
 			return false, nil
 		}
 	}

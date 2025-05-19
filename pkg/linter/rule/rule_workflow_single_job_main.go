@@ -10,7 +10,6 @@ import (
 type RuleWorkflowSingleJobMain struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -33,7 +32,7 @@ func (r RuleWorkflowSingleJobMain) Lint(f dotgithub.File, d *dotgithub.DotGithub
 		// there's only one
 		for jobName := range w.Jobs {
 			if jobName != "main" {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' has only one job and it should be called 'main'", w.FileName), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' has only one job and it should be called 'main'", w.FileName), chWarnings, chErrors)
 				compliant = false
 			}
 		}

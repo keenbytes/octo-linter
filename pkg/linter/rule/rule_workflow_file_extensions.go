@@ -12,7 +12,6 @@ import (
 type RuleWorkflowFileExtensions struct {
 	Value      []string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -40,7 +39,7 @@ func (r RuleWorkflowFileExtensions) Lint(f dotgithub.File, d *dotgithub.DotGithu
 			return true, nil
 		}
 	}
-	printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel,
+	printErrOrWarn(r.ConfigName, r.IsError,
 		fmt.Sprintf("workflow '%s' file extension must be one of: %s", w.DisplayName, strings.Join(r.Value, ",")),
 		chWarnings, chErrors,
 	)

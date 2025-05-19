@@ -2,13 +2,12 @@ package linter
 
 import (
 	"fmt"
-	"os"
+	"log/slog"
 	"runtime"
 	"strings"
 	"sync"
 
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
 )
 
 const (
@@ -19,7 +18,6 @@ const (
 
 type Linter struct {
 	Config   *Config
-	LogLevel int
 }
 
 func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
@@ -93,13 +91,9 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 		for {
 			select {
 			case s := <-chWarnings:
-				if l.LogLevel == loglevel.LogLevelDebug || l.LogLevel == loglevel.LogLevelErrorsAndWarnings {
-					fmt.Fprintf(os.Stdout, "wrn: %s\n", s)
-				}
+				slog.Warn(s)
 			case s := <-chErrors:
-				if l.LogLevel != loglevel.LogLevelNone {
-					fmt.Fprintf(os.Stderr, "err: %s\n", s)
-				}
+				slog.Error(s)
 			case <-chDoneProcessing:
 				wg.Done()
 			}
@@ -113,9 +107,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 				case job := <-chJobs:
 					compliant, err := job.Run(chWarnings, chErrors)
 					if err != nil {
-						if l.LogLevel != loglevel.LogLevelNone {
-							fmt.Fprintf(os.Stderr, "!!!: %s\n", err.Error())
-						}
+						slog.Error(fmt.Sprintf("%s\n", err.Error()))
 						summary.numError.Add(1)
 						continue
 					}
@@ -146,11 +138,9 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 		}
 	}
 
-	if l.LogLevel == loglevel.LogLevelDebug {
-		fmt.Fprintf(os.Stderr, "dbg: number of rules returning errors: %d\n", summary.numError.Load())
-		fmt.Fprintf(os.Stderr, "dbg: number of rules returning warnings: %d\n", summary.numWarning.Load())
-		fmt.Fprintf(os.Stderr, "dbg: number of rules processed in total: %d\n", summary.numProcessed.Load())
-	}
+	slog.Debug(fmt.Sprintf("number of rules returning errors: %d", summary.numError.Load()))
+	slog.Debug(fmt.Sprintf("number of rules returning warnings: %d", summary.numWarning.Load()))
+	slog.Debug(fmt.Sprintf("number of rules processed in total: %d", summary.numProcessed.Load()))
 
 	return uint8(finalStatus), nil
 }

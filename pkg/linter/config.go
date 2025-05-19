@@ -16,7 +16,6 @@ type Config struct {
 	RulesConfig map[string]interface{} `yaml:"rules"`
 	Rules       []rule.Rule            `yaml:"-"`
 	Errors      map[string]string      `yaml:"errors"`
-	LogLevel    int                    `yaml:"-"`
 }
 
 func (cfg *Config) ReadFile(p string) error {

@@ -11,7 +11,6 @@ import (
 type RuleActionCalledVariable struct {
 	Value      string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -41,7 +40,7 @@ func (r RuleActionCalledVariable) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 			for _, f := range found {
 				m := reName.MatchString(string(f[1]))
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", a.DirName, string(f[1])), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("action '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", a.DirName, string(f[1])), chWarnings, chErrors)
 					compliant = false
 				}
 			}

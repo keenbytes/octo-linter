@@ -23,28 +23,24 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 			cfg.Rules = append(cfg.Rules, rule.RuleActionFileExtensions{
 				Value:      iArrToStrArr(ruleValue),
 				ConfigName: "action_file_extensions",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "action_directory_name":
 			cfg.Rules = append(cfg.Rules, rule.RuleActionDirectoryName{
 				Value:      ruleValue.(string),
 				ConfigName: "action_directory_name",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "workflow_file_extensions":
 			cfg.Rules = append(cfg.Rules, rule.RuleWorkflowFileExtensions{
 				Value:      iArrToStrArr(ruleValue),
 				ConfigName: "workflow_file_extensions",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "action_called_variable":
 			cfg.Rules = append(cfg.Rules, rule.RuleActionCalledVariable{
 				Value:      ruleValue.(string),
 				ConfigName: "action_called_variable",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "action_called_variable_not_one_word":
@@ -52,7 +48,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleActionCalledVariableNotOneWord{
 					Value:      true,
 					ConfigName: "action_called_variable_not_one_word",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -61,7 +56,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleActionCalledVariableNotInDoubleQuote{
 					Value:      true,
 					ConfigName: "action_called_variable_not_in_double_quote",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -70,7 +64,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleActionCalledInputExists{
 					Value:      true,
 					ConfigName: "action_called_input_exists",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -79,7 +72,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleActionCalledStepOutputExists{
 					Value:      true,
 					ConfigName: "action_called_step_output_exists",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -87,7 +79,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 			cfg.Rules = append(cfg.Rules, rule.RuleStepAction{
 				Value:      ruleValue.(string),
 				ConfigName: "action_step_action",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "action_step_action_input_valid":
@@ -95,7 +86,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleStepActionInputValid{
 					Value:      true,
 					ConfigName: "action_step_action_input_valid",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -103,21 +93,18 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 			cfg.Rules = append(cfg.Rules, rule.RuleStepEnv{
 				Value:      ruleValue.(string),
 				ConfigName: "action_step_env",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "workflow_env":
 			cfg.Rules = append(cfg.Rules, rule.RuleWorkflowEnv{
 				Value:      ruleValue.(string),
 				ConfigName: "workflow_env",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "workflow_called_variable":
 			cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCalledVariable{
 				Value:      ruleValue.(string),
 				ConfigName: "workflow_called_variable",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "workflow_called_variable_not_one_word":
@@ -125,7 +112,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCalledVariableNotOneWord{
 					Value:      true,
 					ConfigName: "workflow_called_variable_not_one_word",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -134,7 +120,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCalledVariableNotInDoubleQuote{
 					Value:      true,
 					ConfigName: "workflow_called_variable_not_in_double_quote",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -143,7 +128,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCalledVariableExistsInFile{
 					Value:      true,
 					ConfigName: "workflow_called_variable_exists_in_file",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -152,7 +136,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCalledInputExists{
 					Value:      true,
 					ConfigName: "workflow_called_input_exists",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -161,7 +144,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowSingleJobMain{
 					Value:      true,
 					ConfigName: "workflow_single_job_main",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -170,7 +152,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowJobNeedsExist{
 					Value:      true,
 					ConfigName: "workflow_job_needs_exist",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -179,7 +160,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowRequiredUsesOrRunsOn{
 					Value:      true,
 					ConfigName: "workflow_required_uses_or_runs_on",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -188,7 +168,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleWorkflowRunsOnNotLatest{
 					Value:      true,
 					ConfigName: "workflow_runs_on_not_latest",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -196,14 +175,12 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 			cfg.Rules = append(cfg.Rules, rule.RuleWorkflowJobEnv{
 				Value:      ruleValue.(string),
 				ConfigName: "workflow_job_env",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "workflow_job_step_action":
 			cfg.Rules = append(cfg.Rules, rule.RuleStepAction{
 				Value:      ruleValue.(string),
 				ConfigName: "workflow_job_step_action",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "workflow_job_step_action_input_valid":
@@ -211,7 +188,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 				cfg.Rules = append(cfg.Rules, rule.RuleStepActionInputValid{
 					Value:      true,
 					ConfigName: "workflow_job_step_action_input_valid",
-					LogLevel:   cfg.LogLevel,
 					IsError:    isError,
 				})
 			}
@@ -219,7 +195,6 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 			cfg.Rules = append(cfg.Rules, rule.RuleStepEnv{
 				Value:      ruleValue.(string),
 				ConfigName: "workflow_job_step_env",
-				LogLevel:   cfg.LogLevel,
 				IsError:    isError,
 			})
 		case "action_required__name", "action_required__description":
@@ -264,7 +239,6 @@ func (cfg *Config) addActionRequired() {
 		cfg.Rules = append(cfg.Rules, rule.RuleActionRequired{
 			Value:      ruleValue,
 			ConfigName: "action_required",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -276,7 +250,6 @@ func (cfg *Config) addActionInputRequired() {
 		cfg.Rules = append(cfg.Rules, rule.RuleActionInputRequired{
 			Value:      ruleValue,
 			ConfigName: "action_input_required",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -288,7 +261,6 @@ func (cfg *Config) addActionOutputRequired() {
 		cfg.Rules = append(cfg.Rules, rule.RuleActionOutputRequired{
 			Value:      ruleValue,
 			ConfigName: "action_output_required",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -300,7 +272,6 @@ func (cfg *Config) addActionInputValue() {
 		cfg.Rules = append(cfg.Rules, rule.RuleActionInputValue{
 			Value:      ruleValue,
 			ConfigName: "action_input_value",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -312,7 +283,6 @@ func (cfg *Config) addActionOutputValue() {
 		cfg.Rules = append(cfg.Rules, rule.RuleActionOutputValue{
 			Value:      ruleValue,
 			ConfigName: "action_output_value",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -324,7 +294,6 @@ func (cfg *Config) addActionStepActionExists() {
 		cfg.Rules = append(cfg.Rules, rule.RuleStepActionExists{
 			Value:      ruleValue,
 			ConfigName: "action_step_action_exists",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -336,7 +305,6 @@ func (cfg *Config) addWorkflowRequired() {
 		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowRequired{
 			Value:      ruleValue,
 			ConfigName: "workflow_required",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -348,7 +316,6 @@ func (cfg *Config) addWorkflowCallInputRequired() {
 		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCallInputRequired{
 			Value:      ruleValue,
 			ConfigName: "workflow_call_input_required",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -360,7 +327,6 @@ func (cfg *Config) addWorkflowDispatchInputRequired() {
 		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowDispatchInputRequired{
 			Value:      ruleValue,
 			ConfigName: "workflow_dispatch_input_required",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -372,7 +338,6 @@ func (cfg *Config) addWorkflowCallInputValue() {
 		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowCallInputValue{
 			Value:      ruleValue,
 			ConfigName: "workflow_call_input_value",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -384,7 +349,6 @@ func (cfg *Config) addWorkflowDispatchInputValue() {
 		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowDispatchInputValue{
 			Value:      ruleValue,
 			ConfigName: "workflow_dispatch_input_value",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -396,7 +360,6 @@ func (cfg *Config) addWorkflowJobValue() {
 		cfg.Rules = append(cfg.Rules, rule.RuleWorkflowJobValue{
 			Value:      ruleValue,
 			ConfigName: "workflow_job_value",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}
@@ -408,7 +371,6 @@ func (cfg *Config) addWorkflowJobStepActionExists() {
 		cfg.Rules = append(cfg.Rules, rule.RuleStepActionExists{
 			Value:      ruleValue,
 			ConfigName: "workflow_job_step_action_exists",
-			LogLevel:   cfg.LogLevel,
 			IsError:    ruleIsError,
 		})
 	}

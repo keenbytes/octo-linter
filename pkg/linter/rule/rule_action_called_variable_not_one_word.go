@@ -11,7 +11,6 @@ import (
 type RuleActionCalledVariableNotOneWord struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -31,7 +30,7 @@ func (r RuleActionCalledVariableNotOneWord) Lint(f dotgithub.File, d *dotgithub.
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a variable '%s' that is invalid", a.DirName, string(f[1])), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("action '%s' calls a variable '%s' that is invalid", a.DirName, string(f[1])), chWarnings, chErrors)
 				compliant = false
 			}
 		}

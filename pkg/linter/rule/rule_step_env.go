@@ -12,7 +12,6 @@ import (
 type RuleStepEnv struct {
 	Value      string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -50,7 +49,7 @@ func (r RuleStepEnv) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings c
 			for envName := range step.Env {
 				m := reName.MatchString(envName)
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' step %d env '%s' must be alphanumeric uppercase and underscore only", a.DirName, i, envName), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("action '%s' step %d env '%s' must be alphanumeric uppercase and underscore only", a.DirName, i, envName), chWarnings, chErrors)
 					compliant = false
 				}
 			}
@@ -68,7 +67,7 @@ func (r RuleStepEnv) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings c
 				for envName := range step.Env {
 					m := reName.MatchString(envName)
 					if !m {
-						printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' job '%s' step %d env '%s' must be alphanumeric uppercase and underscore only", w.FileName, jobName, i, envName), chWarnings, chErrors)
+						printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' job '%s' step %d env '%s' must be alphanumeric uppercase and underscore only", w.FileName, jobName, i, envName), chWarnings, chErrors)
 						compliant = false
 					}
 				}

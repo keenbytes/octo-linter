@@ -2,11 +2,11 @@ package workflow
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
 	"gopkg.in/yaml.v2"
-	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
 )
 
 const (
@@ -25,16 +25,15 @@ type Workflow struct {
 	On          *WorkflowOn             `yaml:"on"`
 }
 
-func (w *Workflow) Unmarshal(logLevel int, fromRaw bool) error {
+func (w *Workflow) Unmarshal(fromRaw bool) error {
 	// TODO: fromRaw is not implemented
 	pathSplit := strings.Split(w.Path, "/")
 	w.FileName = pathSplit[len(pathSplit)-1]
 	workflowName := strings.Replace(w.FileName, ".yaml", "", -1)
 	w.DisplayName = strings.Replace(workflowName, ".yml", "", -1)
 
-	if logLevel == loglevel.LogLevelDebug {
-		fmt.Fprintf(os.Stdout, "dbg:reading %s ...\n", w.Path)
-	}
+	slog.Debug(fmt.Sprintf("reading %s ...", w.Path))
+
 	b, err := os.ReadFile(w.Path)
 	if err != nil {
 		return fmt.Errorf("cannot read file %s: %w", w.Path, err)

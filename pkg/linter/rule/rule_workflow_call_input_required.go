@@ -10,7 +10,6 @@ import (
 type RuleWorkflowCallInputRequired struct {
 	Value      []string
 	ConfigName string
-	LogLevel   int
 	IsError    []bool
 }
 
@@ -43,7 +42,7 @@ func (r RuleWorkflowCallInputRequired) Lint(f dotgithub.File, d *dotgithub.DotGi
 		for i, v := range r.Value {
 			if v == "description" && input.Description == "" {
 				compliant = false
-				printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("workflow '%s' call input '%s' does not have a required %s", w.FileName, inputName, v), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError[i], fmt.Sprintf("workflow '%s' call input '%s' does not have a required %s", w.FileName, inputName, v), chWarnings, chErrors)
 			}
 		}
 	}

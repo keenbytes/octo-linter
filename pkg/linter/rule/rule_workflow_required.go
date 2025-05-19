@@ -10,7 +10,6 @@ import (
 type RuleWorkflowRequired struct {
 	Value      []string
 	ConfigName string
-	LogLevel   int
 	IsError    []bool
 }
 
@@ -37,7 +36,7 @@ func (r RuleWorkflowRequired) Lint(f dotgithub.File, d *dotgithub.DotGithub, chW
 
 	for i, v := range r.Value {
 		if v == "name" && w.Name == "" {
-			printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("workflow '%s' does not have a required %s", w.DisplayName, v), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError[i], fmt.Sprintf("workflow '%s' does not have a required %s", w.DisplayName, v), chWarnings, chErrors)
 		}
 	}
 

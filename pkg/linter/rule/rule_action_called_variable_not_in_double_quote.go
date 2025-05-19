@@ -11,7 +11,6 @@ import (
 type RuleActionCalledVariableNotInDoubleQuote struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -30,7 +29,7 @@ func (r RuleActionCalledVariableNotInDoubleQuote) Lint(f dotgithub.File, d *dotg
 		re := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\\-_.]+)[ ]*}}\"`)
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls a variable '%s' that is in double quotes", a.DirName, string(f[1])), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("action '%s' calls a variable '%s' that is in double quotes", a.DirName, string(f[1])), chWarnings, chErrors)
 			compliant = false
 		}
 	}

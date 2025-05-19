@@ -3,6 +3,7 @@ package dotgithub
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -10,7 +11,6 @@ import (
 	"strings"
 
 	"gopkg.pl/mikogs/octo-linter/pkg/action"
-	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
@@ -20,7 +20,6 @@ type DotGithub struct {
 	Workflows       map[string]*workflow.Workflow
 	Vars            map[string]bool
 	Secrets         map[string]bool
-	LogLevel        int
 }
 
 func (d *DotGithub) ReadDir(p string) error {
@@ -40,7 +39,7 @@ func (d *DotGithub) ReadDir(p string) error {
 	// download all external actions used in actions' steps
 	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
 	for _, a := range d.Actions {
-		err := a.Unmarshal(d.LogLevel, false)
+		err := a.Unmarshal(false)
 		if err != nil {
 			return err
 		}
@@ -48,20 +47,20 @@ func (d *DotGithub) ReadDir(p string) error {
 			for i, step := range a.Runs.Steps {
 				if reExternal.MatchString(step.Uses) {
 					err := d.DownloadExternalAction(step.Uses)
-					if err != nil && d.LogLevel != loglevel.LogLevelNone {
-						fmt.Fprintf(os.Stderr, "!!!:action '%s' step %d: error downloading external action '%s': %s\n", a.DirName, i, step.Uses, err.Error())
+					if err != nil {
+						slog.Error(fmt.Sprintf("action '%s' step %d: error downloading external action '%s': %s", a.DirName, i, step.Uses, err.Error()))
 					}
 				}
 			}
 		}
 	}
 	for _, w := range d.Workflows {
-		err := w.Unmarshal(d.LogLevel, false)
+		err := w.Unmarshal(false)
 		if err != nil {
 			return err
 		}
 		for _, w := range d.Workflows {
-			err := w.Unmarshal(d.LogLevel, false)
+			err := w.Unmarshal(false)
 			if err != nil {
 				return err
 			}
@@ -73,8 +72,8 @@ func (d *DotGithub) ReadDir(p string) error {
 					for i, step := range job.Steps {
 						if reExternal.MatchString(step.Uses) {
 							err := d.DownloadExternalAction(step.Uses)
-							if err != nil && d.LogLevel != loglevel.LogLevelNone {
-								fmt.Fprintf(os.Stderr, "!!!:workflow '%s' step %d: error downloading external action '%s': %s\n", w.FileName, i, step.Uses, err.Error())
+							if err != nil {
+								slog.Error(fmt.Sprintf("workflow '%s' step %d: error downloading external action '%s': %s", w.FileName, i, step.Uses, err.Error()))
 							}
 						}
 					}
@@ -93,9 +92,8 @@ func (d *DotGithub) ReadVars(path string) error {
 
 	d.Vars = make(map[string]bool)
 
-	if d.LogLevel == loglevel.LogLevelDebug {
-		fmt.Fprintf(os.Stdout, "dbg:reading file with list of possible variable names %s ...\n", path)
-	}
+	slog.Debug(fmt.Sprintf("reading file with list of possible variable names %s ...", path))
+
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("error reading vars file %s: %w", path, err)
@@ -115,7 +113,8 @@ func (d *DotGithub) ReadSecrets(path string) error {
 
 	d.Secrets = make(map[string]bool)
 
-	fmt.Fprintf(os.Stdout, "dbg:reading file with list of possible secret names %s ...\n", path)
+	slog.Debug(fmt.Sprintf("reading file with list of possible secret names %s ...", path))
+
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("error reading secrets file %s: %w", path, err)
@@ -155,9 +154,8 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 	}
 	actionURLPrefix := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s", ownerRepoDir[0], ownerRepoDir[1], repoVersion[1])
 
-	if d.LogLevel == loglevel.LogLevelDebug {
-		fmt.Fprintf(os.Stdout, "dbg:downloading %s ...\n", actionURLPrefix+directory+"/action.yml")
-	}
+	slog.Debug(fmt.Sprintf("downloading %s ...", actionURLPrefix+directory+"/action.yml"))
+
 	req, err := http.NewRequest("GET", actionURLPrefix+directory+"/action.yml", strings.NewReader(""))
 	if err != nil {
 		return err
@@ -169,9 +167,8 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 		return err
 	}
 	if resp.StatusCode != 200 {
-		if d.LogLevel == loglevel.LogLevelDebug {
-			fmt.Fprintf(os.Stdout, "dbg:downloading %s ...\n", actionURLPrefix+directory+"/action.yaml")
-		}
+		slog.Debug(fmt.Sprintf("downloading %s ...", actionURLPrefix+directory+"/action.yaml"))
+	
 		req, err = http.NewRequest("GET", actionURLPrefix+directory+"/action.yaml", strings.NewReader(""))
 		if err != nil {
 			return err
@@ -192,7 +189,7 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 		DirName: "",
 		Raw:     b,
 	}
-	err = d.ExternalActions[path].Unmarshal(d.LogLevel, true)
+	err = d.ExternalActions[path].Unmarshal(true)
 	if err != nil {
 		return err
 	}

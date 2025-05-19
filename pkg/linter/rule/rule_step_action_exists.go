@@ -14,7 +14,6 @@ import (
 type RuleStepActionExists struct {
 	Value      []string
 	ConfigName string
-	LogLevel   int
 	IsError    []bool
 }
 
@@ -89,14 +88,14 @@ func (r RuleStepActionExists) Lint(f dotgithub.File, d *dotgithub.DotGithub, chW
 				action := d.GetAction(actionName)
 				if action == nil {
 					compliant = false
-					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("%s step %d calls non-existing local action '%s'", errPrefix, i+1, actionName), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError[k], fmt.Sprintf("%s step %d calls non-existing local action '%s'", errPrefix, i+1, actionName), chWarnings, chErrors)
 				}
 			}
 			if v == "external" && isExternal {
 				action := d.GetExternalAction(st.Uses)
 				if action == nil {
 					compliant = false
-					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("%s step %d calls non-existing external action '%s'", errPrefix, i+1, st.Uses), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError[k], fmt.Sprintf("%s step %d calls non-existing external action '%s'", errPrefix, i+1, st.Uses), chWarnings, chErrors)
 				}
 			}
 		}

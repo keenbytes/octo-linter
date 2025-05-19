@@ -11,7 +11,6 @@ import (
 type RuleWorkflowCalledInputExists struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -43,7 +42,7 @@ func (r RuleWorkflowCalledInputExists) Lint(f dotgithub.File, d *dotgithub.DotGi
 			}
 		}
 		if notInInputs {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' calls an input '%s' that does not exist", w.FileName, string(f[1])), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' calls an input '%s' that does not exist", w.FileName, string(f[1])), chWarnings, chErrors)
 			compliant = false
 		}
 	}

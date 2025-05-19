@@ -11,7 +11,6 @@ import (
 type RuleActionCalledInputExists struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -31,7 +30,7 @@ func (r RuleActionCalledInputExists) Lint(f dotgithub.File, d *dotgithub.DotGith
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
 			if a.Inputs == nil || a.Inputs[string(f[1])] == nil {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("action '%s' calls an input '%s' that does not exist", a.DirName, string(f[1])), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("action '%s' calls an input '%s' that does not exist", a.DirName, string(f[1])), chWarnings, chErrors)
 				compliant = false
 			}
 		}
