@@ -11,7 +11,6 @@ import (
 type RuleActionOutputValue struct {
 	Value      map[string]string
 	ConfigName string
-	LogLevel   int
 	IsError    map[string]bool
 }
 
@@ -45,7 +44,7 @@ func (r RuleActionOutputValue) Lint(f dotgithub.File, d *dotgithub.DotGithub, ch
 				regex := regexp.MustCompile(`^[a-z0-9][a-z0-9\-]+$`)
 				m := regex.MatchString(outputName)
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("action '%s' output '%s' must be lower-case and hyphens only", a.DirName, outputName), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError[k], fmt.Sprintf("action '%s' output '%s' must be lower-case and hyphens only", a.DirName, outputName), chWarnings, chErrors)
 					return false, nil
 				}
 			}

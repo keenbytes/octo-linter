@@ -11,7 +11,6 @@ import (
 type RuleWorkflowCalledVariableNotOneWord struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -31,7 +30,7 @@ func (r RuleWorkflowCalledVariableNotOneWord) Lint(f dotgithub.File, d *dotgithu
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' calls a variable '%s' that is invalid", w.FileName, string(f[1])), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' calls a variable '%s' that is invalid", w.FileName, string(f[1])), chWarnings, chErrors)
 				compliant = false
 			}
 		}

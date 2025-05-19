@@ -13,7 +13,6 @@ import (
 type RuleStepAction struct {
 	Value      string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -81,15 +80,15 @@ func (r RuleStepAction) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarning
 		isExternal := reExternal.MatchString(st.Uses)
 
 		if r.Value == "local-only" && !isLocal {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("%s step %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("%s step %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses), chWarnings, chErrors)
 			compliant = false
 		}
 		if r.Value == "external-only" && !isExternal {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("%s step %d calls action '%s' that is not external", errPrefix, i+1, st.Uses), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("%s step %d calls action '%s' that is not external", errPrefix, i+1, st.Uses), chWarnings, chErrors)
 			compliant = false
 		}
 		if r.Value == "local-or-external" && !isLocal && !isExternal {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("%s step %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("%s step %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses), chWarnings, chErrors)
 			compliant = false
 		}
 	}

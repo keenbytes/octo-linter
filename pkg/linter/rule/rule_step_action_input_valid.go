@@ -14,7 +14,6 @@ import (
 type RuleStepActionInputValid struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -95,7 +94,7 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 			for daInputName, daInput := range action.Inputs {
 				if daInput.Required {
 					if st.With == nil || st.With[daInputName] == "" {
-						printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("%s step %d called action requires input '%s'", errPrefix, i+1, daInputName), chWarnings, chErrors)
+						printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("%s step %d called action requires input '%s'", errPrefix, i+1, daInputName), chWarnings, chErrors)
 						compliant = false
 					}
 				}
@@ -104,7 +103,7 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 		if st.With != nil {
 			for usedInput := range st.With {
 				if action.Inputs == nil || action.Inputs[usedInput] == nil {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("%s step %d called action non-existing input '%s'", errPrefix, i+1, usedInput), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("%s step %d called action non-existing input '%s'", errPrefix, i+1, usedInput), chWarnings, chErrors)
 					compliant = false
 				}
 			}

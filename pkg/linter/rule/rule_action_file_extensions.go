@@ -11,7 +11,6 @@ import (
 type RuleActionFileExtensions struct {
 	Value      []string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -42,7 +41,7 @@ func (r RuleActionFileExtensions) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 		}
 	}
 	compliant = false
-	printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel,
+	printErrOrWarn(r.ConfigName, r.IsError,
 		fmt.Sprintf("action '%s' file extension must be one of: %s", a.DirName, strings.Join(r.Value, ",")),
 		chWarnings, chErrors,
 	)

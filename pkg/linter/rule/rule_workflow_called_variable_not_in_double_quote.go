@@ -11,7 +11,6 @@ import (
 type RuleWorkflowCalledVariableNotInDoubleQuote struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -30,7 +29,7 @@ func (r RuleWorkflowCalledVariableNotInDoubleQuote) Lint(f dotgithub.File, d *do
 		re := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\\-_.]+)[ ]*}}\"`)
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' calls a variable '%s' that is in double quotes", w.FileName, string(f[1])), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' calls a variable '%s' that is in double quotes", w.FileName, string(f[1])), chWarnings, chErrors)
 			compliant = false
 		}
 	}

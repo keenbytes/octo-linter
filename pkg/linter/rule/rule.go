@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
 )
 
 const (
@@ -18,15 +17,12 @@ type Rule interface {
 	GetConfigName() string
 }
 
-func printErrOrWarn(configName string, isError bool, logLevel int, errStr string, chWarnings chan<- string, chErrors chan<- string) {
-	if logLevel == loglevel.LogLevelNone {
-		return
-	}
-	if isError && logLevel != loglevel.LogLevelNone {
+func printErrOrWarn(configName string, isError bool, errStr string, chWarnings chan<- string, chErrors chan<- string) {
+	if isError {
 		chErrors <- fmt.Sprintf("%s: %s", configName, errStr)
 		return
 	}
-	if !isError && logLevel != loglevel.LogLevelOnlyErrors {
+	if !isError {
 		chWarnings <- fmt.Sprintf("%s: %s", configName, errStr)
 		return
 	}

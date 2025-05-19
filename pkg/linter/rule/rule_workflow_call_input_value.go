@@ -11,7 +11,6 @@ import (
 type RuleWorkflowCallInputValue struct {
 	Value      map[string]string
 	ConfigName string
-	LogLevel   int
 	IsError    map[string]bool
 }
 
@@ -50,7 +49,7 @@ func (r RuleWorkflowCallInputValue) Lint(f dotgithub.File, d *dotgithub.DotGithu
 				m := re.MatchString(inputName)
 				if !m {
 					compliant = false
-					printErrOrWarn(r.ConfigName, r.IsError[k], r.LogLevel, fmt.Sprintf("workflow '%s' call input '%s' %s must be lower-case and hyphens only", w.FileName, inputName, v), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError[k], fmt.Sprintf("workflow '%s' call input '%s' %s must be lower-case and hyphens only", w.FileName, inputName, v), chWarnings, chErrors)
 				}
 			}
 		}

@@ -10,7 +10,6 @@ import (
 type RuleWorkflowJobNeedsExist struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -35,7 +34,7 @@ func (r RuleWorkflowJobNeedsExist) Lint(f dotgithub.File, d *dotgithub.DotGithub
 			if ok {
 				if w.Jobs[needsStr] == nil {
 					compliant = false
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' job '%s' has non-existing job '%s' in 'needs' field", w.FileName, jobName, needsStr), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' job '%s' has non-existing job '%s' in 'needs' field", w.FileName, jobName, needsStr), chWarnings, chErrors)
 				}
 			}
 
@@ -44,7 +43,7 @@ func (r RuleWorkflowJobNeedsExist) Lint(f dotgithub.File, d *dotgithub.DotGithub
 				for _, neededJob := range needsList {
 					if w.Jobs[neededJob.(string)] == nil {
 						compliant = false
-						printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' job '%s' has non-existing job '%s' in 'needs' field", w.FileName, jobName, neededJob.(string)), chWarnings, chErrors)
+						printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' job '%s' has non-existing job '%s' in 'needs' field", w.FileName, jobName, neededJob.(string)), chWarnings, chErrors)
 					}
 				}
 			}

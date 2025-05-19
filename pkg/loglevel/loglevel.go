@@ -1,23 +1,18 @@
 package loglevel
 
-const (
-	LogLevelNone = iota
-	LogLevelOnlyErrors
-	LogLevelErrorsAndWarnings
-	LogLevelDebug
+import (
+	"log/slog"
 )
 
-func GetLogLevelFromString(s string) int {
+func GetLogLevelFromString(s string) slog.Level {
 	switch s {
-	case "NONE":
-		return LogLevelNone
 	case "ERR":
-		return LogLevelOnlyErrors
+		return slog.LevelError
 	case "WARN":
-		return LogLevelErrorsAndWarnings
+		return slog.LevelWarn
 	case "DEBUG":
-		return LogLevelDebug
+		return slog.LevelDebug
 	default:
-		return LogLevelOnlyErrors
+		return slog.LevelInfo
 	}
 }

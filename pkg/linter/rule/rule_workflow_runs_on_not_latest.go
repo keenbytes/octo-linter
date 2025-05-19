@@ -11,7 +11,6 @@ import (
 type RuleWorkflowRunsOnNotLatest struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -39,7 +38,7 @@ func (r RuleWorkflowRunsOnNotLatest) Lint(f dotgithub.File, d *dotgithub.DotGith
 		if ok {
 			if strings.Contains(runsOnStr, "latest") {
 				compliant = false
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' job '%s' should not use 'latest' in 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' job '%s' should not use 'latest' in 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
 			}
 		}
 
@@ -49,7 +48,7 @@ func (r RuleWorkflowRunsOnNotLatest) Lint(f dotgithub.File, d *dotgithub.DotGith
 				runsOnStr, ok2 := runsOn.(string)
 				if ok2 && strings.Contains(runsOnStr, "latest") {
 					compliant = false
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' job '%s' should not use 'latest' in 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' job '%s' should not use 'latest' in 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
 				}
 			}
 		}

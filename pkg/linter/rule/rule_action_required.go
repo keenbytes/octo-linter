@@ -10,7 +10,6 @@ import (
 type RuleActionRequired struct {
 	Value      []string
 	ConfigName string
-	LogLevel   int
 	IsError    []bool
 }
 
@@ -37,7 +36,7 @@ func (r RuleActionRequired) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWar
 
 	for i, v := range r.Value {
 		if (v == "name" && a.Name == "") || (v == "description" && a.Description == "") {
-			printErrOrWarn(r.ConfigName, r.IsError[i], r.LogLevel, fmt.Sprintf("action '%s' does not have a required %s", a.DirName, v), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError[i], fmt.Sprintf("action '%s' does not have a required %s", a.DirName, v), chWarnings, chErrors)
 			compliant = false
 		}
 	}

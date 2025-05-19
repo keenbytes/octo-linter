@@ -10,7 +10,6 @@ import (
 type RuleWorkflowRequiredUsesOrRunsOn struct {
 	Value      bool
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -32,14 +31,14 @@ func (r RuleWorkflowRequiredUsesOrRunsOn) Lint(f dotgithub.File, d *dotgithub.Do
 	for jobName, job := range w.Jobs {
 		if job.RunsOn == nil && job.Uses == "" {
 			compliant = false
-			printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' job '%s' should have either 'uses' or 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
+			printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' job '%s' should have either 'uses' or 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
 		}
 
 		runsOnStr, ok := job.RunsOn.(string)
 		if ok {
 			if job.Uses == "" && runsOnStr == "" {
 				compliant = false
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' job '%s' should have either 'uses' or 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' job '%s' should have either 'uses' or 'runs-on' field", w.FileName, jobName), chWarnings, chErrors)
 			}
 		}
 	}

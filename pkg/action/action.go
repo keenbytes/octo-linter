@@ -2,10 +2,10 @@ package action
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	"gopkg.in/yaml.v2"
-	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
 )
 
 const (
@@ -23,11 +23,9 @@ type Action struct {
 	Runs        *ActionRuns              `yaml:"runs"`
 }
 
-func (a *Action) Unmarshal(logLevel int, fromRaw bool) error {
+func (a *Action) Unmarshal(fromRaw bool) error {
 	if !fromRaw {
-		if logLevel == loglevel.LogLevelDebug {
-			fmt.Fprintf(os.Stdout, "dbg:reading %s ...\n", a.Path)
-		}
+		slog.Debug(fmt.Sprintf("reading %s...", a.Path))
 		b, err := os.ReadFile(a.Path)
 		if err != nil {
 			return fmt.Errorf("cannot read file %s: %w", a.Path, err)

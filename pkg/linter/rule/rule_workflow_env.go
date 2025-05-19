@@ -11,7 +11,6 @@ import (
 type RuleWorkflowEnv struct {
 	Value      string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -41,7 +40,7 @@ func (r RuleWorkflowEnv) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnin
 		for envName := range w.Env {
 			m := reName.MatchString(envName)
 			if !m {
-				printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' env '%s' must be alphanumeric uppercase and underscore only", w.DisplayName, envName), chWarnings, chErrors)
+				printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' env '%s' must be alphanumeric uppercase and underscore only", w.DisplayName, envName), chWarnings, chErrors)
 			}
 		}
 	}

@@ -11,7 +11,6 @@ import (
 type RuleWorkflowCalledVariable struct {
 	Value      string
 	ConfigName string
-	LogLevel   int
 	IsError    bool
 }
 
@@ -41,7 +40,7 @@ func (r RuleWorkflowCalledVariable) Lint(f dotgithub.File, d *dotgithub.DotGithu
 			for _, f := range found {
 				m := reName.MatchString(string(f[1]))
 				if !m {
-					printErrOrWarn(r.ConfigName, r.IsError, r.LogLevel, fmt.Sprintf("workflow '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", w.FileName, string(f[1])), chWarnings, chErrors)
+					printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("workflow '%s' calls a variable '%s' that must be alphanumeric uppercase and underscore only", w.FileName, string(f[1])), chWarnings, chErrors)
 					compliant = false
 				}
 			}
