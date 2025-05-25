@@ -50,7 +50,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 				if !strings.HasPrefix(rule.GetConfigName(), "action_") {
 					continue
 				}
-				_, isError := l.Config.Errors[rule.GetConfigName()]
+				isError := l.Config.IsError(rule.GetConfigName())
 				chJobs <- Job{
 					rule:      rule,
 					file:      action,
@@ -66,7 +66,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 				if !strings.HasPrefix(rule.GetConfigName(), "workflow_") {
 					continue
 				}
-				_, isError := l.Config.Errors[rule.GetConfigName()]
+				isError := l.Config.IsError(rule.GetConfigName())
 				chJobs <- Job{
 					rule:      rule,
 					file:      workflow,

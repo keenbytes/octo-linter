@@ -1,4 +1,4 @@
-version: '1'
+version: '2'
 rules:
   action_file_extensions: ['yml']
   action_directory_name: lowercase-hyphens
@@ -41,31 +41,17 @@ rules:
   workflow_job_step_action_exists__external: true
   workflow_job_step_action_input_valid: true
   workflow_job_step_env: uppercase-underscores
-errors:
-  action_file_extensions:
-  action_required__name:
-  action_required__description:
-  action_input_required__description:
-  action_output_required__description:
-  action_called_variables_not_one_word:
-  action_called_input_exists:
-  action_called_step_output_exists:
-  action_step_action_exists__local:
-  action_step_action_exists__external:
-  action_step_action_input_valid:
-  workflow_file_extensions:
-  workflow_required__name:
-  workflow_dispatch_input_required__description:
-  workflow_call_input_required__description:
-  workflow_call_input_value__name:
-  workflow_called_variable_not_one_word:
-  workflow_called_variable_not_in_double_quote:
-  workflow_called_input_exists:
-  workflow_called_variable_exists_in_file:
-  workflow_single_job_main:
-  workflow_job_needs_exist:
-  workflow_required_uses_or_runs_on:
-  workflow_job_step_action:
-  workflow_job_step_action_exists__local:
-  workflow_job_step_action_exists__external:
-  workflow_job_step_action_input_valid:
+warning_only:
+  - action_directory_name
+  - action_input_value__name
+  - action_output_value__name
+  - action_called_variable_not_one_word
+  - action_called_variable_not_in_double_quote
+  - action_step_action
+  - action_step_env
+  - workflow_env
+  - workflow_called_variable
+  - workflow_called_input_exists
+  - workflow_runs_on_not_latest
+  - workflow_job_value__name
+  - workflow_job_step_env
