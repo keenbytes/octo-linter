@@ -7,6 +7,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowCallInputRequired checks whether specific workflow_call input attributes are defined (e.g. 'description').
+// Currently, only the 'description' attribute is supported.
 type RuleWorkflowCallInputRequired struct {
 	Value      []string
 	ConfigName string

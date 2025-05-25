@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowCalledVariableExistsInFile checks if called variables and secrets exist.
+// This rule requires a list of variables and secrets to be checked against.
 type RuleWorkflowCalledVariableExistsInFile struct {
 	Value      bool
 	ConfigName string

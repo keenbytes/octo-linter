@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowCallInputValue verifies whether the workflow_call input field follows the specified naming convention —
+// for example, ensuring the 'name' field uses 'lowercase-hyphens' (lowercase letters, digits, and hyphens only).
 type RuleWorkflowCallInputValue struct {
 	Value      map[string]string
 	ConfigName string

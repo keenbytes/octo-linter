@@ -7,6 +7,7 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionRequired checks whether the specified action fields are present, e.g. 'name'.
 type RuleActionRequired struct {
 	Value      []string
 	ConfigName string

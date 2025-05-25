@@ -7,6 +7,7 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowJobNeedsExist checks if 'needs' references existing jobs.
 type RuleWorkflowJobNeedsExist struct {
 	Value      bool
 	ConfigName string

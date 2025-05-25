@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowCalledVariableNotInDoubleQuote scans for all variable references enclosed in double quotes.
+// It is safer to use single quotes, as double quotes expand certain characters and may allow the execution of sub-commands.
 type RuleWorkflowCalledVariableNotInDoubleQuote struct {
 	Value      bool
 	ConfigName string

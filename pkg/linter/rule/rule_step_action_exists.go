@@ -11,6 +11,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleStepActionExists verifies that the action referenced in a step actually exists.
+// It can be configured to allow only local actions (within the same repository), external actions, or both.
 type RuleStepActionExists struct {
 	Value      []string
 	ConfigName string

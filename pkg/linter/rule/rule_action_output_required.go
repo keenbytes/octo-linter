@@ -7,6 +7,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionOutputRequired checks whether specific output attributes are defined (e.g. 'description').
+// Currently, only the 'description' attribute is supported.
 type RuleActionOutputRequired struct {
 	Value      []string
 	ConfigName string

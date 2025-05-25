@@ -7,6 +7,7 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowRequired checks whether the specified workflow fields are present, e.g. 'name'.
 type RuleWorkflowRequired struct {
 	Value      []string
 	ConfigName string

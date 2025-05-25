@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowEnv checks whether workflow environment variable names follow the specified naming convention.
+// Currently, only 'uppercase-underscores' is supported, meaning variable names may contain uppercase letters, numbers, and underscores only.
 type RuleWorkflowEnv struct {
 	Value      string
 	ConfigName string

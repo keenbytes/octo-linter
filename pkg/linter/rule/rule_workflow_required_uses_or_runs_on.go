@@ -7,6 +7,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowRequiredUsesOrRunsOn checks if workflow has 'runs-on' or 'uses' field. At least of them
+// must be defined.
 type RuleWorkflowRequiredUsesOrRunsOn struct {
 	Value      bool
 	ConfigName string

@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionDirectoryName checks whether the action directory name adheres to the selected naming convention.
+// Currently, only 'lowercase-hyphens' is supported, meaning the name must be entirely lowercase and use hyphens only.
 type RuleActionDirectoryName struct {
 	Value      string
 	ConfigName string

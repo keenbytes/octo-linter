@@ -9,6 +9,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionCalledStepOutputExists checks whether references to step outputs correspond to outputs defined in preceding steps.
+// During execution, referencing a non-existent step output results in an empty string.
 type RuleActionCalledStepOutputExists struct {
 	Value      bool
 	ConfigName string

@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowJobValue checks if workflow job fields follow specified naming convention, for example
+// if 'name' is 'lowercase-hyphens'.
 type RuleWorkflowJobValue struct {
 	Value      map[string]string
 	ConfigName string

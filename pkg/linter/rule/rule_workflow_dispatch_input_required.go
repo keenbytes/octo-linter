@@ -7,6 +7,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowDispatchInputRequired checks whether specific workflow_dispatch input attributes are defined (e.g. 'description').
+// Currently, only the 'description' attribute is supported.
 type RuleWorkflowDispatchInputRequired struct {
 	Value      []string
 	ConfigName string

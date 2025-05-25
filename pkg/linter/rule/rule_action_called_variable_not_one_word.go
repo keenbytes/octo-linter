@@ -8,6 +8,9 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionCalledVariableNotOneWord checks for variable references that are single-word or single-level,
+// e.g. '${{ something }}' instead of '${{ inputs.something }}'.
+// Only the values 'true' and 'false' are permitted in this form; all other variables are considered invalid.
 type RuleActionCalledVariableNotOneWord struct {
 	Value      bool
 	ConfigName string

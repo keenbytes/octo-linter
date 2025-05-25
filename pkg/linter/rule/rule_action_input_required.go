@@ -7,6 +7,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionInputRequired checks whether specific input attributes are defined (e.g. 'description').
+// Currently, only the 'description' attribute is supported.
 type RuleActionInputRequired struct {
 	Value      []string
 	ConfigName string

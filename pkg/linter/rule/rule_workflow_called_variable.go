@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleActionCalledVariable verifies that referenced variables such as 'env', 'var', and 'secret' follow the defined casing rule.
+// Currently, only 'uppercase-underscores' is supported, meaning variables must be fully uppercase and may include underscores.
 type RuleWorkflowCalledVariable struct {
 	Value      string
 	ConfigName string

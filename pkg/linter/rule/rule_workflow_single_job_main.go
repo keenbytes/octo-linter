@@ -7,6 +7,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowSingleJobMain checks if workflow's only job is called 'main' - just for naming
+// consistency.
 type RuleWorkflowSingleJobMain struct {
 	Value      bool
 	ConfigName string

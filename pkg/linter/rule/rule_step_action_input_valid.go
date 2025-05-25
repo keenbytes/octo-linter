@@ -11,6 +11,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleStepActionInputValid verifies that all required inputs are provided when referencing an action in a step,
+// and that no undefined inputs are used.
 type RuleStepActionInputValid struct {
 	Value      bool
 	ConfigName string

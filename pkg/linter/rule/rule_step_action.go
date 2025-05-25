@@ -10,6 +10,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleStepAction checks whether the referenced actions have valid paths.
+// This rule can be configured to allow local actions, external actions, or both.
 type RuleStepAction struct {
 	Value      string
 	ConfigName string

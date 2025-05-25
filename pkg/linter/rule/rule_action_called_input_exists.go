@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionCalledInputExists scans the action code for all input references and verifies that each has been previously defined.
+// During action execution, if a reference to an undefined input is found, it is replaced with an empty string.
 type RuleActionCalledInputExists struct {
 	Value      bool
 	ConfigName string

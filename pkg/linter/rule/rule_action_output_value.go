@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionOutputValue verifies whether the action output field follows the specified naming convention —
+// for example, ensuring the 'name' field uses 'lowercase-hyphens' (lowercase letters, digits, and hyphens only).
 type RuleActionOutputValue struct {
 	Value      map[string]string
 	ConfigName string

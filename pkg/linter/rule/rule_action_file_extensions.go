@@ -8,6 +8,7 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
 )
 
+// RuleActionFileExtensions checks if action file extension is one of the specific values, eg. 'yml' or 'yaml'.
 type RuleActionFileExtensions struct {
 	Value      []string
 	ConfigName string

@@ -9,6 +9,7 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowFileExtensions checks if workflow file extension is one of the specific values, eg. 'yml' or 'yaml'.
 type RuleWorkflowFileExtensions struct {
 	Value      []string
 	ConfigName string

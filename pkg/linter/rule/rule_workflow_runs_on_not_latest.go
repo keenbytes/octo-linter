@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowRunsOnNotLatest checks whether 'runs-on' does not contain the 'latest' string.
+// In some case, runner version (image) should be frozen, instead of using the latest.
 type RuleWorkflowRunsOnNotLatest struct {
 	Value      bool
 	ConfigName string

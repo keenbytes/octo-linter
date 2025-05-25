@@ -8,6 +8,8 @@ import (
 	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
 )
 
+// RuleWorkflowCalledInputExists scans the code for all input references and verifies that each has been previously defined.
+// During execution, if a reference to an undefined input is found, it is replaced with an empty string.
 type RuleWorkflowCalledInputExists struct {
 	Value      bool
 	ConfigName string
