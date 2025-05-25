@@ -12,10 +12,12 @@ import (
 var defaultConfig []byte
 
 type Config struct {
-	Version     string                 `yaml:"version"`
-	RulesConfig map[string]interface{} `yaml:"rules"`
-	Rules       []rule.Rule            `yaml:"-"`
-	Errors      map[string]string      `yaml:"errors"`
+	Version        string                 `yaml:"version"`
+	RulesConfig    map[string]interface{} `yaml:"rules"`
+	Rules          []rule.Rule            `yaml:"-"`
+	WarningOnly    []string               `yaml:"warning_only"`
+	WarningOnlyMap map[string]struct{}    `yaml:"-"`
+	Errors         map[string]string      `yaml:"errors"`
 }
 
 func (cfg *Config) ReadFile(p string) error {
@@ -51,4 +53,15 @@ func (cfg *Config) Validate() error {
 		}
 	}
 	return nil
+}
+
+func (cfg *Config) IsError(rule string) bool {
+	switch cfg.Version {
+	case "1":
+		_, isErr := cfg.Errors[rule]
+		return isErr
+	default:
+		_, isWarn := cfg.WarningOnlyMap[rule]
+		return !isWarn
+	}
 }

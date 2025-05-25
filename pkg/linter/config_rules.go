@@ -15,8 +15,16 @@ func (cfg *Config) readBytesAndValidate(b []byte) error {
 		return fmt.Errorf("error unmarshalling: %w", err)
 	}
 
+	// Format list of strings into map for config version > 1
+	if cfg.Version != "1" {
+		cfg.WarningOnlyMap = make(map[string]struct{})
+		for _, w := range cfg.WarningOnly {
+			cfg.WarningOnlyMap[w] = struct{}{}
+		}
+	}
+
 	for ruleName, ruleValue := range cfg.RulesConfig {
-		_, isError := cfg.Errors[ruleName]
+		isError := cfg.IsError(ruleName)
 
 		switch ruleName {
 		case "action_file_extensions":
@@ -382,7 +390,7 @@ func (cfg *Config) mergeMultipleRulesIntoOne(rulePrefix string, ruleVariants []s
 	for _, variant := range ruleVariants {
 		ruleVariant := fmt.Sprintf("%s__%s", rulePrefix, variant)
 		val, ex := cfg.RulesConfig[ruleVariant]
-		_, exErr := cfg.Errors[ruleVariant]
+		exErr := cfg.IsError(ruleVariant)
 		if ex && val.(bool) {
 			ruleValue = append(ruleValue, variant)
 			if exErr {
@@ -401,7 +409,7 @@ func (cfg *Config) mergeMultipleRulesWithMapValueIntoOne(rulePrefix string, rule
 	for _, variant := range ruleVariants {
 		ruleVariant := fmt.Sprintf("%s__%s", rulePrefix, variant)
 		val, ex := cfg.RulesConfig[ruleVariant]
-		_, exErr := cfg.Errors[ruleVariant]
+		exErr := cfg.IsError(ruleVariant)
 		if ex && val.(string) != "" {
 			ruleValue[variant] = val.(string)
 			ruleIsError[variant] = exErr
