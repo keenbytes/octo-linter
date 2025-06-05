@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
 // RuleWorkflowRunsOnNotLatest checks whether 'runs-on' does not contain the 'latest' string.

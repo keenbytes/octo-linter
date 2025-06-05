@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/linter/rule"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/linter/rule"
 )
 
 type Job struct {

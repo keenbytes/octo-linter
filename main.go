@@ -7,10 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"gopkg.pl/mikogs/broccli/v3"
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/linter"
-	"gopkg.pl/mikogs/octo-linter/pkg/loglevel"
+	"github.com/keenbytes/broccli/v3"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/linter"
+	"github.com/keenbytes/octo-linter/pkg/loglevel"
 )
 
 func main() {

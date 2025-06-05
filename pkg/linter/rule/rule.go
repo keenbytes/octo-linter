@@ -3,7 +3,7 @@ package rule
 import (
 	"fmt"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 )
 
 const (

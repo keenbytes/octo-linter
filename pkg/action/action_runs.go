@@ -1,7 +1,7 @@
 package action
 
 import (
-	"gopkg.pl/mikogs/octo-linter/pkg/step"
+	"github.com/keenbytes/octo-linter/pkg/step"
 )
 
 type ActionRuns struct {

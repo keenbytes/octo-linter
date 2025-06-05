@@ -3,8 +3,8 @@ package rule
 import (
 	"fmt"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/action"
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/action"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 )
 
 // RuleActionRequired checks whether the specified action fields are present, e.g. 'name'.

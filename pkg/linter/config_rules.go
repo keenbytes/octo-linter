@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"gopkg.in/yaml.v2"
-	"gopkg.pl/mikogs/octo-linter/pkg/linter/rule"
+	"github.com/keenbytes/octo-linter/pkg/linter/rule"
 )
 
 func (cfg *Config) readBytesAndValidate(b []byte) error {

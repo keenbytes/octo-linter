@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/linter/rule"
+	"github.com/keenbytes/octo-linter/pkg/linter/rule"
 )
 
 //go:embed dotgithub.yml

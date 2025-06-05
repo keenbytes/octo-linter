@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/action"
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/action"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 )
 
 // RuleActionCalledVariableNotOneWord checks for variable references that are single-word or single-level,

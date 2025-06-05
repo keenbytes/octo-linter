@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
 // RuleWorkflowCalledVariableNotOneWord checks for variable references that are single-word or single-level,

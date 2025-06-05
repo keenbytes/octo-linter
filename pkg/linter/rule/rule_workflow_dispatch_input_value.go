@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
 // RuleWorkflowDispatchInputValue verifies whether the workflow_dispatch input field follows the specified naming convention —

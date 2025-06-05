@@ -5,10 +5,10 @@ import (
 	"regexp"
 	"strings"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/action"
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/step"
-	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/pkg/action"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/step"
+	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
 // RuleStepActionInputValid verifies that all required inputs are provided when referencing an action in a step,

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/action"
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/action"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 )
 
 // RuleActionCalledVariable verifies that referenced variables such as 'env', 'var', and 'secret' follow the defined casing rule.

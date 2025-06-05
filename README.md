@@ -1,6 +1,6 @@
 # octo-linter
 
-[![Go Reference](https://pkg.go.dev/badge/gopkg.pl/mikogs/octo-linter.svg)](https://pkg.go.dev/gopkg.pl/mikogs/octo-linter) [![Go Report Card](https://goreportcard.com/badge/gopkg.pl/mikogs/octo-linter)](https://goreportcard.com/report/gopkg.pl/mikogs/octo-linter)
+[![Go Reference](https://pkg.go.dev/badge/github.com/keenbytes/octo-linter.svg)](https://pkg.go.dev/github.com/keenbytes/octo-linter) [![Go Report Card](https://goreportcard.com/badge/github.com/keenbytes/octo-linter)](https://goreportcard.com/report/github.com/keenbytes/octo-linter)
 
 ![octo-linter](octo-linter.png "octo-linter")
 
@@ -9,7 +9,7 @@ invalid inputs and outputs, and lints for missing descriptions, invalid rules, a
 violations, ensuring your workflows are error-free and adhere to GitHub Actions standards.
 
 This application is a refactored and enhanced
-[github-actions-validator](https://github.com/mikogs/github-actions-validator), another software that I
+[github-actions-validator](https://github.com/keenbytes/github-actions-validator), another software that I
 have created few years ago.  In the new version, rules can be configured, checks are executed in parallel,
 and log level command line argument has been introduced.  Also, each rule's source code is now extracted
 to a separate file for better maintenance.

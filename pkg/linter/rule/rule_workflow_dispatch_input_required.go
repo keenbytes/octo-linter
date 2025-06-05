@@ -3,8 +3,8 @@ package rule
 import (
 	"fmt"
 
-	"gopkg.pl/mikogs/octo-linter/pkg/dotgithub"
-	"gopkg.pl/mikogs/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
 // RuleWorkflowDispatchInputRequired checks whether specific workflow_dispatch input attributes are defined (e.g. 'description').
