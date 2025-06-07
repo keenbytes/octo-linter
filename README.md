@@ -2,7 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/keenbytes/octo-linter.svg)](https://pkg.go.dev/github.com/keenbytes/octo-linter) [![Go Report Card](https://goreportcard.com/badge/github.com/keenbytes/octo-linter)](https://goreportcard.com/report/github.com/keenbytes/octo-linter)
 
-![octo-linter](octo-linter.png "octo-linter")
+![octo-linter](octo-linter2.png "octo-linter")
 
 A tool that validates GitHub Actions workflow and action YAML files. It checks for syntax errors, such as
 invalid inputs and outputs, and lints for missing descriptions, invalid rules, and other best practice
