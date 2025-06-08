@@ -33,3 +33,23 @@ jobs:
         shell: bash
         run: |
           echo "${{ inputs.non-existing }}"
+
+      - name: Use of non-existing secret
+        shell: bash
+        run: |
+          echo '${{ secrets.NON_EXISTING_ONE }}'
+
+      - name: Use of existing secret
+        shell: bash
+        run: |
+          echo '${{ secrets.EXISTING_SECRET1 }}'
+
+      - name: Use of non-existing var
+        shell: bash
+        run: |
+          echo '${{ vars.NON_EXISTING_ONE }}'
+
+      - name: Use of existing var
+        shell: bash
+        run: |
+          echo '${{ vars.EXISTING_VAR1 }}'

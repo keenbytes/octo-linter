@@ -1,11 +1,12 @@
 # GitHub Actions Workflow
 
+Below is an example of a workflow that uses octo-linter docker to check files in `.github`.
+
 ````yaml
 ---
 name: GitHub Actions YAML linter
 
 on:
-  merge_group:
   pull_request:
     paths:
       - '.github/**.yml'
