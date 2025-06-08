@@ -8,12 +8,13 @@ A tool that validates GitHub Actions workflow and action YAML files. It checks f
 invalid inputs and outputs, and lints for missing descriptions, invalid rules, and other best practice
 violations, ensuring your workflows are error-free and adhere to GitHub Actions standards.
 
-This application is a refactored and enhanced
-[github-actions-validator](https://github.com/keenbytes/github-actions-validator), another software that I
+This application is a refactored and enhanced software that I
 have created few years ago.  In the new version, rules can be configured, checks are executed in parallel,
 and log level command line argument has been introduced.  Also, each rule's source code is now extracted
 to a separate file for better maintenance.
 
+## Full documentation
+[Link to docs](https://keenbytes.github.io/octo-linter/)
 
 ## Running
 Check below help message for `validate` command:

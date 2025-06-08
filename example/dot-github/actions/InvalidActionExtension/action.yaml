@@ -1,0 +1,9 @@
+---
+name: Action with invalid extension file name
+description: Some description
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4

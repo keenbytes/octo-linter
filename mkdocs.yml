@@ -18,7 +18,6 @@ nav:
     - Building: building.md
     - Running locally: running-locally.md
     - GitHub Actions Workflow: github-actions-workflow.md
-    - Local Installation: local-installation.md
   - All rules: all-rules.md
 
 extra:
