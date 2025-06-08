@@ -91,9 +91,13 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 		for {
 			select {
 			case s := <-chWarnings:
-				slog.Warn(s)
+				if s != "" {
+					slog.Warn(s)
+				}
 			case s := <-chErrors:
-				slog.Error(s)
+				if s != "" {
+					slog.Error(s)
+				}
 			case <-chDoneProcessing:
 				wg.Done()
 			}

@@ -1,0 +1,55 @@
+---
+name: Some workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      something-name:
+        description: 'Name of something'
+        type: string
+        required: true
+
+jobs:
+  job-1:
+    name: Some name
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Some step with external action
+        uses: external-action/something@v2
+
+      - name: Use existing input
+        shell: bash
+        run: |
+          echo '${{ inputs.something-name }}'
+
+  job-2:
+    name: Job number 2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Some step with external action
+        uses: external-action/something@v2
+
+      - name: Some step
+        shell: bash
+        run: |
+          echo "${{ inputs.non-existing }}"
+
+      - name: Use of non-existing secret
+        shell: bash
+        run: |
+          echo '${{ secrets.NON_EXISTING_ONE }}'
+
+      - name: Use of existing secret
+        shell: bash
+        run: |
+          echo '${{ secrets.EXISTING_SECRET1 }}'
+
+      - name: Use of non-existing var
+        shell: bash
+        run: |
+          echo '${{ vars.NON_EXISTING_ONE }}'
+
+      - name: Use of existing var
+        shell: bash
+        run: |
+          echo '${{ vars.EXISTING_VAR1 }}'
