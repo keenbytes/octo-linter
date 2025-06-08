@@ -20,19 +20,6 @@ nav:
     - GitHub Actions Workflow: github-actions-workflow.md
   - All rules: all-rules.md
 
-markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
-  - pymdownx.tabbed:
-      alternate_style: true
-  - admonition
-  - pymdownx.details
-
 extra:
   social:
     - icon: fontawesome/brands/github
