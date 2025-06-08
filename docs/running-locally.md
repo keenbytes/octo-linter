@@ -25,6 +25,9 @@ in the workflow can be checked against a list of possible names.  Use `-z` and `
 to files containing a list of possible variable or secret names, with names being separated by new line or
 space.  Check [Demo](demo.md) for a sample usage.
 
+## Download
+If not compiled, binary can be download from [repository releases](https://github.com/keenbytes/octo-linter/releases).
+
 ## Using binary
 Tweak below command with a path pointing to `.github` and configuration file:
 
