@@ -1,11 +1,7 @@
 name: GitHub Actions YAML linter
 
 on:
-  merge_group:
   pull_request:
-    paths:
-      - '.github/**.yml'
-      - '.github/**.yaml'
 
 jobs:
   main:
