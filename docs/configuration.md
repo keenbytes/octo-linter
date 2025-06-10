@@ -5,6 +5,10 @@ octo-linter requires a configuration file that defines compliance rules. This se
 ## Default configuration
 If no configuration file is provided when running octo-linter, the default configuration will be used. This includes all available rules and can be found [here](https://github.com/keenbytes/octo-linter/blob/main/pkg/linter/dotgithub.yml).
 
+## Initialize configuration file
+Use `init` command that will create a sample configuration file named `dotgithub.yml` in
+current directory. Use `-d` to write it in another place.
+
 ## Requirements
 Let’s consider a GitHub repository that contains workflows and actions within the `.github` directory. Several 
 developers are contributing to it, and we want to enforce the following rules for the files in that directory:
@@ -24,7 +28,7 @@ There are many more possible rules, but we’ll focus on these for the purpose o
 ## Configuration file
 First step is to create a configuration file with rules that the application would use.
 
-Based on the list in previous section, the following file can be created.
+Based on the list in previous section, the configuration file can look as shown below.
 
 ````yaml
 version: '2'

@@ -4,6 +4,10 @@
 If no configuration file is passed when running the octo-linter, its default configuration will be used. That configuration contains all possible rules
 and it can be found [here](https://github.com/keenbytes/octo-linter/blob/main/pkg/linter/dotgithub.yml).
 
+## Initialize configuration file
+Use `init` command that will create a sample configuration file named `dotgithub.yml` in
+current directory. Use `-d` to write it in another place.
+
 ## List of rules
 
 The list below outlines all available rules that can be defined in the configuration file to validate the compliance of our GitHub Actions code.

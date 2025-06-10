@@ -17,7 +17,7 @@ to a separate file for better maintenance.
 [Link to docs](https://keenbytes.github.io/octo-linter/)
 
 ## Running
-Check below help message for `validate` command:
+Check below help message for `lint` command:
 
     Usage:  octo-linter lint [FLAGS]
     
@@ -47,6 +47,8 @@ rest will be shown as warnings.
 
 If config is not passed, then the default one is used.  It can be found in 
 [`pkg/linter/dotgithub.yml`](pkg/linter/dotgithub.yml).
+
+**Use `init` command to create a default `dotgithub.yml` configuration file in current directory.**
 
 ### Rules
 Best way to check available rules is to navigate to `pkg/linter/rule/` directory.  However, there's a list below as well.

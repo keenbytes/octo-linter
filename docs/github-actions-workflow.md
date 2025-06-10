@@ -22,8 +22,10 @@ jobs:
 
       - name: Run octo-linter
         run: |
+          # we assume that the dotgithub.yml file 
+          # is present in .github directory
           docker run --rm --name octo-linter \
-            -v $(pwd)/.github:/dot-github -v $(pwd):/config \
-            keenbytes/octo-linter:v1.2.3 \
-            lint -p /dot-github -l WARN -c /config/config.yml
+            -v $(pwd)/.github:/dot-github \
+            keenbytes/octo-linter:v1.3.0 \
+            lint -p /dot-github -l WARN
 ````
