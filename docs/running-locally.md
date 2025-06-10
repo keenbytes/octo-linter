@@ -1,7 +1,7 @@
 # Running locally
 
 ## Syntax
-Check below help message for `validate` command:
+Check below help message for `lint` command:
 
     Usage:  octo-linter lint [FLAGS]
     

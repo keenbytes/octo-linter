@@ -2,9 +2,6 @@
 
 octo-linter requires a configuration file that defines compliance rules. This section explains how to create one in more detail.
 
-## Default configuration
-If no configuration file is provided when running octo-linter, the default configuration will be used. This includes all available rules and can be found [here](https://github.com/keenbytes/octo-linter/blob/main/pkg/linter/dotgithub.yml).
-
 ## Initialize configuration file
 Use `init` command that will create a sample configuration file named `dotgithub.yml` in
 current directory. Use `-d` to write it in another place.
@@ -26,7 +23,7 @@ Additionally, it would be useful to automatically verify that all referenced inp
 There are many more possible rules, but we’ll focus on these for the purpose of this example.
 
 ## Configuration file
-First step is to create a configuration file with rules that the application would use.
+Tweak the configuration file with rules that the application would use.
 
 Based on the list in previous section, the configuration file can look as shown below.
 
