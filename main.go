@@ -13,15 +13,20 @@ import (
 	"github.com/keenbytes/octo-linter/pkg/loglevel"
 )
 
+const configFileName = "dotgithub.yml"
+
 func main() {
 	cli := broccli.NewBroccli("octo-linter", "Validates GitHub Actions workflow and action YAML files", "m@gasior.dev")
 
-	cmd := cli.Command("lint", "Runs the linter on files from a specific directory", lintHandler)
-	cmd.Flag("path", "p", "DIR", "Path to .github directory", broccli.TypePathFile, broccli.IsDirectory|broccli.IsExistent|broccli.IsRequired)
-	cmd.Flag("config", "c", "FILE", "Linter config with rules in YAML format", broccli.TypePathFile, broccli.IsRegularFile|broccli.IsExistent)
-	cmd.Flag("loglevel", "l", "", "One of INFO,ERR,WARN,DEBUG", broccli.TypeString, 0)
-	cmd.Flag("vars-file", "z", "", "Check if variable names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
-	cmd.Flag("secrets-file", "s", "", "Check if secret names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
+	cmdLint := cli.Command("lint", "Runs the linter on files from a specific directory", lintHandler)
+	cmdLint.Flag("path", "p", "DIR", "Path to .github directory", broccli.TypePathFile, broccli.IsDirectory|broccli.IsExistent|broccli.IsRequired)
+	cmdLint.Flag("config", "c", "FILE", "Linter config with rules in YAML format", broccli.TypePathFile, broccli.IsRegularFile|broccli.IsExistent)
+	cmdLint.Flag("loglevel", "l", "", "One of INFO,ERR,WARN,DEBUG", broccli.TypeString, 0)
+	cmdLint.Flag("vars-file", "z", "", "Check if variable names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
+	cmdLint.Flag("secrets-file", "s", "", "Check if secret names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
+
+	cmdInit := cli.Command("init", "Create sample dotgithub.yml config file", initHandler)
+	cmdInit.Flag("destination", "d", "FILE", "Destination filename to write to", broccli.TypePathFile, broccli.IsNotExistent)
 
 	_ = cli.Command("version", "Prints version", versionHandler)
 	if len(os.Args) == 2 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
@@ -33,6 +38,32 @@ func main() {
 
 func versionHandler(ctx context.Context, c *broccli.Broccli) int {
 	fmt.Fprintf(os.Stdout, VERSION+"\n")
+	return 0
+}
+
+func initHandler(ctx context.Context, c *broccli.Broccli) int {
+	path := c.Flag("destination")
+	if path == "" {
+		_, err := os.Stat(configFileName)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				slog.Error(fmt.Sprintf("error checking if destination path exists: %s", err.Error()))
+				return 50
+			}
+		} else {
+			slog.Error(fmt.Sprintf("file %s already exists, remove it or use --destination flag to change the destination", configFileName))
+			return 51
+		}
+		path = configFileName
+	}
+
+	err := os.WriteFile(path, linter.GetDefaultConfig(), 0644)
+	if err != nil {
+		slog.Error(fmt.Sprintf("error checking if destination path exists: %s", err.Error()))
+		return 52
+	}
+
+	slog.Info(fmt.Sprintf("Sample configuration file %s has been created. Run 'lint' command with '-c' flag or put the file in the .github directory.", path))
 	return 0
 }
 
@@ -115,11 +146,11 @@ func getConfigFilePath(filePath string, dotGitHubPath string) (string, error) {
 		return filePath, nil
 	}
 
-	configInDotGithub := filepath.Join(dotGitHubPath, "dotgithub.yml")
+	configInDotGithub := filepath.Join(dotGitHubPath, configFileName)
 	_, err := os.Stat(configInDotGithub)
 	notFound := os.IsNotExist(err)
 	if err != nil && !notFound {
-		return "", fmt.Errorf("error getting os.Stat on dotgithub.yml inside .github path: %w", err)
+		return "", fmt.Errorf("error getting os.Stat on %s inside .github path: %w", configFileName, err)
 	}
 	if notFound {
 		return "", nil

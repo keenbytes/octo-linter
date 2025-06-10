@@ -20,6 +20,10 @@ type Config struct {
 	Errors         map[string]string      `yaml:"errors"`
 }
 
+func GetDefaultConfig() []byte {
+	return defaultConfig
+}
+
 func (cfg *Config) ReadFile(p string) error {
 	b, err := os.ReadFile(p)
 	if err != nil {
