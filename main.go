@@ -63,6 +63,7 @@ func initHandler(ctx context.Context, c *broccli.Broccli) int {
 		return 52
 	}
 
+	slog.Info(fmt.Sprintf("Sample configuration file %s has been created. Run 'lint' command with '-c' flag or put the file in the .github directory.", path))
 	return 0
 }
 
