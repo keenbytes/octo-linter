@@ -2,7 +2,7 @@
 
 octo-linter requires a configuration file that defines compliance rules. This section explains how to create one in more detail.
 
-## Initialize configuration file
+## Initialise configuration file
 Use `init` command that will create a sample configuration file named `dotgithub.yml` in
 current directory. Use `-d` to write it in another place.
 
