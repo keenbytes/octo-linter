@@ -1,57 +1,63 @@
-version: '2'
+version: '3'
 rules:
-  action_file_extensions: ['yml']
-  action_directory_name: lowercase-hyphens
-  action_required__name: true
-  action_required__description: true
-  action_input_required__description: true
-  action_input_value__name: lowercase-hyphens
-  action_output_required__description: true
-  action_output_value__name: lowercase-hyphens
-  action_called_variable: uppercase-underscores
-  action_called_variable_not_one_word: true
-  action_called_variable_not_in_double_quote: true
-  action_called_input_exists: true
-  action_called_step_output_exists: true
-  action_step_action: local-or-external
-  action_step_action_exists__local: true
-  action_step_action_exists__external: true
-  action_step_action_input_valid: true
-  action_step_env: uppercase-underscores
-  workflow_file_extensions: ['yml']
-  workflow_env: uppercase-underscores
-  workflow_required__name: true
-  workflow_dispatch_input_required__description: true
-  workflow_dispatch_input_value__name: lowercase-hyphens
-  workflow_call_input_required__description: true
-  workflow_call_input_value__name: lowercase-hyphens
-  workflow_called_variable: uppercase-underscores
-  workflow_called_variable_not_one_word: true
-  workflow_called_variable_not_in_double_quote: true
-  workflow_called_variable_exists_in_file: true
-  workflow_called_input_exists: true
-  workflow_single_job_main: true
-  workflow_job_needs_exist: true
-  workflow_required_uses_or_runs_on: true
-  workflow_runs_on_not_latest: true
-  workflow_job_value__name: lowercase-hyphens
-  workflow_job_env: uppercase-underscores
-  workflow_job_step_action: local-or-external
-  workflow_job_step_action_exists__local: true
-  workflow_job_step_action_exists__external: true
-  workflow_job_step_action_input_valid: true
-  workflow_job_step_env: uppercase-underscores
-warning_only:
-  - action_directory_name
-  - action_input_value__name
-  - action_output_value__name
-  - action_called_variable_not_one_word
-  - action_called_variable_not_in_double_quote
-  - action_step_action
-  - action_step_env
-  - workflow_env
-  - workflow_called_variable
-  - workflow_called_input_exists
-  - workflow_runs_on_not_latest
-  - workflow_job_value__name
-  - workflow_job_step_env
+  action_file:
+    extension: ['yml']
+    directory_name: lowercase-hyphens
+
+  workflow_file:
+    extension: ['yml']
+    name: lowercase-hyphens
+    can_start_with_underscore: true
+
+  action_naming_conventions:
+    input_name: lowercase-hyphens
+    output_name: lowercase-hyphens
+    called_variable: uppercase-underscores # eg. ${{ vars.SOMETHING }}
+    step_env: uppercase-underscores
+
+  workflow_naming_conventions:
+    env: uppercase-underscores
+    job_env: uppercase-underscores
+    job_step_env: uppercase-underscores
+    called_variable: uppercase-underscores
+    dispatch_input_name: lowercase-hyphens
+    call_input_name: lowercase-hyphens
+    job_name: lowercase-hyphens
+    single_job_only_name: main # When workflow has only one job, its name must be as defined here
+
+  action_required_fields:
+    action: ['name', 'description']
+    input: ['description']
+    output: ['description']
+
+  workflow_required_fields:
+    workflow: ['name']
+    dispatch_input: ['description']
+    call_input: ['description']
+    uses_or_runs_on: true # Either 'uses' or 'runs-on' must be defined
+
+  called_variables_syntax:
+    action_called_variable_not_one_word: true # Cannot be ${{ something }}
+    action_called_variable_not_in_double_quote: true # Cannot be "${{ something }}"
+
+  quotes:
+    workflow_called_variable_not_one_word: true
+    workflow_called_variable_not_in_double_quote: true
+
+  used_actions:
+    action_step_action: local-or-external
+    action_step_action_must_exist: ['local', 'external']
+    action_step_action_inputs_valid: true
+    workflow_job_step_action: local-or-external
+    workflow_job_step_action_must_exist: ['local', 'external']
+    workflow_job_step_action_inputs_valid: true
+
+  dependencies:
+    workflow_job_needs_field_exists: true # 'needs'
+    action_called_input_exists: true
+    action_called_step_output_exists: true
+    workflow_called_variable_exists_in_file: true
+    workflow_called_input_exists: true
+
+  versions:
+    workflow_runs_on_field_not_latest: true # 'runs-on'
