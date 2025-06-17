@@ -1,16 +1,16 @@
-package rulefilenames
+package filenames
 
 import (
 	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/pkg/action"
 	"github.com/keenbytes/octo-linter/pkg/dotgithub"
-	"github.com/keenbytes/octo-linter/pkg/linter/rule"
 )
 
-// RuleActionFileExtensions checks if action file extension is one of the specific values, eg. 'yml' or 'yaml'.
+// ActionFilenameExtensionsAllowed checks if action file extension is one of the specific values, eg. 'yml' or 'yaml'.
 type ActionFilenameExtensionsAllowed struct {
 }
 

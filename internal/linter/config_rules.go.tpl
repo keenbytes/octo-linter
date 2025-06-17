@@ -1,20 +1,24 @@
 package linter
 
 import (
-	"github.com/keenbytes/octo-linter/pkg/linter/rule"
-	rulefilenames "github.com/keenbytes/octo-linter/pkg/linter/rule/filenames"
+	"github.com/keenbytes/octo-linter/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/filenames"
 )
 
 func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}) error {
 	var ruleInstance rule.Rule
 
 	switch fullRuleName {
-	case "filenames__action_filename_extensions_allowed":
-		ruleInstance = rulefilenames.ActionFilenameExtensionsAllowed{}
+
+  {{- range $configName, $structName := .Rules }}
+	case "{{ $configName }}":
+		ruleInstance = {{ $structName }}{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
+  {{- end }}
+
 	default:
 		// do nothing for now
 	}
