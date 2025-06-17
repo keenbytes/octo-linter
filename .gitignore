@@ -26,3 +26,4 @@ go.work.sum
 
 # binary
 /octo-linter
+/cmd/octo-linter/octo-linter
