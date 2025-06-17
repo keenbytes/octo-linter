@@ -1,37 +1,37 @@
-version: '2'
+version: '3'
 rules:
-  # action name can have only lowercase alpha-numeric characters and hyphens
-  action_directory_name: lowercase-hyphens
+  action_file:
+    extension: ['yml'] # Action files should have a .yml extension
+    directory_name: lowercase-hyphens # Action names must use only lowercase alphanumeric characters and hyphens
+    warning_only:
+      - directory_name
+      - extension
 
-  # action and workflow files should have extension of `.yml` only
-  action_file_extensions: ['yml']
-  workflow_file_extensions: ['yml']
-  action_called_variable_not_in_double_quote: true
+  workflow_file:
+    extension: ['yml'] # Workflow files should have a .yml extension
+    warning_only:
+      - extension
 
-  # named-value variable should not be in a double quote
-  workflow_called_variable_not_in_double_quote: true
+  action_naming:
+    step_env: uppercase-underscores # Environment variables in steps must use uppercase alphanumeric characters, optionally including underscores
 
-  # latest version of runners should not be used
-  workflow_runs_on_not_latest: true
+  action_required_fields: # Actions, along with their inputs and outputs (where applicable), must include both name and description fields
+    action: ['name', 'description']
+    input: ['description']
+    output: ['description']
 
-  # action, its inputs and outputs must have `name` and `description` fields
-  action_required__name: true 
-  action_required__description: true
-  action_input_required__description: true
-  action_output_required__description: true
+  called_variables_syntax:
+    action_called_variable_not_in_double_quote: true # Named-value variables should not be enclosed in double quotes
 
-  # only local actions can be used
-  action_step_action: local-only
+  used_actions: # Only local actions should be used
+    action_step_action: local-only
+    workflow_job_step_action: local-only
 
-  # environment variable in steps should be uppercase alpha-numeric with optional underscore
-  action_step_env: uppercase-underscores 
-  
-  # all called inputs, outputs etc. exist and are defined
-  action_called_input_exists: true 
-  action_called_step_output_exists: true
-  workflow_called_variable_exists_in_file: true
-  workflow_called_input_exists: true
-warning_only:
-  - action_directory_name
-  - action_file_extensions
-  - workflow_file_extensions
+  dependencies: # Verify that all referenced inputs, outputs, and similar entities are properly defined
+    action_called_input_exists: true 
+    action_called_step_output_exists: true    
+    workflow_called_variable_exists_in_file: true
+    workflow_called_input_exists: true
+
+  versions:
+    workflow_runs_on_field_not_latest: true # The use of the latest runner version should be avoided

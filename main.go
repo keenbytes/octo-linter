@@ -21,7 +21,9 @@ func main() {
 	cmdLint := cli.Command("lint", "Runs the linter on files from a specific directory", lintHandler)
 	cmdLint.Flag("path", "p", "DIR", "Path to .github directory", broccli.TypePathFile, broccli.IsDirectory|broccli.IsExistent|broccli.IsRequired)
 	cmdLint.Flag("config", "c", "FILE", "Linter config with rules in YAML format", broccli.TypePathFile, broccli.IsRegularFile|broccli.IsExistent)
-	cmdLint.Flag("loglevel", "l", "", "One of INFO,ERR,WARN,DEBUG", broccli.TypeString, 0)
+	cmdLint.Flag("", "v", "", "Prints more information", broccli.TypeBool, 0)
+	cmdLint.Flag("", "vv", "", "Prints debug information", broccli.TypeBool, 0)
+	cmdLint.Flag("quiet", "q", "", "No output", broccli.TypeBool, 0)
 	cmdLint.Flag("vars-file", "z", "", "Check if variable names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
 	cmdLint.Flag("secrets-file", "s", "", "Check if secret names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
 
@@ -29,9 +31,6 @@ func main() {
 	cmdInit.Flag("destination", "d", "FILE", "Destination filename to write to", broccli.TypePathFile, broccli.IsNotExistent)
 
 	_ = cli.Command("version", "Prints version", versionHandler)
-	if len(os.Args) == 2 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
-		os.Args = []string{"App", "version"}
-	}
 
 	os.Exit(cli.Run(context.Background()))
 }

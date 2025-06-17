@@ -3,19 +3,25 @@ rules:
   action_file:
     extension: ['yml']
     directory_name: lowercase-hyphens
+    warning_only:
+      - directory_name
 
   workflow_file:
     extension: ['yml']
     name: lowercase-hyphens
     can_start_with_underscore: true
 
-  action_naming_conventions:
+  action_naming:
     input_name: lowercase-hyphens
     output_name: lowercase-hyphens
     called_variable: uppercase-underscores # eg. ${{ vars.SOMETHING }}
     step_env: uppercase-underscores
+    warning_only:
+      - input_name
+      - output_name
+      - step_env
 
-  workflow_naming_conventions:
+  workflow_naming:
     env: uppercase-underscores
     job_env: uppercase-underscores
     job_step_env: uppercase-underscores
@@ -24,6 +30,11 @@ rules:
     call_input_name: lowercase-hyphens
     job_name: lowercase-hyphens
     single_job_only_name: main # When workflow has only one job, its name must be as defined here
+    warning_only:
+      - env
+      - called_variable
+      - job_name
+      - job_step_env
 
   action_required_fields:
     action: ['name', 'description']
@@ -39,6 +50,9 @@ rules:
   called_variables_syntax:
     action_called_variable_not_one_word: true # Cannot be ${{ something }}
     action_called_variable_not_in_double_quote: true # Cannot be "${{ something }}"
+    warning_only:
+      - action_called_variable_not_one_word
+      - action_called_variable_not_in_double_quote
 
   quotes:
     workflow_called_variable_not_one_word: true
@@ -51,6 +65,8 @@ rules:
     workflow_job_step_action: local-or-external
     workflow_job_step_action_must_exist: ['local', 'external']
     workflow_job_step_action_inputs_valid: true
+    warning_only:
+      - action_step_action
 
   dependencies:
     workflow_job_needs_field_exists: true # 'needs'
@@ -58,6 +74,10 @@ rules:
     action_called_step_output_exists: true
     workflow_called_variable_exists_in_file: true
     workflow_called_input_exists: true
+    warning_only:
+      - workflow_called_input_exists
 
   versions:
     workflow_runs_on_field_not_latest: true # 'runs-on'
+    warning_only:
+      - workflow_runs_on_field_not_latest
