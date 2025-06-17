@@ -10,13 +10,13 @@ current directory. Use `-d` to write it in another place.
 Let’s consider a GitHub repository that contains workflows and actions within the `.github` directory. Several 
 developers are contributing to it, and we want to enforce the following rules for the files in that directory:
 
-* Action names must use only lowercase alphanumeric characters and hyphens
+* Action names must be in a dash-case format
 * Action and workflow files should have a .yml extension
 * Named-value variables should not be enclosed in double quotes
 * The use of the latest runner version should be avoided
 * Actions, along with their inputs and outputs (where applicable), must include both `name` and `description` fields
 * Only local actions should be used
-* Environment variables in steps must use uppercase alphanumeric characters, optionally including underscores
+* Environment variable names in steps must be ALL_CAPS
 
 Additionally, it would be useful to automatically verify that all referenced inputs, outputs, and similar entities are properly defined.
 
@@ -28,49 +28,49 @@ Tweak the configuration file with rules that the application would use.
 Based on the list in previous section, the configuration file can look as shown below.
 
 ````yaml
-version: '2'
+version: '3'
 rules:
-  # Action names must use only lowercase alphanumeric characters and hyphens
-  action_directory_name: lowercase-hyphens
+  filenames:
+    action_filename_extensions_allowed: ['yml'] # Action files should have a .yml extension
+    action_directory_name_format: dash-case # Action names must be in a dash-case format
+    workflow_filename_extensions_allowed: ['yml'] # Workflow files should have a .yml extension
+    warning_only:
+      - action_directory_name
+      - action_filename_extension
+      - workflow_filename_extension
 
-  # Action and workflow files should have a .yml extension
-  action_file_extensions: ['yml']
-  workflow_file_extensions: ['yml']
-  action_called_variable_not_in_double_quote: true
+  naming_conventions:
+    action_step_env_format: ALL_CAPS # Environment variable names in steps must be ALL_CAPS
 
-  # Named-value variables should not be enclosed in double quotes
-  workflow_called_variable_not_in_double_quote: true
+  action_required_fields: # Actions, along with their inputs and outputs (where applicable), must include both name and description fields
+    action_requires: ['name', 'description']
+    action_input_requires: ['description']
+    action_output_requires: ['description']
 
-  # The use of the latest runner version should be avoided
-  workflow_runs_on_not_latest: true
+  referenced_variables_in_actions:
+    not_in_double_quote: true # Named-value variables should not be enclosed in double quotes
 
-  # Actions, along with their inputs and outputs (where applicable), must include both name and description fields
-  action_required__name: true 
-  action_required__description: true
-  action_input_required__description: true
-  action_output_required__description: true
-
-  # Only local actions should be used
-  action_step_action: local-only
-
-  # Environment variables in steps must use uppercase alphanumeric characters, optionally including underscores
-  action_step_env: uppercase-underscores 
+  used_actions_in_action_steps: # Only local actions should be used
+    source: local-only
   
-  # All referenced inputs, outputs, and similar entities are properly defined
-  action_called_input_exists: true 
-  action_called_step_output_exists: true
-  workflow_called_variable_exists_in_file: true
-  workflow_called_input_exists: true
+  used_actions_in_workflow_job_steps:
+    source: local-only
+
+  dependencies: # Verify that all referenced inputs, outputs, and similar entities are properly defined
+    action_referenced_input_must_exists: true 
+    action_referenced_step_output_must_exist: true
+    workflow_referenced_input_must_exists: true
+    workflow_referenced_variable_must_exists_in_attached_file: true
+
+  workflow_runners:
+    not_latest: true # The use of the latest runner version should be avoided
 ````
 
-### Error or warning
-A non-compliant rule can be treated either as an error or a warning. If a rule is intended to trigger only a warning, it should be included in the warning_only list, as shown below:
+### Warning instead of an error
+A non-compliant rule can be treated either as an error or a warning. If a rule is intended to trigger only a warning, it should be included in the `warning_only` list, as shown on above example under the `filenames` rule group.
 
-````yaml
-warning_only:
-  - action_directory_name
-  - action_file_extensions
-  - workflow_file_extensions
-````
+### Version compatibility
+The latest `v2` version of the application supports only configuration version `'3'`. Older configuration versions are no longer supported and would 
+require using the previous `v1` release of octo-linter.
 
 Continue to the next section to learn how to run `octo-linter` using the prepared configuration.

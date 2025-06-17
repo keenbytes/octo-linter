@@ -1,37 +1,36 @@
 version: '3'
 rules:
-  action_file:
-    extension: ['yml'] # Action files should have a .yml extension
-    directory_name: lowercase-hyphens # Action names must use only lowercase alphanumeric characters and hyphens
+  filenames:
+    action_filename_extensions_allowed: ['yml'] # Action files should have a .yml extension
+    action_directory_name_format: dash-case # Action names must be in a dash-case format
+    workflow_filename_extensions_allowed: ['yml'] # Workflow files should have a .yml extension
     warning_only:
-      - directory_name
-      - extension
+      - action_directory_name
+      - action_filename_extension
+      - workflow_filename_extension
 
-  workflow_file:
-    extension: ['yml'] # Workflow files should have a .yml extension
-    warning_only:
-      - extension
-
-  action_naming:
-    step_env: uppercase-underscores # Environment variables in steps must use uppercase alphanumeric characters, optionally including underscores
+  naming_conventions:
+    action_step_env_format: ALL_CAPS # Environment variable names in steps must be ALL_CAPS
 
   action_required_fields: # Actions, along with their inputs and outputs (where applicable), must include both name and description fields
-    action: ['name', 'description']
-    input: ['description']
-    output: ['description']
+    action_requires: ['name', 'description']
+    action_input_requires: ['description']
+    action_output_requires: ['description']
 
-  called_variables_syntax:
-    action_called_variable_not_in_double_quote: true # Named-value variables should not be enclosed in double quotes
+  referenced_variables_in_actions:
+    not_in_double_quote: true # Named-value variables should not be enclosed in double quotes
 
-  used_actions: # Only local actions should be used
-    action_step_action: local-only
-    workflow_job_step_action: local-only
+  used_actions_in_action_steps: # Only local actions should be used
+    source: local-only
+  
+  used_actions_in_workflow_job_steps:
+    source: local-only
 
   dependencies: # Verify that all referenced inputs, outputs, and similar entities are properly defined
-    action_called_input_exists: true 
-    action_called_step_output_exists: true    
-    workflow_called_variable_exists_in_file: true
-    workflow_called_input_exists: true
+    action_referenced_input_must_exists: true 
+    action_referenced_step_output_must_exist: true
+    workflow_referenced_input_must_exists: true
+    workflow_referenced_variable_must_exists_in_attached_file: true
 
-  versions:
-    workflow_runs_on_field_not_latest: true # The use of the latest runner version should be avoided
+  workflow_runners:
+    not_latest: true # The use of the latest runner version should be avoided
