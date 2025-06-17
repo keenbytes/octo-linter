@@ -2,12 +2,13 @@ package linter
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
 	"runtime"
-	"strings"
 	"sync"
 
 	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/pkg/linter/rule"
 )
 
 const (
@@ -46,32 +47,35 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 
 	go func() {
 		for _, action := range d.Actions {
-			for _, rule := range l.Config.Rules {
-				if !strings.HasPrefix(rule.GetConfigName(), "action_") {
+			for ruleIdx, ruleEntry := range l.Config.Rules {
+				log.Printf("%v", ruleEntry.Type())
+				if ruleEntry.Type() != rule.DotGithubFileTypeAction {
 					continue
 				}
-				isError := l.Config.IsError(rule.GetConfigName())
+				isError := l.Config.IsError(ruleEntry.ConfigName())
 				chJobs <- Job{
-					rule:      rule,
+					rule:      ruleEntry,
 					file:      action,
 					dotGithub: d,
 					isError:   isError,
+					value:     l.Config.Values[ruleIdx],
 				}
 				summary.numJob.Add(1)
 			}
 		}
 
 		for _, workflow := range d.Workflows {
-			for _, rule := range l.Config.Rules {
-				if !strings.HasPrefix(rule.GetConfigName(), "workflow_") {
+			for ruleIdx, ruleEntry := range l.Config.Rules {
+				if ruleEntry.Type() != rule.DotGithubFileTypeWorkflow {
 					continue
 				}
-				isError := l.Config.IsError(rule.GetConfigName())
+				isError := l.Config.IsError(ruleEntry.ConfigName())
 				chJobs <- Job{
-					rule:      rule,
+					rule:      ruleEntry,
 					file:      workflow,
 					dotGithub: d,
 					isError:   isError,
+					value:     l.Config.Values[ruleIdx],
 				}
 				summary.numJob.Add(1)
 			}

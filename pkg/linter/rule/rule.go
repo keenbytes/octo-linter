@@ -1,8 +1,6 @@
 package rule
 
 import (
-	"fmt"
-
 	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 )
 
@@ -12,18 +10,18 @@ const (
 )
 
 type Rule interface {
-	Validate() error
-	Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (bool, error)
-	GetConfigName() string
+	Validate(conf interface{}) error
+	Lint(config interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (bool, error)
+	Type() int
+	ConfigName() string
 }
 
-func printErrOrWarn(configName string, isError bool, errStr string, chWarnings chan<- string, chErrors chan<- string) {
-	if isError {
-		chErrors <- fmt.Sprintf("%s: %s", configName, errStr)
-		return
-	}
-	if !isError {
-		chWarnings <- fmt.Sprintf("%s: %s", configName, errStr)
-		return
-	}
+type RuleAction struct{}
+func (ra RuleAction) Type() int {
+	return DotGithubFileTypeAction
+}
+
+type RuleWorkflow struct{}
+func (ra RuleWorkflow) Type() int {
+	return DotGithubFileTypeWorkflow
 }
