@@ -12,16 +12,6 @@ const (
 type Rule interface {
 	Validate(conf interface{}) error
 	Lint(config interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (bool, error)
-	Type() int
 	ConfigName() string
-}
-
-type RuleAction struct{}
-func (ra RuleAction) Type() int {
-	return DotGithubFileTypeAction
-}
-
-type RuleWorkflow struct{}
-func (ra RuleWorkflow) Type() int {
-	return DotGithubFileTypeWorkflow
+	FileType() int
 }

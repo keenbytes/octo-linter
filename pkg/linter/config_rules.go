@@ -19,8 +19,10 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 		// do nothing for now
 	}
 
-	cfg.Rules = append(cfg.Rules, ruleInstance)
-	cfg.Values = append(cfg.Values, ruleConfig)
+	if ruleInstance != nil {
+		cfg.Rules = append(cfg.Rules, ruleInstance)
+		cfg.Values = append(cfg.Values, ruleConfig)
+	}
 
 	return nil
 }

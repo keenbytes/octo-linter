@@ -2,10 +2,10 @@ package linter
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 	"github.com/keenbytes/octo-linter/pkg/linter/rule"
@@ -35,12 +35,6 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	chJobs := make(chan Job)
 	chWarnings := make(chan string)
 	chErrors := make(chan string)
-	chDoneProcessing := make(chan struct{})
-
-	defer close(chDoneProcessing)
-	defer close(chErrors)
-	defer close(chWarnings)
-	defer close(chJobs)
 
 	wg := sync.WaitGroup{}
 	wg.Add(numCPU)
@@ -48,8 +42,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	go func() {
 		for _, action := range d.Actions {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
-				log.Printf("%v", ruleEntry.Type())
-				if ruleEntry.Type() != rule.DotGithubFileTypeAction {
+				if ruleEntry.FileType() != rule.DotGithubFileTypeAction {
 					continue
 				}
 				isError := l.Config.IsError(ruleEntry.ConfigName())
@@ -66,7 +59,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 
 		for _, workflow := range d.Workflows {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
-				if ruleEntry.Type() != rule.DotGithubFileTypeWorkflow {
+				if ruleEntry.FileType() != rule.DotGithubFileTypeWorkflow {
 					continue
 				}
 				isError := l.Config.IsError(ruleEntry.ConfigName())
@@ -81,54 +74,69 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 			}
 		}
 
-		for {
-			if summary.numJob.Load() == summary.numProcessed.Load() {
-				for range numCPU {
-					chDoneProcessing <- struct{}{}
-				}
-				break
-			}
-		}
+		close(chJobs)
+		wg.Done()
 	}()
 
 	go func() {
 		for {
-			select {
-			case s := <-chWarnings:
-				if s != "" {
-					slog.Warn(s)
+			job, more := <-chJobs
+			if more {
+				compliant, err := job.Run(chWarnings, chErrors)
+				if err != nil {
+					slog.Error(fmt.Sprintf("%s\n", err.Error()))
+					summary.numError.Add(1)
+					continue
 				}
-			case s := <-chErrors:
-				if s != "" {
-					slog.Error(s)
+				if !compliant {
+					if job.isError {
+						summary.numError.Add(1)
+					} else {
+						summary.numWarning.Add(1)
+					}
 				}
-			case <-chDoneProcessing:
-				wg.Done()
+				summary.numProcessed.Add(1)
+				continue
 			}
+
+			close(chWarnings)
+			close(chErrors)
+
+			wg.Done()
+			return
 		}
 	}()
 
 	for range numCPU - 2 {
 		go func() {
+			chWarningsClosed := false
+			chErrorsClosed := false
+
+			ticker := time.NewTicker(500 * time.Millisecond)
+
 			for {
 				select {
-				case job := <-chJobs:
-					compliant, err := job.Run(chWarnings, chErrors)
-					if err != nil {
-						slog.Error(fmt.Sprintf("%s\n", err.Error()))
-						summary.numError.Add(1)
-						continue
-					}
-					if !compliant {
-						if job.isError {
-							summary.numError.Add(1)
-						} else {
-							summary.numWarning.Add(1)
+				case s, more := <-chWarnings:
+					if more {
+						if s != "" {
+							slog.Warn(s)
 						}
+					} else {
+						chWarningsClosed = true
 					}
-					summary.numProcessed.Add(1)
-				case <-chDoneProcessing:
-					wg.Done()
+				case s, more := <-chErrors:
+					if more {
+						if s != "" {
+							slog.Error(s)
+						}
+					} else {
+						chErrorsClosed = true
+					}
+				case <-ticker.C:
+					if chWarningsClosed && chErrorsClosed {
+						wg.Done()
+						return
+					}
 				}
 			}
 		}()

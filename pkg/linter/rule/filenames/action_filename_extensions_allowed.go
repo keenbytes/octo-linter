@@ -12,11 +12,14 @@ import (
 
 // RuleActionFileExtensions checks if action file extension is one of the specific values, eg. 'yml' or 'yaml'.
 type ActionFilenameExtensionsAllowed struct {
-	rule.RuleAction
 }
 
 func (r ActionFilenameExtensionsAllowed) ConfigName() string {
 	return "filenames__action_filename_extensions_allowed"
+}
+
+func (r ActionFilenameExtensionsAllowed) FileType() int {
+	return rule.DotGithubFileTypeAction
 }
 
 func (r ActionFilenameExtensionsAllowed) Validate(conf interface{}) error {
