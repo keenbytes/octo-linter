@@ -3,14 +3,45 @@ package linter
 import (
 	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/filenames"
-	"github.com/keenbytes/octo-linter/internal/linter/rule/workflowrunners"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/refvars"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/dependencies"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/workflowrunners"
 )
 
 func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}) error {
 	var ruleInstance rule.Rule
 
 	switch fullRuleName {
+	case "dependencies__action_referenced_input_must_exists":
+		ruleInstance = dependencies.ActionReferencedInputExists{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "dependencies__action_referenced_step_output_must_exist":
+		ruleInstance = dependencies.ActionReferencedStepOutputExists{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "dependencies__workflow_needs_field_must_contain_already_existing_jobs":
+		ruleInstance = dependencies.WorkflowNeedsWithExistingJobs{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "dependencies__workflow_referenced_input_must_exists":
+		ruleInstance = dependencies.WorkflowReferencedInputExists{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "dependencies__workflow_referenced_variable_must_exists_in_attached_file":
+		ruleInstance = dependencies.WorkflowReferencedVariableExistsInFile{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
 	case "filenames__action_directory_name_format":
 		ruleInstance = filenames.ActionDirectoryNameFormat{}
 		err := ruleInstance.Validate(ruleConfig)
