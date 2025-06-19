@@ -23,11 +23,15 @@ func main() {
 		Rules map[string]string
 	}{
 		Rules: map[string]string{
-			"filenames__action_filename_extensions_allowed":   "filenames.ActionFilenameExtensionsAllowed",
-			"filenames__action_directory_name_format":         "filenames.ActionDirectoryNameFormat",
-			"filenames__workflow_filename_extensions_allowed": "filenames.WorkflowFilenameExtensionsAllowed",
-			"filenames__workflow_filename_base_format":        "filenames.WorkflowFilenameBaseFormat",
-			"workflow_runners__not_latest":                    "workflowrunners.NotLatest",
+			"filenames__action_filename_extensions_allowed":           "filenames.ActionFilenameExtensionsAllowed",
+			"filenames__action_directory_name_format":                 "filenames.ActionDirectoryNameFormat",
+			"filenames__workflow_filename_extensions_allowed":         "filenames.WorkflowFilenameExtensionsAllowed",
+			"filenames__workflow_filename_base_format":                "filenames.WorkflowFilenameBaseFormat",
+			"workflow_runners__not_latest":                            "workflowrunners.NotLatest",
+			"referenced_variables_in_actions__not_one_word":           "refvars.ActionNotOneWord",
+			"referenced_variables_in_actions__not_in_double_quotes":   "refvars.ActionNotInDoubleQuotes",
+			"referenced_variables_in_workflows__not_one_word":         "refvars.WorkflowNotOneWord",
+			"referenced_variables_in_workflows__not_in_double_quotes": "refvars.WorkflowNotInDoubleQuotes",
 		},
 	}
 

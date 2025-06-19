@@ -40,11 +40,11 @@ rules:
     workflow_requires_uses_or_runs_on_required: true
 
   referenced_variables_in_actions:
-    not_one_word_when_in_action: true
-    not_in_double_quote_when_in_action: true
+    not_one_word: true
+    not_in_double_quote: true
     warning_only:
-      - not_one_word_when_in_action
-      - not_in_double_quote_when_in_action
+      - not_one_word
+      - not_in_double_quote
 
   referenced_variables_in_workflows:
     not_one_word: true
