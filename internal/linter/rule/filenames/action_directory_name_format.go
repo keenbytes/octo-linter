@@ -10,7 +10,7 @@ import (
 	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 )
 
-// ActionDirectoryNameFormat checks if action file extension is one of the specific values, eg. 'yml' or 'yaml'.
+// ActionDirectoryNameFormat checks if directory containing action adheres to the selected naming convention.
 type ActionDirectoryNameFormat struct {
 }
 

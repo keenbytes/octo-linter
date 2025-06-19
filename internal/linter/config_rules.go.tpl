@@ -3,6 +3,7 @@ package linter
 import (
 	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/filenames"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/workflowrunners"
 )
 
 func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}) error {

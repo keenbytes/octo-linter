@@ -11,7 +11,7 @@ import (
 	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
-// WorkflowFilenameBaseFormat checks if action file extension is one of the specific values, eg. 'yml' or 'yaml'.
+// WorkflowFilenameBaseFormat checks if workflow file basename (without extension) adheres to the selected naming convention.
 type WorkflowFilenameBaseFormat struct {
 }
 
@@ -38,7 +38,7 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 
 func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeAction {
+	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
 	}
 	w := f.(*workflow.Workflow)

@@ -3,6 +3,7 @@ package linter
 import (
 	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/filenames"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/workflowrunners"
 )
 
 func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}) error {
@@ -29,6 +30,12 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 		}
 	case "filenames__workflow_filename_extensions_allowed":
 		ruleInstance = filenames.WorkflowFilenameExtensionsAllowed{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "workflow_runners__not_latest":
+		ruleInstance = workflowrunners.NotLatest{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err

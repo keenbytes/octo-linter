@@ -27,6 +27,7 @@ func main() {
 			"filenames__action_directory_name_format":         "filenames.ActionDirectoryNameFormat",
 			"filenames__workflow_filename_extensions_allowed": "filenames.WorkflowFilenameExtensionsAllowed",
 			"filenames__workflow_filename_base_format":        "filenames.WorkflowFilenameBaseFormat",
+			"workflow_runners__not_latest":                    "workflowrunners.NotLatest",
 		},
 	}
 

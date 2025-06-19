@@ -43,7 +43,7 @@ func (r WorkflowFilenameExtensionsAllowed) Validate(conf interface{}) error {
 
 func (r WorkflowFilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeAction {
+	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
 	}
 	w := f.(*workflow.Workflow)
