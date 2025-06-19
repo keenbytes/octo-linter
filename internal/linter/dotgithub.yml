@@ -4,8 +4,7 @@ rules:
     action_filename_extensions_allowed: ['yml']
     action_directory_name_format: dash-case
     workflow_filename_extensions_allowed: ['yml']
-    workflow_filename_base_format: dash-case
-    workflow_filename_underscore_prefix_allowed: true
+    workflow_filename_base_format: dash-case;underscore-prefix-allowed
     warning_only:
       - action_directory_name_format
 

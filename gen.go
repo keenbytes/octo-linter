@@ -11,9 +11,9 @@ import (
 
 func main() {
 	genPath, err := os.Getwd()
-  if err != nil {
-    panic(err)
-  }
+	if err != nil {
+		panic(err)
+	}
 
 	if len(os.Args) > 1 && os.Args[1] == "../../" {
 		genPath = filepath.Join(genPath, os.Args[1])
@@ -23,8 +23,10 @@ func main() {
 		Rules map[string]string
 	}{
 		Rules: map[string]string{
-			"filenames__action_filename_extensions_allowed": "filenames.ActionFilenameExtensionsAllowed",
-			"filenames__action_directory_name_format": "filenames.ActionDirectoryNameFormat",
+			"filenames__action_filename_extensions_allowed":   "filenames.ActionFilenameExtensionsAllowed",
+			"filenames__action_directory_name_format":         "filenames.ActionDirectoryNameFormat",
+			"filenames__workflow_filename_extensions_allowed": "filenames.WorkflowFilenameExtensionsAllowed",
+			"filenames__workflow_filename_base_format":        "filenames.WorkflowFilenameBaseFormat",
 		},
 	}
 

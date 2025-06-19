@@ -168,7 +168,7 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 	}
 	if resp.StatusCode != 200 {
 		slog.Debug(fmt.Sprintf("downloading %s ...", actionURLPrefix+directory+"/action.yaml"))
-	
+
 		req, err = http.NewRequest("GET", actionURLPrefix+directory+"/action.yaml", strings.NewReader(""))
 		if err != nil {
 			return err

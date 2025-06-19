@@ -18,7 +18,7 @@ const (
 )
 
 type Linter struct {
-	Config   *Config
+	Config *Config
 }
 
 func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {

@@ -21,6 +21,18 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 		if err != nil {
 			return err
 		}
+	case "filenames__workflow_filename_base_format":
+		ruleInstance = filenames.WorkflowFilenameBaseFormat{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "filenames__workflow_filename_extensions_allowed":
+		ruleInstance = filenames.WorkflowFilenameExtensionsAllowed{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
 
 	default:
 		// do nothing for now

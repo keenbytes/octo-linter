@@ -13,11 +13,11 @@ import (
 var defaultConfig []byte
 
 type Config struct {
-	Version        string                            `yaml:"version"`
-	RulesConfig    map[string]map[string]interface{} `yaml:"rules"`
-	Rules          []rule.Rule                       `yaml:"-"`
-	Values         []interface{}                     `yaml:"-"`
-	WarningOnly    map[string]struct{}               `yaml:"-"`
+	Version     string                            `yaml:"version"`
+	RulesConfig map[string]map[string]interface{} `yaml:"rules"`
+	Rules       []rule.Rule                       `yaml:"-"`
+	Values      []interface{}                     `yaml:"-"`
+	WarningOnly map[string]struct{}               `yaml:"-"`
 }
 
 func GetDefaultConfig() []byte {
@@ -51,7 +51,6 @@ func (cfg *Config) IsError(rule string) bool {
 	_, isWarn := cfg.WarningOnly[rule]
 	return !isWarn
 }
-
 
 func (cfg *Config) readBytesAndValidate(b []byte) error {
 	cfg.Rules = make([]rule.Rule, 0)
