@@ -23,15 +23,15 @@ func main() {
 		Rules map[string]string
 	}{
 		Rules: map[string]string{
-			"filenames__action_filename_extensions_allowed":                           "filenames.ActionFilenameExtensionsAllowed",
+			"filenames__action_filename_extensions_allowed":                           "filenames.FilenameExtensionsAllowed",
 			"filenames__action_directory_name_format":                                 "filenames.ActionDirectoryNameFormat",
-			"filenames__workflow_filename_extensions_allowed":                         "filenames.WorkflowFilenameExtensionsAllowed",
+			"filenames__workflow_filename_extensions_allowed":                         "filenames.FilenameExtensionsAllowed",
 			"filenames__workflow_filename_base_format":                                "filenames.WorkflowFilenameBaseFormat",
 			"workflow_runners__not_latest":                                            "workflowrunners.NotLatest",
-			"referenced_variables_in_actions__not_one_word":                           "refvars.NotOneWord_InAction",
-			"referenced_variables_in_actions__not_in_double_quotes":                   "refvars.NotInDoubleQuotes_InAction",
-			"referenced_variables_in_workflows__not_one_word":                         "refvars.NotOneWord_InWorkflow",
-			"referenced_variables_in_workflows__not_in_double_quotes":                 "refvars.NotInDoubleQuotes_InWorkflow",
+			"referenced_variables_in_actions__not_one_word":                           "refvars.NotOneWord",
+			"referenced_variables_in_actions__not_in_double_quotes":                   "refvars.NotInDoubleQuotes",
+			"referenced_variables_in_workflows__not_one_word":                         "refvars.NotOneWord",
+			"referenced_variables_in_workflows__not_in_double_quotes":                 "refvars.NotInDoubleQuotes",
 			"dependencies__workflow_needs_field_must_contain_already_existing_jobs":   "dependencies.WorkflowNeedsWithExistingJobs",
 			"dependencies__action_referenced_input_must_exists":                       "dependencies.ActionReferencedInputExists",
 			"dependencies__action_referenced_step_output_must_exist":                  "dependencies.ActionReferencedStepOutputExists",

@@ -50,7 +50,7 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 			return err
 		}
 	case "filenames__action_filename_extensions_allowed":
-		ruleInstance = filenames.ActionFilenameExtensionsAllowed{}
+		ruleInstance = filenames.FilenameExtensionsAllowed{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
@@ -62,31 +62,31 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 			return err
 		}
 	case "filenames__workflow_filename_extensions_allowed":
-		ruleInstance = filenames.WorkflowFilenameExtensionsAllowed{}
+		ruleInstance = filenames.FilenameExtensionsAllowed{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
 	case "referenced_variables_in_actions__not_in_double_quotes":
-		ruleInstance = refvars.NotInDoubleQuotes_InAction{}
+		ruleInstance = refvars.NotInDoubleQuotes{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
 	case "referenced_variables_in_actions__not_one_word":
-		ruleInstance = refvars.NotOneWord_InAction{}
+		ruleInstance = refvars.NotOneWord{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
 	case "referenced_variables_in_workflows__not_in_double_quotes":
-		ruleInstance = refvars.NotInDoubleQuotes_InWorkflow{}
+		ruleInstance = refvars.NotInDoubleQuotes{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
 	case "referenced_variables_in_workflows__not_one_word":
-		ruleInstance = refvars.NotOneWord_InWorkflow{}
+		ruleInstance = refvars.NotOneWord{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
