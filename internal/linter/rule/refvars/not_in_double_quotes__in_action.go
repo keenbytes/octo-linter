@@ -10,19 +10,19 @@ import (
 	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 )
 
-// ActionNotInDoubleQuotes scans for all variable references enclosed in double quotes. It is safer to use single quotes, as double quotes expand certain characters and may allow the execution of sub-commands.
-type ActionNotInDoubleQuotes struct {
+// NotInDoubleQuotes_InAction scans for all variable references enclosed in double quotes. It is safer to use single quotes, as double quotes expand certain characters and may allow the execution of sub-commands.
+type NotInDoubleQuotes_InAction struct {
 }
 
-func (r ActionNotInDoubleQuotes) ConfigName() string {
+func (r NotInDoubleQuotes_InAction) ConfigName(int) string {
 	return "referenced_variables_in_actions__not_in_double_quotes"
 }
 
-func (r ActionNotInDoubleQuotes) FileType() int {
+func (r NotInDoubleQuotes_InAction) FileType() int {
 	return rule.DotGithubFileTypeAction
 }
 
-func (r ActionNotInDoubleQuotes) Validate(conf interface{}) error {
+func (r NotInDoubleQuotes_InAction) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
 		return errors.New("value should be bool")
@@ -31,7 +31,7 @@ func (r ActionNotInDoubleQuotes) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ActionNotInDoubleQuotes) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r NotInDoubleQuotes_InAction) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
 		return

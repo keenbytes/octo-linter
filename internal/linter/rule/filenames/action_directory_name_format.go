@@ -14,7 +14,7 @@ import (
 type ActionDirectoryNameFormat struct {
 }
 
-func (r ActionDirectoryNameFormat) ConfigName() string {
+func (r ActionDirectoryNameFormat) ConfigName(int) string {
 	return "filenames__action_directory_name_format"
 }
 

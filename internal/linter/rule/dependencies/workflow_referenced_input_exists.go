@@ -15,7 +15,7 @@ import (
 type WorkflowReferencedInputExists struct {
 }
 
-func (r WorkflowReferencedInputExists) ConfigName() string {
+func (r WorkflowReferencedInputExists) ConfigName(int) string {
 	return "dependencies__workflow_referenced_input_must_exists"
 }
 

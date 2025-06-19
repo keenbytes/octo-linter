@@ -15,7 +15,7 @@ import (
 type ActionReferencedInputExists struct {
 }
 
-func (r ActionReferencedInputExists) ConfigName() string {
+func (r ActionReferencedInputExists) ConfigName(int) string {
 	return "dependencies__action_referenced_input_must_exists"
 }
 

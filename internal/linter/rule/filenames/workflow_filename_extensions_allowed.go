@@ -14,7 +14,7 @@ import (
 type WorkflowFilenameExtensionsAllowed struct {
 }
 
-func (r WorkflowFilenameExtensionsAllowed) ConfigName() string {
+func (r WorkflowFilenameExtensionsAllowed) ConfigName(int) string {
 	return "filenames__workflow_filename_extensions_allowed"
 }
 

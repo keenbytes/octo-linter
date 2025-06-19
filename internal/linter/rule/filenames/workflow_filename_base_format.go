@@ -15,7 +15,7 @@ import (
 type WorkflowFilenameBaseFormat struct {
 }
 
-func (r WorkflowFilenameBaseFormat) ConfigName() string {
+func (r WorkflowFilenameBaseFormat) ConfigName(int) string {
 	return "filenames__workflow_filename_base_format"
 }
 

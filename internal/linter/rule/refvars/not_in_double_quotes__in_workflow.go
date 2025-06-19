@@ -10,19 +10,19 @@ import (
 	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
-// WorkflowNotInDoubleQuotes scans for all variable references enclosed in double quotes. It is safer to use single quotes, as double quotes expand certain characters and may allow the execution of sub-commands.
-type WorkflowNotInDoubleQuotes struct {
+// NotInDoubleQuotes_InWorkflow scans for all variable references enclosed in double quotes. It is safer to use single quotes, as double quotes expand certain characters and may allow the execution of sub-commands.
+type NotInDoubleQuotes_InWorkflow struct {
 }
 
-func (r WorkflowNotInDoubleQuotes) ConfigName() string {
+func (r NotInDoubleQuotes_InWorkflow) ConfigName(int) string {
 	return "referenced_variables_in_workflows__not_in_double_quotes"
 }
 
-func (r WorkflowNotInDoubleQuotes) FileType() int {
+func (r NotInDoubleQuotes_InWorkflow) FileType() int {
 	return rule.DotGithubFileTypeWorkflow
 }
 
-func (r WorkflowNotInDoubleQuotes) Validate(conf interface{}) error {
+func (r NotInDoubleQuotes_InWorkflow) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
 		return errors.New("value should be bool")
@@ -31,7 +31,7 @@ func (r WorkflowNotInDoubleQuotes) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r WorkflowNotInDoubleQuotes) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r NotInDoubleQuotes_InWorkflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
 		return

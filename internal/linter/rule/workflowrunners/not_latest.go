@@ -14,7 +14,7 @@ import (
 type NotLatest struct {
 }
 
-func (r NotLatest) ConfigName() string {
+func (r NotLatest) ConfigName(int) string {
 	return "workflow_runners__not_latest"
 }
 

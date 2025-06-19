@@ -16,7 +16,7 @@ import (
 type ActionReferencedStepOutputExists struct {
 }
 
-func (r ActionReferencedStepOutputExists) ConfigName() string {
+func (r ActionReferencedStepOutputExists) ConfigName(int) string {
 	return "dependencies__action_referenced_step_output_must_exist"
 }
 

@@ -15,7 +15,7 @@ import (
 type WorkflowReferencedVariableExistsInFile struct {
 }
 
-func (r WorkflowReferencedVariableExistsInFile) ConfigName() string {
+func (r WorkflowReferencedVariableExistsInFile) ConfigName(int) string {
 	return "dependencies__workflow_referenced_variable_must_exists_in_attached_file"
 }
 

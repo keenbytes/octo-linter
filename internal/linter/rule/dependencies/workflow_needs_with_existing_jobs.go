@@ -13,7 +13,7 @@ import (
 type WorkflowNeedsWithExistingJobs struct {
 }
 
-func (r WorkflowNeedsWithExistingJobs) ConfigName() string {
+func (r WorkflowNeedsWithExistingJobs) ConfigName(int) string {
 	return "dependencies__workflow_needs_field_must_contain_already_existing_jobs"
 }
 

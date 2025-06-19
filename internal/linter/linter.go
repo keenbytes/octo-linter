@@ -42,10 +42,10 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	go func() {
 		for _, action := range d.Actions {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
-				if ruleEntry.FileType() != rule.DotGithubFileTypeAction {
+				if ruleEntry.FileType() & rule.DotGithubFileTypeAction == 0 {
 					continue
 				}
-				isError := l.Config.IsError(ruleEntry.ConfigName())
+				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeAction))
 				chJobs <- Job{
 					rule:      ruleEntry,
 					file:      action,
@@ -59,10 +59,10 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 
 		for _, workflow := range d.Workflows {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
-				if ruleEntry.FileType() != rule.DotGithubFileTypeWorkflow {
+				if ruleEntry.FileType() & rule.DotGithubFileTypeWorkflow == 0 {
 					continue
 				}
-				isError := l.Config.IsError(ruleEntry.ConfigName())
+				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeWorkflow))
 				chJobs <- Job{
 					rule:      ruleEntry,
 					file:      workflow,

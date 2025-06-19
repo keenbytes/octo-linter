@@ -14,7 +14,7 @@ import (
 type ActionFilenameExtensionsAllowed struct {
 }
 
-func (r ActionFilenameExtensionsAllowed) ConfigName() string {
+func (r ActionFilenameExtensionsAllowed) ConfigName(int) string {
 	return "filenames__action_filename_extensions_allowed"
 }
 

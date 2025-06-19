@@ -33,7 +33,7 @@ func (j *Job) Run(chWarnings chan<- string, chErrors chan<- string) (compliant b
 
 	select {
 	case <-timer.C:
-		return false, fmt.Errorf("rule %s timed out", j.rule.ConfigName())
+		return false, fmt.Errorf("rule %s timed out", j.rule.ConfigName(j.file.GetType()))
 	case <-done:
 		return compliant, err
 	}

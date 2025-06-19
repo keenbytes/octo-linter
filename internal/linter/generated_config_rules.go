@@ -4,6 +4,7 @@ import (
 	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/filenames"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/refvars"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/usedactions"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/dependencies"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/workflowrunners"
 )
@@ -67,25 +68,61 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 			return err
 		}
 	case "referenced_variables_in_actions__not_in_double_quotes":
-		ruleInstance = refvars.ActionNotInDoubleQuotes{}
+		ruleInstance = refvars.NotInDoubleQuotes_InAction{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
 	case "referenced_variables_in_actions__not_one_word":
-		ruleInstance = refvars.ActionNotOneWord{}
+		ruleInstance = refvars.NotOneWord_InAction{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
 	case "referenced_variables_in_workflows__not_in_double_quotes":
-		ruleInstance = refvars.WorkflowNotInDoubleQuotes{}
+		ruleInstance = refvars.NotInDoubleQuotes_InWorkflow{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
 		}
 	case "referenced_variables_in_workflows__not_one_word":
-		ruleInstance = refvars.WorkflowNotOneWord{}
+		ruleInstance = refvars.NotOneWord_InWorkflow{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "used_actions_in_action_steps__must_exist":
+		ruleInstance = usedactions.Exists{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "used_actions_in_action_steps__must_have_valid_inputs":
+		ruleInstance = usedactions.ValidInputs{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "used_actions_in_action_steps__source":
+		ruleInstance = usedactions.Source{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "used_actions_in_workflow_job_steps__must_exist":
+		ruleInstance = usedactions.Exists{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "used_actions_in_workflow_job_steps__must_have_valid_inputs":
+		ruleInstance = usedactions.ValidInputs{}
+		err := ruleInstance.Validate(ruleConfig)
+		if err != nil {
+			return err
+		}
+	case "used_actions_in_workflow_job_steps__source":
+		ruleInstance = usedactions.Source{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err

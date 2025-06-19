@@ -1,35 +1,53 @@
-package rule
+package usedactions
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
 
+	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/pkg/action"
 	"github.com/keenbytes/octo-linter/pkg/dotgithub"
 	"github.com/keenbytes/octo-linter/pkg/step"
 	"github.com/keenbytes/octo-linter/pkg/workflow"
 )
 
-// RuleStepActionInputValid verifies that all required inputs are provided when referencing an action in a step,
-// and that no undefined inputs are used.
-type RuleStepActionInputValid struct {
-	Value      bool
-	ConfigName string
-	IsError    bool
+// ValidInputs verifies that all required inputs are provided when referencing an action in a step, and that no undefined inputs are used.
+type ValidInputs struct {
 }
 
-func (r RuleStepActionInputValid) Validate() error {
+func (r ValidInputs) ConfigName(t int) string {
+	switch t {
+	case rule.DotGithubFileTypeWorkflow:
+		return "used_actions_in_workflow_job_steps__must_have_valid_inputs"
+	case rule.DotGithubFileTypeAction:
+		return "used_actions_in_action_steps__must_have_valid_inputs"
+	default:
+		return "used_actions_in_*_steps__must_have_valid_inputs"
+	}
+}
+
+func (r ValidInputs) FileType() int {
+	return rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow
+}
+
+func (r ValidInputs) Validate(conf interface{}) error {
+	_, ok := conf.(bool)
+	if !ok {
+		return errors.New("value should be bool")
+	}
+
 	return nil
 }
 
-func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub, chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
 	compliant = true
-	if f.GetType() != DotGithubFileTypeAction && f.GetType() != DotGithubFileTypeWorkflow {
+	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
 	}
 
-	if !r.Value {
+	if !conf.(bool) {
 		return
 	}
 
@@ -39,7 +57,7 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}
 
-	if f.GetType() == DotGithubFileTypeAction {
+	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
 			return
@@ -48,7 +66,7 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 		msgPrefix[0] = fmt.Sprintf("action '%s'", a.DirName)
 	}
 
-	if f.GetType() == DotGithubFileTypeWorkflow {
+	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
 		if w.Jobs == nil || len(w.Jobs) == 0 {
 			return
@@ -64,7 +82,7 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 	}
 
 	var errPrefix string
-	if f.GetType() == DotGithubFileTypeAction {
+	if f.GetType() == rule.DotGithubFileTypeAction {
 		errPrefix = msgPrefix[0]
 	}
 
@@ -96,7 +114,7 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 			for daInputName, daInput := range action.Inputs {
 				if daInput.Required {
 					if st.With == nil || st.With[daInputName] == "" {
-						printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("%s step %d called action requires input '%s'", errPrefix, i+1, daInputName), chWarnings, chErrors)
+						chErrors <- fmt.Sprintf("%s step %d called action requires input '%s'", errPrefix, i+1, daInputName)
 						compliant = false
 					}
 				}
@@ -105,7 +123,7 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 		if st.With != nil {
 			for usedInput := range st.With {
 				if action.Inputs == nil || action.Inputs[usedInput] == nil {
-					printErrOrWarn(r.ConfigName, r.IsError, fmt.Sprintf("%s step %d called action non-existing input '%s'", errPrefix, i+1, usedInput), chWarnings, chErrors)
+					chErrors <- fmt.Sprintf("%s step %d called action non-existing input '%s'", errPrefix, i+1, usedInput)
 					compliant = false
 				}
 			}
@@ -113,8 +131,4 @@ func (r RuleStepActionInputValid) Lint(f dotgithub.File, d *dotgithub.DotGithub,
 	}
 
 	return
-}
-
-func (r RuleStepActionInputValid) GetConfigName() string {
-	return r.ConfigName
 }
