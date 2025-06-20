@@ -14,7 +14,7 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 
 	switch fullRuleName {
 	case "dependencies__action_referenced_input_must_exists":
-		ruleInstance = dependencies.ActionReferencedInputExists{}
+		ruleInstance = dependencies.ReferencedInputExists{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
@@ -32,7 +32,7 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 			return err
 		}
 	case "dependencies__workflow_referenced_input_must_exists":
-		ruleInstance = dependencies.WorkflowReferencedInputExists{}
+		ruleInstance = dependencies.ReferencedInputExists{}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
