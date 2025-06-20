@@ -6,11 +6,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
-	"github.com/keenbytes/octo-linter/pkg/action"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
-	"github.com/keenbytes/octo-linter/pkg/step"
-	"github.com/keenbytes/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/pkg/action"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/pkg/step"
+	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
 // Exists verifies that the action referenced in a step actually exists.

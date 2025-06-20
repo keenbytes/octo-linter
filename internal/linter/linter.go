@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
 const (

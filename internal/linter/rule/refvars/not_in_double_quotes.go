@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
-	"github.com/keenbytes/octo-linter/pkg/action"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
-	"github.com/keenbytes/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/pkg/action"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
 // NotInDoubleQuotes scans for all variable references enclosed in double quotes. It is safer to use single quotes, as double quotes expand certain characters and may allow the execution of sub-commands.

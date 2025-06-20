@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
-	"github.com/keenbytes/octo-linter/pkg/action"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/pkg/action"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
 // ActionReferencedStepOutputExists checks whether references to step outputs correspond to outputs defined in preceding steps.

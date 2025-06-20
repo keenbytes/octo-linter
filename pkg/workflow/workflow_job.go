@@ -1,7 +1,7 @@
 package workflow
 
 import (
-	"github.com/keenbytes/octo-linter/pkg/step"
+	"github.com/keenbytes/octo-linter/v2/pkg/step"
 )
 
 type WorkflowJob struct {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
-	"github.com/keenbytes/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
 // NotLatest checks whether 'runs-on' does not contain the 'latest' string. In some case, runner version (image) should be frozen, instead of using the latest.

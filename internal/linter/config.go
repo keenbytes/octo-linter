@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"gopkg.in/yaml.v2"
 )
 

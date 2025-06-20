@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
-	"github.com/keenbytes/octo-linter/pkg/action"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
-	"github.com/keenbytes/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/pkg/action"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
 // NotOneWord checks for variable references that are single-word or single-level, e.g. `${{ something }}` instead of `${{ inputs.something }}`.

@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 
 	"github.com/keenbytes/broccli/v3"
-	"github.com/keenbytes/octo-linter/internal/linter"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
-	"github.com/keenbytes/octo-linter/pkg/loglevel"
+	"github.com/keenbytes/octo-linter/v2/internal/linter"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/pkg/loglevel"
 )
 
 //go:generate go run ../../gen.go ../../

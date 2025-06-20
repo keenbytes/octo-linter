@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/keenbytes/octo-linter/pkg/action"
-	"github.com/keenbytes/octo-linter/pkg/workflow"
+	"github.com/keenbytes/octo-linter/v2/pkg/action"
+	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
 type DotGithub struct {

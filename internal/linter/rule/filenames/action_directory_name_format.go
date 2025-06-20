@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/keenbytes/octo-linter/internal/linter/rule"
-	"github.com/keenbytes/octo-linter/pkg/action"
-	"github.com/keenbytes/octo-linter/pkg/casematch"
-	"github.com/keenbytes/octo-linter/pkg/dotgithub"
+	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
+	"github.com/keenbytes/octo-linter/v2/pkg/action"
+	"github.com/keenbytes/octo-linter/v2/pkg/casematch"
+	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
 // ActionDirectoryNameFormat checks if directory containing action adheres to the selected naming convention.
