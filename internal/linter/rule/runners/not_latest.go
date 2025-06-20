@@ -1,4 +1,4 @@
-package workflowrunners
+package runners
 
 import (
 	"errors"

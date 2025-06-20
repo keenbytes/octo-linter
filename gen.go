@@ -32,7 +32,7 @@ func main() {
 			"filenames__action_directory_name_format":                                 { N: "filenames.ActionDirectoryNameFormat" },
 			"filenames__workflow_filename_extensions_allowed":                         { N: "filenames.FilenameExtensionsAllowed" },
 			"filenames__workflow_filename_base_format":                                { N: "filenames.WorkflowFilenameBaseFormat" },
-			"workflow_runners__not_latest":                                            { N: "workflowrunners.NotLatest" },
+			"workflow_runners__not_latest":                                            { N: "runners.NotLatest" },
 			"referenced_variables_in_actions__not_one_word":                           { N: "refvars.NotOneWord" },
 			"referenced_variables_in_actions__not_in_double_quotes":                   { N: "refvars.NotInDoubleQuotes" },
 			"referenced_variables_in_workflows__not_one_word":                         { N: "refvars.NotOneWord" },
@@ -60,6 +60,13 @@ func main() {
 			"naming_conventions__workflow_call_input_name_format":                     { N: "naming.Workflow", F: map[string]string{ "Field": `"call_input_name"` }},
 			"naming_conventions__workflow_job_name_format":                            { N: "naming.Workflow", F: map[string]string{ "Field": `"job_name"` }},
 			"naming_conventions__workflow_single_job_only_name":                       { N: "naming.WorkflowSingleJobOnlyName" },
+			"required_fields__action_requires":                                        { N: "required.Action", F: map[string]string{ "Field": `"action"` }},
+			"required_fields__action_input_requires":                                  { N: "required.Action", F: map[string]string{ "Field": `"input"` }},
+			"required_fields__action_output_requires":                                 { N: "required.Action", F: map[string]string{ "Field": `"output"` }},
+			"required_fields__workflow_requires":                                      { N: "required.Workflow", F: map[string]string{ "Field": `"workflow"` }},
+			"required_fields__workflow_dispatch_input_requires":                       { N: "required.Workflow", F: map[string]string{ "Field": `"dispatch_input"` }},
+			"required_fields__workflow_call_input_requires":                           { N: "required.Workflow", F: map[string]string{ "Field": `"call_input"` }},
+			"required_fields__workflow_requires_uses_or_runs_on_required":             { N: "required.WorkflowUsesOrRunsOn" },
 		},
 	}
 

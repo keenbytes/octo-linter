@@ -4,10 +4,11 @@ import (
 	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/filenames"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/naming"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/required"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/refvars"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/usedactions"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/dependencies"
-	"github.com/keenbytes/octo-linter/internal/linter/rule/workflowrunners"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/runners"
 )
 
 func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}) error {
