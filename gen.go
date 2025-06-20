@@ -3,11 +3,16 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"log"
 	"os"
 	"path/filepath"
+	"text/template"
 )
+
+type S struct {
+	N string
+	F map[string]string
+}
 
 func main() {
 	genPath, err := os.Getwd()
@@ -20,29 +25,41 @@ func main() {
 	}
 
 	tplObj := struct {
-		Rules map[string]string
+		Rules map[string]S
 	}{
-		Rules: map[string]string{
-			"filenames__action_filename_extensions_allowed":                           "filenames.FilenameExtensionsAllowed",
-			"filenames__action_directory_name_format":                                 "filenames.ActionDirectoryNameFormat",
-			"filenames__workflow_filename_extensions_allowed":                         "filenames.FilenameExtensionsAllowed",
-			"filenames__workflow_filename_base_format":                                "filenames.WorkflowFilenameBaseFormat",
-			"workflow_runners__not_latest":                                            "workflowrunners.NotLatest",
-			"referenced_variables_in_actions__not_one_word":                           "refvars.NotOneWord",
-			"referenced_variables_in_actions__not_in_double_quotes":                   "refvars.NotInDoubleQuotes",
-			"referenced_variables_in_workflows__not_one_word":                         "refvars.NotOneWord",
-			"referenced_variables_in_workflows__not_in_double_quotes":                 "refvars.NotInDoubleQuotes",
-			"dependencies__workflow_needs_field_must_contain_already_existing_jobs":   "dependencies.WorkflowNeedsWithExistingJobs",
-			"dependencies__action_referenced_input_must_exists":                       "dependencies.ReferencedInputExists",
-			"dependencies__action_referenced_step_output_must_exist":                  "dependencies.ActionReferencedStepOutputExists",
-			"dependencies__workflow_referenced_variable_must_exists_in_attached_file": "dependencies.WorkflowReferencedVariableExistsInFile",
-			"dependencies__workflow_referenced_input_must_exists":                     "dependencies.ReferencedInputExists",
-			"used_actions_in_action_steps__source":                                    "usedactions.Source",
-			"used_actions_in_action_steps__must_exist":                                "usedactions.Exists",
-			"used_actions_in_action_steps__must_have_valid_inputs":                    "usedactions.ValidInputs",
-			"used_actions_in_workflow_job_steps__source":                              "usedactions.Source",
-			"used_actions_in_workflow_job_steps__must_exist":                          "usedactions.Exists",
-			"used_actions_in_workflow_job_steps__must_have_valid_inputs":              "usedactions.ValidInputs",
+		Rules: map[string]S{
+			"filenames__action_filename_extensions_allowed":                           { N: "filenames.FilenameExtensionsAllowed" },
+			"filenames__action_directory_name_format":                                 { N: "filenames.ActionDirectoryNameFormat" },
+			"filenames__workflow_filename_extensions_allowed":                         { N: "filenames.FilenameExtensionsAllowed" },
+			"filenames__workflow_filename_base_format":                                { N: "filenames.WorkflowFilenameBaseFormat" },
+			"workflow_runners__not_latest":                                            { N: "workflowrunners.NotLatest" },
+			"referenced_variables_in_actions__not_one_word":                           { N: "refvars.NotOneWord" },
+			"referenced_variables_in_actions__not_in_double_quotes":                   { N: "refvars.NotInDoubleQuotes" },
+			"referenced_variables_in_workflows__not_one_word":                         { N: "refvars.NotOneWord" },
+			"referenced_variables_in_workflows__not_in_double_quotes":                 { N: "refvars.NotInDoubleQuotes" },
+			"dependencies__workflow_needs_field_must_contain_already_existing_jobs":   { N: "dependencies.WorkflowNeedsWithExistingJobs" },
+			"dependencies__action_referenced_input_must_exists":                       { N: "dependencies.ReferencedInputExists" },
+			"dependencies__action_referenced_step_output_must_exist":                  { N: "dependencies.ActionReferencedStepOutputExists" },
+			"dependencies__workflow_referenced_variable_must_exists_in_attached_file": { N: "dependencies.WorkflowReferencedVariableExistsInFile" },
+			"dependencies__workflow_referenced_input_must_exists":                     { N: "dependencies.ReferencedInputExists" },
+			"used_actions_in_action_steps__source":                                    { N: "usedactions.Source" },
+			"used_actions_in_action_steps__must_exist":                                { N: "usedactions.Exists" },
+			"used_actions_in_action_steps__must_have_valid_inputs":                    { N: "usedactions.ValidInputs" },
+			"used_actions_in_workflow_job_steps__source":                              { N: "usedactions.Source" },
+			"used_actions_in_workflow_job_steps__must_exist":                          { N: "usedactions.Exists" },
+			"used_actions_in_workflow_job_steps__must_have_valid_inputs":              { N: "usedactions.ValidInputs" },
+			"naming_conventions__action_input_name_format":                            { N: "naming.Action",   F: map[string]string{ "Field": `"input_name"` }},
+			"naming_conventions__action_output_name_format":                           { N: "naming.Action",   F: map[string]string{ "Field": `"output_name"` }},
+			"naming_conventions__action_referenced_variable_format":                   { N: "naming.Action",   F: map[string]string{ "Field": `"referenced_variable"` }},
+			"naming_conventions__action_step_env_format":                              { N: "naming.Action",   F: map[string]string{ "Field": `"step_env"` }},
+			"naming_conventions__workflow_env_format":                                 { N: "naming.Workflow", F: map[string]string{ "Field": `"env"` }},
+			"naming_conventions__workflow_job_env_format":                             { N: "naming.Workflow", F: map[string]string{ "Field": `"job_env"` }},
+			"naming_conventions__workflow_job_step_env_format":                        { N: "naming.Workflow", F: map[string]string{ "Field": `"job_step_env"` }},
+			"naming_conventions__workflow_referenced_variable_format":                 { N: "naming.Workflow", F: map[string]string{ "Field": `"referenced_variable"` }},
+			"naming_conventions__workflow_dispatch_input_name_format":                 { N: "naming.Workflow", F: map[string]string{ "Field": `"dispatch_input_name"` }},
+			"naming_conventions__workflow_call_input_name_format":                     { N: "naming.Workflow", F: map[string]string{ "Field": `"call_input_name"` }},
+			"naming_conventions__workflow_job_name_format":                            { N: "naming.Workflow", F: map[string]string{ "Field": `"job_name"` }},
+			"naming_conventions__workflow_single_job_only_name":                       { N: "naming.WorkflowSingleJobOnlyName" },
 		},
 	}
 

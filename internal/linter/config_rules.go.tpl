@@ -3,6 +3,7 @@ package linter
 import (
 	"github.com/keenbytes/octo-linter/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/filenames"
+	"github.com/keenbytes/octo-linter/internal/linter/rule/naming"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/refvars"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/usedactions"
 	"github.com/keenbytes/octo-linter/internal/linter/rule/dependencies"
@@ -14,9 +15,13 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 
 	switch fullRuleName {
 
-  {{- range $configName, $structName := .Rules }}
+  {{- range $configName, $structDetails := .Rules }}
 	case "{{ $configName }}":
-		ruleInstance = {{ $structName }}{}
+		ruleInstance = {{ $structDetails.N }}{
+			{{- range $fieldName, $fieldValue := $structDetails.F }}
+			{{ $fieldName }}: {{ $fieldValue }},
+			{{- end }}
+		}
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
 			return err
