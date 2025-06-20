@@ -45,12 +45,12 @@ func (r Action) Validate(conf interface{}) error {
 
 		switch r.Field {
 		case "action":
-			if field != "description" {
-				return fmt.Errorf("value can contain only 'description'")
-			}
-		case "input", "output":
 			if field != "name" && field != "description" {
 				return fmt.Errorf("value can contain only 'name' and/or 'description'")
+			}
+		case "input", "output":
+			if field != "description" {
+				return fmt.Errorf("value can contain only 'description'")
 			}
 		default:
 			// nothing
