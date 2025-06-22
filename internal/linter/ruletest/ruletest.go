@@ -1,6 +1,7 @@
 package ruletest
 
 import (
+	"errors"
 	"time"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
@@ -8,22 +9,32 @@ import (
 )
 
 func RunLintAndGetRuleErrors(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *dotgithub.DotGithub) (compliant bool, err error, ruleErrors []string) {
-	chErrors := make(chan string)
+	compliant = true
+
 	timer := time.After(time.Duration(timeout) * time.Second)
 
-	compliant = true
-	err = nil
+	chErrors := make(chan string)
 
 	go func() {
 		compliant, err = rule.Lint(conf, f, d, chErrors)
+		close(chErrors)
 	}()
 
-	select {
-	case <-timer:
-		close(chErrors)
-	case ruleError := <-chErrors:
-		ruleErrors = append(ruleErrors, ruleError)
-	}
+	loop:
+		for {
+			select {
+			case <-timer:
+				err = errors.New("timeout")
+				compliant = false
+				break loop
+			case ruleError, more := <-chErrors:
+				if more {
+					ruleErrors = append(ruleErrors, ruleError)
+				} else {
+					break loop
+				}
+			}
+		}
 
-	return compliant, err, ruleErrors
+	return
 }

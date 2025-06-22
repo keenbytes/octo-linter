@@ -56,7 +56,7 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		return
 	}
 	
-	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
+	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-zA-Z0-9\-_]+|[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-_]+)$`)
 	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
 
 	steps := []*step.Step{}

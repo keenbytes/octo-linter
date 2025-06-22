@@ -46,7 +46,7 @@ func TestNotLatestNotCompliant(t *testing.T) {
 		t.Errorf("NotLatest.Lint should return false when 'latest' is found in at least one job")
 	}
 	if err != nil {
-		t.Errorf("NotLatest.Lint failed with an error")
+		t.Errorf("NotLatest.Lint failed with an error: %s", err.Error())
 	}
 
 	if len(ruleErrors) == 0 {
@@ -75,7 +75,7 @@ func TestNotLatestCompliant(t *testing.T) {
 		t.Errorf("NotLatest.Lint should return true when 'latest' is not in any job")
 	}
 	if err != nil {
-		t.Errorf("NotLatest.Lint failed with an error")
+		t.Errorf("NotLatest.Lint failed with an error: %s", err.Error())
 	}
 
 	if len(ruleErrors) > 0 {
