@@ -1,0 +1,77 @@
+version: '3'
+rules:
+  filenames:
+    action_filename_extensions_allowed: ['yml']
+    action_directory_name_format: dash-case
+    workflow_filename_extensions_allowed: ['yml']
+    workflow_filename_base_format: dash-case;underscore-prefix-allowed
+    warning_only:
+      - action_directory_name_format
+
+  naming_conventions:
+    action_input_name_format: dash-case
+    action_output_name_format: dash-case
+    action_referenced_variable_format: ALL_CAPS
+    action_step_env_format: ALL_CAPS
+    workflow_env_format: ALL_CAPS
+    workflow_job_env_format: ALL_CAPS
+    workflow_job_step_env_format: ALL_CAPS
+    workflow_referenced_variable_format: ALL_CAPS
+    workflow_dispatch_input_name_format: dash-case
+    workflow_call_input_name_format: dash-case
+    workflow_job_name_format: dash-case
+    workflow_single_job_only_name: main
+    warning_only:
+      - action_input_name_format
+      - action_output_name_format
+      - action_step_env_format
+      - workflow_env_format
+      - workflow_referenced_variable_format
+      - workflow_job_name_format
+      - workflow_job_step_env_format
+
+  required_fields:
+    action_requires: ['name', 'description']
+    action_input_requires: ['description']
+    action_output_requires: ['description']
+    workflow_requires: ['name']
+    workflow_dispatch_input_requires: ['description']
+    workflow_call_input_requires: ['description']
+    workflow_requires_uses_or_runs_on_required: true
+
+  referenced_variables_in_actions:
+    not_one_word: true
+    not_in_double_quote: true
+    warning_only:
+      - not_one_word
+      - not_in_double_quote
+
+  referenced_variables_in_workflows:
+    not_one_word: true
+    not_in_double_quote: true
+
+  used_actions_in_action_steps:
+    source: local-or-external
+    must_exist: ['local', 'external']
+    must_have_valid_inputs: true
+    warning_only:
+      - source
+  
+  used_actions_in_workflow_job_steps:
+    source: local-or-external
+    must_exist: ['local', 'external']
+    must_have_valid_inputs: true
+
+  dependencies:
+    workflow_needs_field_must_contain_already_existing_jobs: true
+    action_referenced_input_must_exists: true
+    action_referenced_step_output_must_exist: true
+    workflow_referenced_variable_must_exists_in_attached_file: true
+    workflow_referenced_input_must_exists: true
+    warning_only:
+      - workflow_called_input_exists
+
+  workflow_runners:
+    not_latest: true
+    warning_only:
+      - not_latest

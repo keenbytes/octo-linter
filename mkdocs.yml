@@ -18,7 +18,14 @@ nav:
     - Building: building.md
     - Running locally: running-locally.md
     - GitHub Actions Workflow: github-actions-workflow.md
-  - All rules: all-rules.md
+  - Rules:
+    - filenames: rules/filenames.md
+    - naming_conventions: rules/naming_conventions.md
+    - required_fields: rules/required_fields.md
+    - referenced_variables_*: rules/referenced_variables.md
+    - used_actions_*: rules/used_actions.md
+    - dependencies: rules/dependencies.md
+    - workflow_runners: rules/workflow_runners.md
 
 extra:
   social:
