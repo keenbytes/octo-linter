@@ -51,11 +51,10 @@ Here’s a quick overview of the project structure:
 ```
 octo-linter/
 ├── cmd/               # CLI entry points
-├── pkg/               # Core logic and utilities
-├── tests/             # Integration and end-to-end tests
+├── pkg/               # Externally available packages
+├── internal/          # Core logic and utilities
 ├── docs/              # Project documentation
-├── argocd-config/     # Argo CD setup files
-└── examples/          # Sample use cases and test inputs
+└── example/           # Sample use case
 ```
 
 ## Building the Project
@@ -66,6 +65,7 @@ To build the executable:
 
 ```bash
 cd cmd/octo-linter
+go generate
 go build .
 ```
 
@@ -91,12 +91,6 @@ To run them all:
 go test ./...
 ```
 
-Add verbose output with:
-
-```bash
-go test -v ./...
-```
-
 ## Documentation Workflow
 
 The project’s documentation is powered by MkDocs. To preview it locally:
@@ -110,7 +104,3 @@ Your browser should automatically open the local site after that.
 ## Licensing
 
 By contributing code or content to this repository, you agree that your contributions will be licensed under the terms outlined in the [`LICENSE`](./LICENSE) file.
-
----
-
-Let me know if you'd like to adjust the tone (e.g., more casual or more corporate) or include a code of conduct section.
