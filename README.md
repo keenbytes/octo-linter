@@ -46,7 +46,7 @@ Octo-linter can be told what rules should be executed and which of them should b
 rest will be shown as warnings.
 
 If config is not passed, then the default one is used.  It can be found in 
-[`pkg/linter/dotgithub.yml`](pkg/linter/dotgithub.yml).
+[`internal/linter/dotgithub.yml`](internal/linter/dotgithub.yml).
 
 **Use `init` command to create a default `dotgithub.yml` configuration file in current directory.**
 
@@ -56,7 +56,7 @@ Replace path to the .github directory.
 
     docker run --rm --name tmp-octo-linter \
       -v /Users/me/my-repo/.github:/dotgithub \
-      octo-linter \
+      keenbytes/octo-linter:v2.0.0 \
 	  validate -p /dotgithub
 
 
