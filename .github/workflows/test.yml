@@ -15,7 +15,7 @@ jobs:
 
       - name: Run tests
         run: |
-          go test
+          go test ./...
 
       - name: Check if binary builds
         run: |
