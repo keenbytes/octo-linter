@@ -8,7 +8,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
-func RunLintAndGetRuleErrors(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *dotgithub.DotGithub) (compliant bool, err error, ruleErrors []string) {
+func Lint(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *dotgithub.DotGithub) (compliant bool, err error, ruleErrors []string) {
 	compliant = true
 
 	timer := time.After(time.Duration(timeout) * time.Second)
