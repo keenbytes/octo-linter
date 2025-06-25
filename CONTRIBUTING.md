@@ -29,7 +29,14 @@ To get your development environment ready:
    go mod download
    ```
 
-3. *(Optional)* Set up the documentation tooling:
+3. Run generator:
+
+   ```bash
+   cd cmd/octo-linter
+   go generate
+   ```
+
+4. *(Optional)* Set up the documentation tooling:
 
    ```bash
    python3 -m venv venv

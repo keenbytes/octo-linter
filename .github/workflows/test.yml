@@ -13,11 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Generate code
+        run: |
+          cd cmd/octo-linter
+          go generate
+
       - name: Run tests
         run: |
           go test ./...
 
       - name: Check if binary builds
         run: |
+          cd cmd/octo-linter
           go build .
 
