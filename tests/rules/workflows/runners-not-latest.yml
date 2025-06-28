@@ -1,5 +1,5 @@
-name: runners not_latest
-description: Test for rule/runners/not_latest
+name: runners NotLatest
+description: Test for rule/runners/NotLatest
 jobs:
   job1:
     runs-on: ubuntu-latest

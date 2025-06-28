@@ -1,5 +1,5 @@
-name: usedactions exists
-description: Test for rule/usedactions/exists
+name: usedactions Exists
+description: Test for rule/usedactions/Exists
 jobs:
   main:
     steps:

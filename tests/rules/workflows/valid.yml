@@ -5,9 +5,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: ./.github/actions/valid
+        with:
+          required-input-1: "x"
+          optional-input-1: "y"
       - uses: actions/checkout@v3
   job2:
     runs-on: ubuntu-22.04
     steps:
       - uses: ./.github/actions/valid
+        with:
+          required-input-1: "x"
+          optional-input-1: "y"
       - uses: actions/checkout@v3

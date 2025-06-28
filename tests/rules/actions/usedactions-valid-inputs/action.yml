@@ -1,0 +1,32 @@
+name: usedactions validinputs
+description: Test for rule/usedactions/validinputs
+runs:
+  steps:
+    - name: Valid call
+      uses: ./.github/actions/valid
+      with:
+        required-input-1: "x"
+
+    - name: Missing required input
+      uses: ./.github/actions/valid
+
+    - name: Invalid input
+      uses: ./.github/actions/valid
+      with:
+        non-existing-input: "x"
+
+    - name: Valid call to existing local action
+      uses: ./.github/actions/valid
+      with:
+        required-input-1: "x"
+        optional-input-1: "x"
+
+    - name: Invalid input
+      uses: actions/checkout@v3
+      with:
+        non-existing-input: "x"
+
+    - name: Valid call to existing external action
+      uses: actions/checkout@v3
+      with:
+        ref: "branch"

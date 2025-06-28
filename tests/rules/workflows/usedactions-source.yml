@@ -1,5 +1,5 @@
-name: usedactions source
-description: Test for rule/usedactions/source
+name: usedactions Source
+description: Test for rule/usedactions/Source
 jobs:
   main:
     steps:
