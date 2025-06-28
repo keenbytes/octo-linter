@@ -54,6 +54,7 @@ octo-linter/
 ├── pkg/               # Externally available packages
 ├── internal/          # Core logic and utilities
 ├── docs/              # Project documentation
+├── tests/             # Test .github directories with actions and workflows
 └── example/           # Sample use case
 ```
 
@@ -88,7 +89,7 @@ Unit tests are written using Go’s standard testing tools.
 To run them all:
 
 ```bash
-go test ./...
+go test ./... -count=1
 ```
 
 ## Documentation Workflow
