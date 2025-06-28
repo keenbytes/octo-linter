@@ -20,10 +20,9 @@ jobs:
 
       - name: Run tests
         run: |
-          go test ./...
+          go test ./... -v -count=1
 
       - name: Check if binary builds
         run: |
           cd cmd/octo-linter
           go build .
-

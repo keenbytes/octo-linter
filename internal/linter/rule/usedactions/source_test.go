@@ -4,56 +4,8 @@ import (
 	"testing"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/ruletest"
-	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
-	"github.com/keenbytes/octo-linter/v2/pkg/step"
-	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
-
-var TestStepsLocalOnly = []*step.Step{
-	{
-		Uses: "./.github/actions/validAction",
-	},
-	{
-		Uses: "external-action/that-is-not-allowed",
-	},
-	{
-		Uses: "another-external/not-allowed@v2",
-	},
-	{
-		Uses: "./.github/actions/validActionAgain",
-	},
-}
-
-var TestStepsExternalOnly = []*step.Step{
-	{
-		Uses: "./.github/actions/validActionNotAllowed",
-	},
-	{
-		Uses: "external-org/repo/action-allowed-1@v1.0.0",
-	},
-	{
-		Uses: "external-org/repo/action-allowed-2@v2",
-	},
-}
-
-var TestStepsLocalOrExternal = []*step.Step{
-	{
-		Uses: "./.github/actions/validActionNotAllowed",
-	},
-	{
-		Uses: "external-org/repo/action-allowed-1@v1.0.0",
-	},
-	{
-		Uses: "./.github/some-wrong-name",
-	},
-	{
-		Uses: "org/repo-that-is-wrong",
-	},
-	{
-		Uses: "some-wrong-name-2",
-	},
-}
 
 func TestSourceValidate(t *testing.T) {
 	rule := Source{}
@@ -76,24 +28,9 @@ func TestSourceValidate(t *testing.T) {
 func TestLocalOnly(t *testing.T) {
 	rule := Source{}
 	conf := "local-only"
-	d := &dotgithub.DotGithub{}
+	d := ruletest.DotGithub
 
-	for n, f := range map[string]dotgithub.File{
-		"action": &action.Action{
-			DirName: "action1",
-			Runs: &action.ActionRuns{
-				Steps: TestStepsLocalOnly,
-			},
-		},
-		"workflow": &workflow.Workflow{
-			FileName: "workflow1.yml",
-			Jobs: map[string]*workflow.WorkflowJob{
-				"main": {
-					Steps: TestStepsLocalOnly,
-				},
-			},
-		},
-	} {
+	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Source.Lint on %s should return false when there are external actions and conf is %v", n, conf)
@@ -106,28 +43,17 @@ func TestLocalOnly(t *testing.T) {
 			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %v", n, ruleErrors)
 		}
 	}
+
+	ruletest.Action(d, "usedactions-source-local-only", fn)
+	ruletest.Workflow(d, "usedactions-source-local-only.yml", fn)
 }
 
 func TestExternalOnlyOnAction(t *testing.T) {
 	rule := Source{}
 	conf := "external-only"
-	d := &dotgithub.DotGithub{}
-	for n, f := range map[string]dotgithub.File{
-		"action": &action.Action{
-			DirName: "action1",
-			Runs: &action.ActionRuns{
-				Steps: TestStepsExternalOnly,
-			},
-		},
-		"workflow": &workflow.Workflow{
-			FileName: "workflow1.yml",
-			Jobs: map[string]*workflow.WorkflowJob{
-				"main": {
-					Steps: TestStepsExternalOnly,
-				},
-			},
-		},
-	} {
+	d := ruletest.DotGithub
+
+	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Source.Lint on %s should return false when there are local actions and conf is %v", n, conf)
@@ -140,28 +66,17 @@ func TestExternalOnlyOnAction(t *testing.T) {
 			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %v", n, ruleErrors)
 		}
 	}
+
+	ruletest.Action(d, "usedactions-source-external-only", fn)
+	ruletest.Workflow(d, "usedactions-source-external-only.yml", fn)
 }
 
 func TestLocalOrExternalOnAction(t *testing.T) {
 	rule := Source{}
 	conf := "local-or-external"
-	d := &dotgithub.DotGithub{}
-	for n, f := range map[string]dotgithub.File{
-		"action": &action.Action{
-			DirName: "action1",
-			Runs: &action.ActionRuns{
-				Steps: TestStepsLocalOrExternal,
-			},
-		},
-		"workflow": &workflow.Workflow{
-			FileName: "workflow1.yml",
-			Jobs: map[string]*workflow.WorkflowJob{
-				"main": {
-					Steps: TestStepsLocalOrExternal,
-				},
-			},
-		},
-	} {
+	d := ruletest.DotGithub
+
+	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Source.Lint on %s should return false when there are invalid actions that are nor local nor external, and conf is %v", n, conf)
@@ -174,4 +89,7 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %v", n, ruleErrors)
 		}
 	}
+
+	ruletest.Action(d, "usedactions-source-local-or-external", fn)
+	ruletest.Workflow(d, "usedactions-source-local-or-external.yml", fn)
 }

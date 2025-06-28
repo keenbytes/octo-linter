@@ -1,0 +1,12 @@
+name: runners not_latest
+jobs:
+  job1:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: ./.github/actions/someaction
+    - uses: external-org/repo/action-1@v1.0.0
+  job2:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: ./.github/actions/someaction
+    - uses: external-org/repo/action-1@v1.0.0

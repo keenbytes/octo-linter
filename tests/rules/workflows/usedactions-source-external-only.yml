@@ -1,0 +1,7 @@
+name: usedactions source external-only
+jobs:
+  main:
+    steps:
+    - uses: ./.github/actions/validActionNotAllowed
+    - uses: external-org/repo/action-allowed-1@v1.0.0
+    - uses: external-org/repo/action-allowed-2@v2
