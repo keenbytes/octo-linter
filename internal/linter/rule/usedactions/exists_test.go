@@ -1,6 +1,7 @@
 package usedactions
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/ruletest"
@@ -29,15 +30,40 @@ func TestLocal(t *testing.T) {
 	d := ruletest.DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, _ := ruletest.Lint(3, rule, conf, f, d)
+		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Exists.Lint on %s should return false when conf is %v", n, conf)
 		}
 		if err != nil {
 			t.Errorf("Exists.Lint on %s failed with an error: %s", n, err.Error())
 		}
+		if len(ruleErrors) != 2 {
+			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
+		}
 	}
 
 	ruletest.Action(d, "usedactions-exists-local", fn)
 	ruletest.Workflow(d, "usedactions-exists-local.yml", fn)
+}
+
+func TestExternal(t *testing.T) {
+	rule := Exists{}
+	conf := []interface{}{"external"}
+	d := ruletest.DotGithub
+
+	fn := func(f dotgithub.File, n string) {
+		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
+		if compliant {
+			t.Errorf("Exists.Lint on %s should return false when conf is %v", n, conf)
+		}
+		if err != nil {
+			t.Errorf("Exists.Lint on %s failed with an error: %s", n, err.Error())
+		}
+		if len(ruleErrors) != 2 {
+			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
+		}
+	}
+
+	ruletest.Action(d, "usedactions-exists-external", fn)
+	ruletest.Workflow(d, "usedactions-exists-external.yml", fn)
 }

@@ -1,6 +1,7 @@
 package usedactions
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/ruletest"
@@ -40,7 +41,7 @@ func TestLocalOnly(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %v", n, ruleErrors)
+			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
 		}
 	}
 
@@ -63,7 +64,7 @@ func TestExternalOnlyOnAction(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 1 {
-			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %v", n, ruleErrors)
+			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
 		}
 	}
 
@@ -86,7 +87,7 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 3 {
-			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %v", n, ruleErrors)
+			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
 		}
 	}
 

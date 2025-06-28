@@ -61,7 +61,7 @@ func TestNotLatestCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) > 0 {
-			t.Errorf("NotLatest.Lint should not send any error over the channel, sent: %s", strings.Join(ruleErrors, ","))
+			t.Errorf("NotLatest.Lint should not send any error over the channel, sent %s", strings.Join(ruleErrors, "|"))
 		}
 	}
 
