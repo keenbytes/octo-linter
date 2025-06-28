@@ -1,7 +1,8 @@
 name: runners not_latest
+description: Test for rule/runners/not_latest
 jobs:
   job1:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
     - uses: ./.github/actions/someaction
     - uses: external-org/repo/action-1@v1.0.0

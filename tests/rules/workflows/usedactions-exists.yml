@@ -1,0 +1,13 @@
+name: usedactions exists
+description: Test for rule/usedactions/exists
+jobs:
+  main:
+    steps:
+      - uses: ./.github/actions/non-existing
+      - uses: ./.github/actions/non-existing2
+      - uses: keenbytes/non-existing-external@v2
+      - uses: actions/checkout@nonexisting
+      - uses: ./.github/actions/valid
+      - uses: ./.github/actions/valid
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2

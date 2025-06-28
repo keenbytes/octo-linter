@@ -38,12 +38,12 @@ func TestLocal(t *testing.T) {
 			t.Errorf("Exists.Lint on %s failed with an error: %s", n, err.Error())
 		}
 		if len(ruleErrors) != 2 {
-			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
+			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
 		}
 	}
 
-	ruletest.Action(d, "usedactions-exists-local", fn)
-	ruletest.Workflow(d, "usedactions-exists-local.yml", fn)
+	ruletest.Action(d, "usedactions-exists", fn)
+	ruletest.Workflow(d, "usedactions-exists.yml", fn)
 }
 
 func TestExternal(t *testing.T) {
@@ -60,10 +60,32 @@ func TestExternal(t *testing.T) {
 			t.Errorf("Exists.Lint on %s failed with an error: %s", n, err.Error())
 		}
 		if len(ruleErrors) != 2 {
-			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
+			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
 		}
 	}
 
-	ruletest.Action(d, "usedactions-exists-external", fn)
-	ruletest.Workflow(d, "usedactions-exists-external.yml", fn)
+	ruletest.Action(d, "usedactions-exists", fn)
+	ruletest.Workflow(d, "usedactions-exists.yml", fn)
+}
+
+func TestLocalExternal(t *testing.T) {
+	rule := Exists{}
+	conf := []interface{}{"local", "external"}
+	d := ruletest.DotGithub
+
+	fn := func(f dotgithub.File, n string) {
+		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
+		if compliant {
+			t.Errorf("Exists.Lint on %s should return false when conf is %v", n, conf)
+		}
+		if err != nil {
+			t.Errorf("Exists.Lint on %s failed with an error: %s", n, err.Error())
+		}
+		if len(ruleErrors) != 4 {
+			t.Errorf("Exists.Lint on %s should send 4 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+		}
+	}
+
+	ruletest.Action(d, "usedactions-exists", fn)
+	ruletest.Workflow(d, "usedactions-exists.yml", fn)
 }

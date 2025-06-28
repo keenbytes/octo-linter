@@ -1,8 +1,0 @@
-name: usedactions exists external
-runs:
-  steps:
-    - uses: ./.github/actions/non-existing
-    - uses: ./.github/actions/non-existing2
-    - uses: keenbytes/non-existing-external@v2
-    - uses: keenbytes/non-existing-external@something
-    - uses: ./.github/actions/usedactions-exists-local

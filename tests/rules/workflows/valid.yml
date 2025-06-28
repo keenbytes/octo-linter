@@ -1,0 +1,13 @@
+name: Valid
+description: Valid workflow used for various tests
+jobs:
+  job1:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ./.github/actions/valid
+      - uses: actions/checkout@v3
+  job2:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ./.github/actions/valid
+      - uses: actions/checkout@v3

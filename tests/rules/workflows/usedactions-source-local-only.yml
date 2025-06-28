@@ -1,8 +1,0 @@
-name: usedactions source local-only
-jobs:
-  main:
-    steps:
-      - uses: ./.github/actions/validAction
-      - uses: external-action/that-is-not-allowed
-      - uses: another-external/not-allowed@v2
-      - uses: ./.github/actions/validActionAgain

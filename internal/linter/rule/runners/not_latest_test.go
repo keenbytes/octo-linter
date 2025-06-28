@@ -43,7 +43,7 @@ func TestNotLatestNotCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Workflow(d, "runners-not-latest-not-compliant.yml", fn)
+	ruletest.Workflow(d, "runners-not-latest.yml", fn)
 }
 
 func TestNotLatestCompliant(t *testing.T) {
@@ -65,5 +65,5 @@ func TestNotLatestCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Workflow(d, "runners-not-latest-compliant.yml", fn)
+	ruletest.Workflow(d, "valid.yml", fn)
 }

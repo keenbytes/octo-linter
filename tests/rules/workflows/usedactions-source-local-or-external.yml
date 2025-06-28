@@ -1,9 +1,0 @@
-name: usedactions source local-or-external
-jobs:
-  main:
-    steps:
-      - uses: ./.github/actions/validActionNotAllowed
-      - uses: external-org/repo/action-allowed-1@v1.0.0
-      - uses: ./.github/some-wrong-name
-      - uses: org/repo-that-is-wrong
-      - uses: some-wrong-name-2

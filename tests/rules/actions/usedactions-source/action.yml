@@ -1,0 +1,8 @@
+name: usedactions source
+description: Test for rule/usedactions/source
+runs:
+  steps:
+    - uses: ./.github/actions/validAction
+    - uses: invalid-action-name
+    - uses: org/repo@v3
+    - uses: org/repo/action@v4

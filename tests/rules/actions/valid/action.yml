@@ -1,0 +1,15 @@
+name: Valid
+description: Valid action that is included in other places
+inputs:
+  required-input-1:
+    description: Input that is required
+    required: true
+  optional-input-1:
+    description: Input that is optional
+    default: ""
+runs:
+  steps:
+    - name: Simple echo steps
+      shell: bash
+      run: |
+        echo "Hello World!"

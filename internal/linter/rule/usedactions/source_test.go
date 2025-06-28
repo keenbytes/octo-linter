@@ -40,13 +40,13 @@ func TestLocalOnly(t *testing.T) {
 			t.Errorf("Source.Lint on %s failed with an error: %s", n, err.Error())
 		}
 
-		if len(ruleErrors) != 2 {
-			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
+		if len(ruleErrors) != 3 {
+			t.Errorf("Source.Lint on %s should send 3 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
 		}
 	}
 
-	ruletest.Action(d, "usedactions-source-local-only", fn)
-	ruletest.Workflow(d, "usedactions-source-local-only.yml", fn)
+	ruletest.Action(d, "usedactions-source", fn)
+	ruletest.Workflow(d, "usedactions-source.yml", fn)
 }
 
 func TestExternalOnlyOnAction(t *testing.T) {
@@ -63,13 +63,13 @@ func TestExternalOnlyOnAction(t *testing.T) {
 			t.Errorf("Source.Lint on %s failed with an error: %s", n, err.Error())
 		}
 
-		if len(ruleErrors) != 1 {
-			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
+		if len(ruleErrors) != 2 {
+			t.Errorf("Source.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
 		}
 	}
 
-	ruletest.Action(d, "usedactions-source-external-only", fn)
-	ruletest.Workflow(d, "usedactions-source-external-only.yml", fn)
+	ruletest.Action(d, "usedactions-source", fn)
+	ruletest.Workflow(d, "usedactions-source.yml", fn)
 }
 
 func TestLocalOrExternalOnAction(t *testing.T) {
@@ -86,11 +86,11 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 			t.Errorf("Source.Lint on %s failed with an error: %s", n, err.Error())
 		}
 
-		if len(ruleErrors) != 3 {
-			t.Errorf("Source.Lint on %s should send 2 errors over the channel not %s", n, strings.Join(ruleErrors, "|"))
+		if len(ruleErrors) != 1 {
+			t.Errorf("Source.Lint on %s should send 1 error over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
 		}
 	}
 
-	ruletest.Action(d, "usedactions-source-local-or-external", fn)
-	ruletest.Workflow(d, "usedactions-source-local-or-external.yml", fn)
+	ruletest.Action(d, "usedactions-source", fn)
+	ruletest.Workflow(d, "usedactions-source.yml", fn)
 }
