@@ -1,18 +1,12 @@
-name: Valid
-description: Valid action that is included in other places
 inputs:
   required-input-1:
-    description: Input that is required
     required: true
   optional-input-1:
-    description: Input that is optional
     default: ""
 outputs:
   output-1:
-    description: Sample output
     value: "output1"
   output-2:
-    description: Sample output
     value: "output2"
 runs:
   steps:

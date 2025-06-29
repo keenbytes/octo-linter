@@ -68,12 +68,12 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 	w := f.(*workflow.Workflow)
 
 	confInterfaces := conf.([]interface{})
-
 	switch r.Field {
 	case "workflow":
 		for _, field := range confInterfaces {
 			if field.(string) == "name" && w.Name == "" {
 				chErrors <- fmt.Sprintf("workflow '%s' does not have a required %s", w.DisplayName, field.(string))
+				compliant = false
 			}
 		}
 

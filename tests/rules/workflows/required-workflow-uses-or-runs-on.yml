@@ -1,0 +1,11 @@
+name: required WorkflowUsesOrRunsOn
+description: Test for rule/required/WorkflowUsesOrRunsOn
+jobs:
+  invalid-job1:
+    steps:
+    - uses: ./.github/actions/someaction
+    - uses: external-org/repo/action-1@v1.0.0
+  invalid-job2:
+    steps:
+    - uses: ./.github/actions/someaction
+    - uses: external-org/repo/action-1@v1.0.0

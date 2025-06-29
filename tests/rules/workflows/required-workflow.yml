@@ -1,21 +1,16 @@
-name: Valid
 on:
   workflow_dispatch:
     inputs:
       dispatch-input-1:
-        description: Sample input
         required: true
       dispatch-input-2:
-        description: Another sample input
         required: false
         default: ""
   workflow_call:
     inputs:
       call-input-1:
-        description: Sample input
         required: true
       call-input-2:
-        description: Another sample input
         required: false
         default: ""
 jobs:
