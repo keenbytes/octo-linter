@@ -49,10 +49,11 @@ func (r NotInDoubleQuotes) Lint(conf interface{}, f dotgithub.File, d *dotgithub
 		return
 	}
 
+	re := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\-_.]+)[ ]*}}\"`)
+
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 
-		re := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\\-_.]+)[ ]*}}\"`)
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
 			chErrors <- fmt.Sprintf("action '%s' calls a variable '%s' that is in double quotes", a.DirName, string(f[1]))
@@ -63,7 +64,6 @@ func (r NotInDoubleQuotes) Lint(conf interface{}, f dotgithub.File, d *dotgithub
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
 
-		re := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\\-_.]+)[ ]*}}\"`)
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
 			chErrors <- fmt.Sprintf("workflow '%s' calls a variable '%s' that is in double quotes", w.FileName, string(f[1]))

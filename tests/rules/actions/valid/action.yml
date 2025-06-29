@@ -18,5 +18,15 @@ runs:
   steps:
     - name: Simple echo steps
       shell: bash
+      env:
+        VARIABLE_1: value
+        VARIABLE_2: value
       run: |
-        echo "Hello World!"
+        echo 'A sample message, with env var: ${{ env.VARIABLE_1 }}'
+        echo '${{ env.VARIABLE_2 }}'
+        if [[ '${{ var.FEATURE1_ENABLED }}' == 'true' ]]; then
+          echo "Feature1 is enabled"
+        fi
+        if [[ '${{ secrets.TOKEN1 }}' != '' ]]; then
+          echo "Token1 is not empty"
+        fi

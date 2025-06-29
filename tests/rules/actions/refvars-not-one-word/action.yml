@@ -1,0 +1,12 @@
+name: refvars NotOneWord
+runs:
+  steps:
+    - shell: bash
+      run: |
+        echo "${{ invalidVariableNameThatIsOneWord }} is not allowed"
+    - shell: bash
+      run: |
+        echo '${{ true }} is allowed'
+    - shell: bash
+      run: |
+        echo '${{ false }} is allowed'

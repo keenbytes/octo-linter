@@ -1,0 +1,12 @@
+name: refvars NotInDoubleQuotes
+description: Test for rule/refvars/NotInDoubleQuotes
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          echo "${{ vars.VARIABLE_THAT_CAN_BE_EXECUTED }}"
+      - shell: bash
+        run: |
+          echo '${{ vars.VARIABLE_NOT_IN_DOUBLE_QUOTE }}'

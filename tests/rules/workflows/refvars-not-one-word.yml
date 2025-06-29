@@ -1,0 +1,15 @@
+name: refvars NotOneWord
+description: Test for rule/refvars/NotOneWord
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          echo "${{ invalid-variable-name-that-is-one-word }} is not allowed"
+      - shell: bash
+        run: |
+          echo '${{ true }} is allowed'
+      - shell: bash
+        run: |
+          echo '${{ false }} is allowed'

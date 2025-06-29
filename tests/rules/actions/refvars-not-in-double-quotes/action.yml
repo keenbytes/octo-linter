@@ -1,0 +1,9 @@
+name: refvars NotInDoubleQuotes
+runs:
+  steps:
+    - shell: bash
+      run: |
+        echo "${{ vars.VARIABLE_THAT_CAN_BE_EXECUTED }}"
+    - shell: bash
+      run: |
+        echo '${{ vars.VARIABLE_NOT_IN_DOUBLE_QUOTE }}'

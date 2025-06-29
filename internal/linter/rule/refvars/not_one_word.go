@@ -50,10 +50,11 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 		return
 	}
 
+	re := regexp.MustCompile(`\${{[ ]*([a-zA-Z0-9\-_]+)[ ]*}}`)
+
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 
-		re := regexp.MustCompile(`\${{[ ]*([a-zA-Z0-9\\-_]+)[ ]*}}`)
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
@@ -66,7 +67,6 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
 
-		re := regexp.MustCompile(`\${{[ ]*([a-zA-Z0-9\\-_]+)[ ]*}}`)
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
