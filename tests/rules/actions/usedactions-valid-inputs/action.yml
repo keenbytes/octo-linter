@@ -3,20 +3,20 @@ description: Test for rule/usedactions/validinputs
 runs:
   steps:
     - name: Valid call
-      uses: ./.github/actions/valid
+      uses: ./.github/actions/valid-action
       with:
         required-input-1: "x"
 
     - name: Missing required input
-      uses: ./.github/actions/valid
+      uses: ./.github/actions/valid-action
 
     - name: Invalid input
-      uses: ./.github/actions/valid
+      uses: ./.github/actions/valid-action
       with:
         non-existing-input: "x"
 
     - name: Valid call to existing local action
-      uses: ./.github/actions/valid
+      uses: ./.github/actions/valid-action
       with:
         required-input-1: "x"
         optional-input-1: "x"

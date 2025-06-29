@@ -7,7 +7,7 @@ jobs:
       - uses: ./.github/actions/non-existing2
       - uses: keenbytes/non-existing-external@v2
       - uses: actions/checkout@nonexisting
-      - uses: ./.github/actions/valid
-      - uses: ./.github/actions/valid
+      - uses: ./.github/actions/valid-action
+      - uses: ./.github/actions/valid-action
       - uses: actions/checkout@v3
       - uses: actions/checkout@v2

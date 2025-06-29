@@ -66,6 +66,6 @@ func TestNotInDoubleQuotesCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Action(d, "valid", fn)
-	ruletest.Workflow(d, "valid.yml", fn)
+	ruletest.Action(d, "valid-action", fn)
+	ruletest.Workflow(d, "valid-workflow.yml", fn)
 }

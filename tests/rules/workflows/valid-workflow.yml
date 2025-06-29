@@ -22,7 +22,7 @@ jobs:
   job1:
     runs-on: ubuntu-22.04
     steps:
-      - uses: ./.github/actions/valid
+      - uses: ./.github/actions/valid-action
         with:
           required-input-1: "x"
           optional-input-1: "y"
@@ -30,7 +30,7 @@ jobs:
   job2:
     runs-on: ubuntu-22.04
     steps:
-      - uses: ./.github/actions/valid
+      - uses: ./.github/actions/valid-action
         with:
           required-input-1: "x"
           optional-input-1: "y"

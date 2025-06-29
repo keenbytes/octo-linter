@@ -115,7 +115,7 @@ func TestActionFieldActionCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Action(d, "valid", fn)
+	ruletest.Action(d, "valid-action", fn)
 }
 
 func TestActionFieldInputOutputCompliant(t *testing.T) {
@@ -140,6 +140,6 @@ func TestActionFieldInputOutputCompliant(t *testing.T) {
 			}
 		}
 
-		ruletest.Action(d, "valid", fn)
+		ruletest.Action(d, "valid-action", fn)
 	}
 }

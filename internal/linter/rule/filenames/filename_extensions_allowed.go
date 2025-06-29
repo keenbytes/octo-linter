@@ -3,7 +3,6 @@ package filenames
 import (
 	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
@@ -56,39 +55,45 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		return
 	}
 
+	allowedExtensions, ok := conf.([]interface{})
+	if !ok {
+		return
+	}
+	
+	var extension string
+	var fileType string
+	var fileTypeName string
+
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 
-		allowedExtensions, ok := conf.([]interface{})
-		if !ok {
-			return
-		}
-
 		pathParts := strings.Split(a.Path, "/")
 		fileParts := strings.Split(pathParts[len(pathParts)-1], ".")
-		extension := fileParts[len(fileParts)-1]
+		extension = fileParts[len(fileParts)-1]
 
-		var allowedExtensionsList []string
-		for _, allowedExtension := range allowedExtensions {
-			if extension == allowedExtension.(string) {
-				return
-			}
-			allowedExtensionsList = append(allowedExtensionsList, allowedExtension.(string))
-		}
-		compliant = false
-		chErrors <- fmt.Sprintf("action '%s' file extension must be one of: %s", a.DirName, strings.Join(allowedExtensionsList, ","))
+		fileType = "action"
+		fileTypeName = a.DirName
 	}
 
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
+		
+		fileParts := strings.Split(w.FileName, ".")
+		extension = fileParts[len(fileParts)-1]
 
-		re := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\\-_.]+)[ ]*}}\"`)
-		found := re.FindAllSubmatch(w.Raw, -1)
-		for _, f := range found {
-			chErrors <- fmt.Sprintf("workflow '%s' calls a variable '%s' that is in double quotes", w.FileName, string(f[1]))
-			compliant = false
-		}
+		fileType = "workflow"
+		fileTypeName = w.DisplayName
 	}
+
+	var allowedExtensionsList []string
+	for _, allowedExtension := range allowedExtensions {
+		if extension == allowedExtension.(string) {
+			return
+		}
+		allowedExtensionsList = append(allowedExtensionsList, allowedExtension.(string))
+	}
+	compliant = false
+	chErrors <- fmt.Sprintf("%s '%s' file extension must be one of: %s", fileType, fileTypeName, strings.Join(allowedExtensionsList, ","))
 
 	return
 }

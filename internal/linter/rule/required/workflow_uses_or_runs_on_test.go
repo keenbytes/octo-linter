@@ -65,5 +65,5 @@ func TestWorkflowUsesOrRunsOnCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Workflow(d, "valid.yml", fn)
+	ruletest.Workflow(d, "valid-workflow.yml", fn)
 }
