@@ -102,6 +102,7 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		Name: fileTypeName,
 		Type: fileType,
 		ErrText: fmt.Sprintf("file extension must be one of: %s", strings.Join(allowedExtensionsList, ",")),
+		RuleName: r.ConfigName(fileType),
 	}
 
 	return

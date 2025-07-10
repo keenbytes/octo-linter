@@ -63,6 +63,7 @@ func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgi
 					Name: a.DirName,
 					Type: rule.DotGithubFileTypeAction,
 					ErrText: fmt.Sprintf("calls an input '%s' that does not exist", string(f[1])),
+					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 				}
 				compliant = false
 			}
@@ -89,6 +90,7 @@ func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgi
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("calls an input '%s' that does not exist", string(f[1])),
+					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 				}
 				compliant = false
 			}

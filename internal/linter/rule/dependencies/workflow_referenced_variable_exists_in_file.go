@@ -51,6 +51,7 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("calls a variable '%s' that does not exist in the vars file", string(f[1])),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
@@ -61,6 +62,7 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("calls a secret '%s' that does not exist in the secrets file", string(f[1])),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}

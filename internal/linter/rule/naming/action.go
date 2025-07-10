@@ -66,6 +66,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					Name: a.DirName,
 					Type: rule.DotGithubFileTypeAction,
 					ErrText: fmt.Sprintf("input '%s' must be %s", inputName, conf.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
@@ -79,6 +80,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					Name: a.DirName,
 					Type: rule.DotGithubFileTypeAction,
 					ErrText: fmt.Sprintf("output '%s' must be %s", outputName, conf.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
@@ -96,6 +98,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						Name: a.DirName,
 						Type: rule.DotGithubFileTypeAction,
 						ErrText: fmt.Sprintf("references a variable '%s' that must be %s", string(f[1]), conf.(string)),
+						RuleName: r.ConfigName(0),
 					}
 					compliant = false
 				}
@@ -118,6 +121,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						Name: a.DirName,
 						Type: rule.DotGithubFileTypeAction,
 						ErrText: fmt.Sprintf("step %d env '%s' must be %s", i, envName, conf.(string)),
+						RuleName: r.ConfigName(0),
 					}
 					compliant = false
 				}

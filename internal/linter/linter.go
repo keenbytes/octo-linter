@@ -3,6 +3,8 @@ package linter
 import (
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"runtime"
 	"sync"
 	"time"
@@ -22,7 +24,7 @@ type Linter struct {
 	Config *Config
 }
 
-func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
+func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (uint8, error) {
 	if l.Config == nil {
 		panic("Config cannot be nil")
 	}
@@ -122,6 +124,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
 						if s != "" {
 							slog.Warn(s)
+							glitchInstance.IsError = false
 							summary.addGlitch(&glitchInstance)
 						}
 					} else {
@@ -132,6 +135,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
 						if s != "" {
 							slog.Error(s)
+							glitchInstance.IsError = true
 							summary.addGlitch(&glitchInstance)
 						}
 					} else {
@@ -163,6 +167,24 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	slog.Debug(fmt.Sprintf("number of rules returning warnings: %d", summary.numWarning.Load()))
 	slog.Debug(fmt.Sprintf("number of rules processed in total: %d", summary.numProcessed.Load()))
 	slog.Debug(fmt.Sprintf("number of glitches: %d", len(summary.glitches)))
+
+	if output != "" {
+		outputMd := filepath.Join(output, "output.md")
+		slog.Debug(fmt.Sprintf("writing output to %s...", outputMd))
+
+		_ = os.Remove(outputMd)
+
+		if outputLimit < 0 {
+			outputLimit = 0
+		}
+
+		md := summary.markdown("octo-linter summary", outputLimit)
+
+		err := os.WriteFile(outputMd, []byte(md), 0644)
+		if err != nil {
+			return uint8(finalStatus), fmt.Errorf("error writing markdown output: %w", err)
+		}
+	}
 
 	return uint8(finalStatus), nil
 }

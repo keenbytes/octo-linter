@@ -50,6 +50,7 @@ func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *d
 			Name: a.DirName,
 			Type: rule.DotGithubFileTypeAction,
 			ErrText: fmt.Sprintf("directory name must be %s", conf.(string)),
+			RuleName: r.ConfigName(0),
 		}
 		compliant = false
 	}

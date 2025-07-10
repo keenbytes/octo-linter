@@ -119,6 +119,7 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				Name: fileName,
 				Type: fileType,
 				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses),
+				RuleName: r.ConfigName(fileType),
 			}
 			compliant = false
 		}
@@ -128,6 +129,7 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				Name: fileName,
 				Type: fileType,
 				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, i+1, st.Uses),
+				RuleName: r.ConfigName(fileType),
 			}
 			compliant = false
 		}
@@ -137,6 +139,7 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				Name: fileName,
 				Type: fileType,
 				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses),
+				RuleName: r.ConfigName(fileType),
 			}
 			compliant = false
 		}

@@ -78,6 +78,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("does not have a required %s", field.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
@@ -96,6 +97,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 						Name: w.DisplayName,
 						Type: rule.DotGithubFileTypeWorkflow,
 						ErrText: fmt.Sprintf("dispatch input '%s' does not have a required %s", inputName, field.(string)),
+						RuleName: r.ConfigName(0),
 					}
 					compliant = false
 				}
@@ -114,6 +116,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 						Name: w.DisplayName,
 						Type: rule.DotGithubFileTypeWorkflow,
 						ErrText: fmt.Sprintf("call input '%s' does not have a required %s", inputName, field.(string)),
+						RuleName: r.ConfigName(0),
 					}
 					compliant = false
 				}

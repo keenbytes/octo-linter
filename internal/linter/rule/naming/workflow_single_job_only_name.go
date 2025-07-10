@@ -50,6 +50,7 @@ func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *d
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("has only one job and it should be called '%s'", conf.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}

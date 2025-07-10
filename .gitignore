@@ -30,3 +30,6 @@ go.work.sum
 
 # generated files
 generated_*
+
+# output directory
+output

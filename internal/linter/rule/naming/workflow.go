@@ -76,6 +76,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText:fmt.Sprintf("env '%s' must be %s", envName, conf.(string)),
+					RuleName: r.ConfigName(0),
 				}
 			}
 		}
@@ -96,6 +97,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 						Name: w.DisplayName,
 						Type: rule.DotGithubFileTypeWorkflow,
 						ErrText: fmt.Sprintf("job '%s' env '%s' must be %s", jobName, envName, conf.(string)),
+						RuleName: r.ConfigName(0),
 					}
 				}
 			}
@@ -114,6 +116,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 							Name: w.DisplayName,
 							Type: rule.DotGithubFileTypeWorkflow,
 							ErrText: fmt.Sprintf("job '%s' step %d env '%s' must be %s", jobName, i, envName, conf.(string)),
+							RuleName: r.ConfigName(0),
 						}
 						compliant = false
 					}
@@ -133,6 +136,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 						Name: w.DisplayName,
 						Type: rule.DotGithubFileTypeWorkflow,
 						ErrText: fmt.Sprintf("calls a variable '%s' that must be %s", string(f[1]), conf.(string)),
+						RuleName: r.ConfigName(0),
 					}
 					compliant = false
 				}
@@ -151,6 +155,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("call input '%s' name must be %s", inputName, conf.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
@@ -168,6 +173,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("dispatch input '%s' name must be %s", inputName, conf.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
@@ -185,6 +191,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					Name: w.DisplayName,
 					Type: rule.DotGithubFileTypeWorkflow,
 					ErrText: fmt.Sprintf("job '%s' name must be %s", jobName, conf.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
