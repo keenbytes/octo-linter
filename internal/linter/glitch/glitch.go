@@ -37,7 +37,7 @@ func ListToMarkdown(glitches []*Glitch, limit int) (s string) {
 		s += fmt.Sprintf("|%s|%s %s *(%s)*|\n", name, level, g.ErrText, g.RuleName)
 	}
 
-	if len(glitches) > limit {
+	if len(glitches) > limit && limit > 0 {
 		s += fmt.Sprintf("\n...and many more (%d in total).", len(glitches))
 	}
 
