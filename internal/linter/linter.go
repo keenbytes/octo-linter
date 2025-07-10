@@ -122,6 +122,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
 						if s != "" {
 							slog.Warn(s)
+							summary.addGlitch(&glitchInstance)
 						}
 					} else {
 						chWarningsClosed = true
@@ -131,6 +132,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
 						if s != "" {
 							slog.Error(s)
+							summary.addGlitch(&glitchInstance)
 						}
 					} else {
 						chErrorsClosed = true
@@ -160,6 +162,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	slog.Debug(fmt.Sprintf("number of rules returning errors: %d", summary.numError.Load()))
 	slog.Debug(fmt.Sprintf("number of rules returning warnings: %d", summary.numWarning.Load()))
 	slog.Debug(fmt.Sprintf("number of rules processed in total: %d", summary.numProcessed.Load()))
+	slog.Debug(fmt.Sprintf("number of glitches: %d", len(summary.glitches)))
 
 	return uint8(finalStatus), nil
 }
