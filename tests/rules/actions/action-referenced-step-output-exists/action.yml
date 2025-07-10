@@ -1,0 +1,25 @@
+runs:
+  steps:
+    - name: Simple echo steps
+      id: step-1
+      shell: bash
+      run: |
+        echo "output-1=aaa" >> $GITHUB_OUTPUT
+
+    - uses: ./.github/actions/valid-action
+      id: step-2
+
+    - uses: actions/checkout@v4
+      id: step-3
+
+    - name: Mix of valid and invalid calls
+      shell: bash
+      run: |
+        echo "${{ steps.non-existing-step.outputs.output-1 }}"
+        echo "${{ steps.step-1.outputs.non-existing-output }}"
+
+        echo "${{ steps.step-2.outputs.output-1 }}"
+        echo "${{ steps.step-2.outputs.non-existing-output }}"
+
+        echo "${{ steps.step-3.outputs.ref }}"
+        echo "${{ steps.step-3.outputs.non-existing-output }}"

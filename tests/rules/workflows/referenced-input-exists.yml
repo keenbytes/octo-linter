@@ -22,20 +22,14 @@ jobs:
   job1:
     runs-on: ubuntu-22.04
     steps:
-      - uses: ./.github/actions/valid-action
-        with:
-          required-input-1: "x"
-          optional-input-1: "y"
-      - uses: actions/checkout@v3
-  job2:
-    runs-on: ubuntu-22.04
-    needs: [job1]
-    steps:
-      - uses: ./.github/actions/valid-action
-        with:
-          required-input-1: "x"
-          optional-input-1: "y"
-      - uses: actions/checkout@v3
       - shell: bash
         run: |
-          echo "Call to valid input: ${{ inputs.dispatch-input-1 }}"
+          echo "Valid input: ${{ inputs.dispatch-input-1 }}"
+          echo "Invalid input: ${{ inputs.dispatch-input-3 }}"
+  job2:
+    runs-on: ubuntu-22.04
+    steps:
+      - shell: bash
+        run: |
+          echo "Valid input: ${{ inputs.call-input-1 }}"
+          echo "Invalid input: ${{ inputs.call-input-3 }}"

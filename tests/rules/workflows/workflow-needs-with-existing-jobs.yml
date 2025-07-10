@@ -1,0 +1,10 @@
+jobs:
+  job1:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+  job2:
+    runs-on: ubuntu-22.04
+    needs: [job1, non-existing-job3, non-existing-job4]
+    steps:
+      - uses: actions/checkout@v3

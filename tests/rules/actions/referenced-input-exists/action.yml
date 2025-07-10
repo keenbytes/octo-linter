@@ -1,0 +1,15 @@
+inputs:
+  required-input-1:
+    description: Input that is required
+    required: true
+  optional-input-1:
+    description: Input that is optional
+    default: ""
+runs:
+  steps:
+    - name: Simple echo steps
+      shell: bash
+      run: |
+        echo "Valid input: ${{ inputs.required-input-1 }}"
+        echo "Invalid input: ${{ inputs.required-input-2 }}"
+        echo "Invalid input: ${{ inputs.optional-input-2 }}"

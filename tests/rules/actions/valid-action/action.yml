@@ -18,6 +18,7 @@ runs:
   steps:
     - name: Simple echo steps
       shell: bash
+      id: step-1
       env:
         VARIABLE_1: value
         VARIABLE_2: value
@@ -30,3 +31,22 @@ runs:
         if [[ '${{ secrets.TOKEN1 }}' != '' ]]; then
           echo "Token1 is not empty"
         fi
+
+        echo "output-1=aaa" >> $GITHUB_OUTPUT
+
+    - uses: ./.github/actions/valid-action
+      id: step-2
+
+    - uses: actions/checkout@v4
+      id: step-3
+
+    - name: Calls to existing outputs
+      shell: bash
+      run: |
+        echo "${{ steps.step-1.outputs.output-1 }}"
+        echo "${{ steps.step-2.outputs.output-1 }}"
+        echo "${{ steps.step-3.outputs.ref }}"
+    
+    - name: Call to existing input
+      run: |
+        echo "${{ inputs.required-input-1 }}"
