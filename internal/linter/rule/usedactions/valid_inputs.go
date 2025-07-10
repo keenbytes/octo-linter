@@ -128,10 +128,10 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 				if daInput.Required {
 					if st.With == nil || st.With[daInputName] == "" {
 						chErrors <- glitch.Glitch{
-							Path: filePath,
-							Name: fileName,
-							Type: fileType,
-							ErrText: fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, i+1, daInputName),
+							Path:     filePath,
+							Name:     fileName,
+							Type:     fileType,
+							ErrText:  fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, i+1, daInputName),
 							RuleName: r.ConfigName(fileType),
 						}
 						compliant = false
@@ -143,10 +143,10 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 			for usedInput := range st.With {
 				if action.Inputs == nil || action.Inputs[usedInput] == nil {
 					chErrors <- glitch.Glitch{
-						Path: filePath,
-						Name: fileName,
-						Type: fileType,
-						ErrText: fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, i+1, usedInput),
+						Path:     filePath,
+						Name:     fileName,
+						Type:     fileType,
+						ErrText:  fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, i+1, usedInput),
 						RuleName: r.ConfigName(fileType),
 					}
 					compliant = false

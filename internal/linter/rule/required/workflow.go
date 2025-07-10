@@ -74,10 +74,10 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		for _, field := range confInterfaces {
 			if field.(string) == "name" && w.Name == "" {
 				chErrors <- glitch.Glitch{
-					Path: w.Path,
-					Name: w.DisplayName,
-					Type: rule.DotGithubFileTypeWorkflow,
-					ErrText: fmt.Sprintf("does not have a required %s", field.(string)),
+					Path:     w.Path,
+					Name:     w.DisplayName,
+					Type:     rule.DotGithubFileTypeWorkflow,
+					ErrText:  fmt.Sprintf("does not have a required %s", field.(string)),
 					RuleName: r.ConfigName(0),
 				}
 				compliant = false
@@ -93,10 +93,10 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
 					chErrors <- glitch.Glitch{
-						Path: w.Path,
-						Name: w.DisplayName,
-						Type: rule.DotGithubFileTypeWorkflow,
-						ErrText: fmt.Sprintf("dispatch input '%s' does not have a required %s", inputName, field.(string)),
+						Path:     w.Path,
+						Name:     w.DisplayName,
+						Type:     rule.DotGithubFileTypeWorkflow,
+						ErrText:  fmt.Sprintf("dispatch input '%s' does not have a required %s", inputName, field.(string)),
 						RuleName: r.ConfigName(0),
 					}
 					compliant = false
@@ -112,10 +112,10 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
 					chErrors <- glitch.Glitch{
-						Path: w.Path,
-						Name: w.DisplayName,
-						Type: rule.DotGithubFileTypeWorkflow,
-						ErrText: fmt.Sprintf("call input '%s' does not have a required %s", inputName, field.(string)),
+						Path:     w.Path,
+						Name:     w.DisplayName,
+						Type:     rule.DotGithubFileTypeWorkflow,
+						ErrText:  fmt.Sprintf("call input '%s' does not have a required %s", inputName, field.(string)),
 						RuleName: r.ConfigName(0),
 					}
 					compliant = false

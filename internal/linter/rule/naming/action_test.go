@@ -26,11 +26,11 @@ func TestActionValidate(t *testing.T) {
 
 func TestActionNotCompliant(t *testing.T) {
 	for field, conf := range map[string]string{
-		"input_name": "dash-case",
-		"output_name": "dash-case",
+		"input_name":          "dash-case",
+		"output_name":         "dash-case",
 		"referenced_variable": "ALL_CAPS",
-		"step_env": "ALL_CAPS",
-	}{
+		"step_env":            "ALL_CAPS",
+	} {
 		rule := Action{
 			Field: field,
 		}
@@ -56,11 +56,11 @@ func TestActionNotCompliant(t *testing.T) {
 
 func TestActionCompliant(t *testing.T) {
 	for field, conf := range map[string]string{
-		"input_name": "dash-case",
-		"output_name": "dash-case",
+		"input_name":          "dash-case",
+		"output_name":         "dash-case",
 		"referenced_variable": "ALL_CAPS",
-		"step_env": "ALL_CAPS",
-	}{
+		"step_env":            "ALL_CAPS",
+	} {
 		rule := Action{
 			Field: field,
 		}

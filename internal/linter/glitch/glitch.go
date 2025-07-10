@@ -10,12 +10,12 @@ const (
 )
 
 type Glitch struct {
-	Type int
-	Name string
-	Path string
+	Type     int
+	Name     string
+	Path     string
 	RuleName string
-	ErrText string
-	IsError bool
+	ErrText  string
+	IsError  bool
 }
 
 func ListToMarkdown(glitches []*Glitch, limit int) (s string) {

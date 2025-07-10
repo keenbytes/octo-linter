@@ -25,7 +25,7 @@ func TestActionValidate(t *testing.T) {
 		t.Errorf("Action.Validate should not return error when conf is []string")
 	}
 
-	for _, f := range []string{"input", "output"}{
+	for _, f := range []string{"input", "output"} {
 		rule = Action{
 			Field: f,
 		}
@@ -69,7 +69,7 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 }
 
 func TestActionFieldInputOutputNotCompliant(t *testing.T) {
-	for _, field := range []string{"input", "output"}{
+	for _, field := range []string{"input", "output"} {
 		rule := Action{
 			Field: field,
 		}
@@ -119,7 +119,7 @@ func TestActionFieldActionCompliant(t *testing.T) {
 }
 
 func TestActionFieldInputOutputCompliant(t *testing.T) {
-	for _, field := range []string{"input", "output"}{
+	for _, field := range []string{"input", "output"} {
 		rule := Action{
 			Field: field,
 		}

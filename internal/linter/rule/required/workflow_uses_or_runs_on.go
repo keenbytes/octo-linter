@@ -46,10 +46,10 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 	for jobName, job := range w.Jobs {
 		if job.RunsOn == nil && job.Uses == "" {
 			chErrors <- glitch.Glitch{
-				Path: w.Path,
-				Name: w.DisplayName,
-				Type: rule.DotGithubFileTypeWorkflow,
-				ErrText: fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
+				Path:     w.Path,
+				Name:     w.DisplayName,
+				Type:     rule.DotGithubFileTypeWorkflow,
+				ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 				RuleName: r.ConfigName(0),
 			}
 			compliant = false
@@ -59,10 +59,10 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 		if ok {
 			if job.Uses == "" && runsOnStr == "" {
 				chErrors <- glitch.Glitch{
-					Path: w.Path,
-					Name: w.DisplayName,
-					Type: rule.DotGithubFileTypeWorkflow,
-					ErrText: fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
+					Path:     w.Path,
+					Name:     w.DisplayName,
+					Type:     rule.DotGithubFileTypeWorkflow,
+					ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 					RuleName: r.ConfigName(0),
 				}
 				compliant = false

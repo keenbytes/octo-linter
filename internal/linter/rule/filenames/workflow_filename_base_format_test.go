@@ -28,7 +28,7 @@ func TestWorkflowFilenameBaseFormatNotCompliant(t *testing.T) {
 	rule := WorkflowFilenameBaseFormat{}
 	d := ruletest.DotGithub
 
-	for _, nameFormat := range []string{"camelCase", "PascalCase", "ALL_CAPS"}{
+	for _, nameFormat := range []string{"camelCase", "PascalCase", "ALL_CAPS"} {
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, nameFormat, f, d)
 			if compliant {

@@ -25,7 +25,7 @@ func TestWorkflowValidate(t *testing.T) {
 		t.Errorf("Workflow.Validate should not return error when conf is []string")
 	}
 
-	for _, f := range []string{"dispatch_input", "call_input"}{
+	for _, f := range []string{"dispatch_input", "call_input"} {
 		rule = Workflow{
 			Field: f,
 		}
@@ -68,7 +68,7 @@ func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
-	for _, field := range []string{"dispatch_input", "call_input"}{
+	for _, field := range []string{"dispatch_input", "call_input"} {
 		rule := Workflow{
 			Field: field,
 		}
@@ -118,7 +118,7 @@ func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldCallInputDispatchInputCompliant(t *testing.T) {
-	for _, field := range []string{"dispatch_input", "call_input"}{
+	for _, field := range []string{"dispatch_input", "call_input"} {
 		rule := Workflow{
 			Field: field,
 		}

@@ -50,10 +50,10 @@ func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *
 	m := casematch.Match(basename, conf.(string))
 	if !m {
 		chErrors <- glitch.Glitch{
-			Path: w.Path,
-			Name: w.DisplayName,
-			Type: rule.DotGithubFileTypeWorkflow,
-			ErrText: fmt.Sprintf("filename base must be %s", conf.(string)),
+			Path:     w.Path,
+			Name:     w.DisplayName,
+			Type:     rule.DotGithubFileTypeWorkflow,
+			ErrText:  fmt.Sprintf("filename base must be %s", conf.(string)),
 			RuleName: r.ConfigName(0),
 		}
 		compliant = false

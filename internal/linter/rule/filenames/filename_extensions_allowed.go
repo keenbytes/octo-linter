@@ -60,7 +60,7 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 	if !ok {
 		return
 	}
-	
+
 	var extension string
 	var filePath string
 	var fileTypeName string
@@ -80,7 +80,7 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
-		
+
 		fileParts := strings.Split(w.FileName, ".")
 		extension = fileParts[len(fileParts)-1]
 
@@ -98,10 +98,10 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 	}
 	compliant = false
 	chErrors <- glitch.Glitch{
-		Path: filePath,
-		Name: fileTypeName,
-		Type: fileType,
-		ErrText: fmt.Sprintf("file extension must be one of: %s", strings.Join(allowedExtensionsList, ",")),
+		Path:     filePath,
+		Name:     fileTypeName,
+		Type:     fileType,
+		ErrText:  fmt.Sprintf("file extension must be one of: %s", strings.Join(allowedExtensionsList, ",")),
 		RuleName: r.ConfigName(fileType),
 	}
 

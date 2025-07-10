@@ -47,10 +47,10 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 		for _, f := range found {
 			if v == "vars" && len(d.Vars) > 0 && !d.IsVarExist(string(f[1])) {
 				chErrors <- glitch.Glitch{
-					Path: w.Path,
-					Name: w.DisplayName,
-					Type: rule.DotGithubFileTypeWorkflow,
-					ErrText: fmt.Sprintf("calls a variable '%s' that does not exist in the vars file", string(f[1])),
+					Path:     w.Path,
+					Name:     w.DisplayName,
+					Type:     rule.DotGithubFileTypeWorkflow,
+					ErrText:  fmt.Sprintf("calls a variable '%s' that does not exist in the vars file", string(f[1])),
 					RuleName: r.ConfigName(0),
 				}
 				compliant = false
@@ -58,10 +58,10 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 
 			if v == "secrets" && len(d.Secrets) > 0 && !d.IsSecretExist(string(f[1])) {
 				chErrors <- glitch.Glitch{
-					Path: w.Path,
-					Name: w.DisplayName,
-					Type: rule.DotGithubFileTypeWorkflow,
-					ErrText: fmt.Sprintf("calls a secret '%s' that does not exist in the secrets file", string(f[1])),
+					Path:     w.Path,
+					Name:     w.DisplayName,
+					Type:     rule.DotGithubFileTypeWorkflow,
+					ErrText:  fmt.Sprintf("calls a secret '%s' that does not exist in the secrets file", string(f[1])),
 					RuleName: r.ConfigName(0),
 				}
 				compliant = false

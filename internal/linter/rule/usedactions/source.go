@@ -56,7 +56,7 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	if confVal == "" {
 		return
 	}
-	
+
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-zA-Z0-9\-_]+|[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-_]+)$`)
 	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
 
@@ -115,30 +115,30 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 
 		if confVal == "local-only" && !isLocal {
 			chErrors <- glitch.Glitch{
-				Path: filePath,
-				Name: fileName,
-				Type: fileType,
-				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses),
+				Path:     filePath,
+				Name:     fileName,
+				Type:     fileType,
+				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
 			compliant = false
 		}
 		if confVal == "external-only" && !isExternal {
 			chErrors <- glitch.Glitch{
-				Path: filePath,
-				Name: fileName,
-				Type: fileType,
-				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, i+1, st.Uses),
+				Path:     filePath,
+				Name:     fileName,
+				Type:     fileType,
+				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, i+1, st.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
 			compliant = false
 		}
 		if confVal == "local-or-external" && !isLocal && !isExternal {
 			chErrors <- glitch.Glitch{
-				Path: filePath,
-				Name: fileName,
-				Type: fileType,
-				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses),
+				Path:     filePath,
+				Name:     fileName,
+				Type:     fileType,
+				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
 			compliant = false

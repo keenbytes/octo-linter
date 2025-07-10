@@ -30,22 +30,22 @@ func Lint(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *do
 		close(chErrors)
 	}()
 
-	loop:
-		for {
-			select {
-			case <-timer:
-				err = errors.New("timeout")
-				compliant = false
+loop:
+	for {
+		select {
+		case <-timer:
+			err = errors.New("timeout")
+			compliant = false
+			break loop
+		case glitchInstance, more := <-chErrors:
+			if more {
+				ruleError := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
+				ruleErrors = append(ruleErrors, ruleError)
+			} else {
 				break loop
-			case glitchInstance, more := <-chErrors:
-				if more {
-					ruleError := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
-					ruleErrors = append(ruleErrors, ruleError)
-				} else {
-					break loop
-				}
 			}
 		}
+	}
 
 	return
 }

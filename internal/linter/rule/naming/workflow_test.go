@@ -26,14 +26,14 @@ func TestWorkflowValidate(t *testing.T) {
 
 func TestWorkflowNotCompliant(t *testing.T) {
 	for field, conf := range map[string]string{
-		"env": "ALL_CAPS",
-		"job_env": "ALL_CAPS",
-		"job_step_env": "ALL_CAPS",
-		"referenced_variable": "ALL_CAPS",
+		"env":                   "ALL_CAPS",
+		"job_env":               "ALL_CAPS",
+		"job_step_env":          "ALL_CAPS",
+		"referenced_variable":   "ALL_CAPS",
 		"dispatched_input_name": "dash-case",
-		"call_input_name": "dash-case",
-		"job_name": "dash-case",
-	}{
+		"call_input_name":       "dash-case",
+		"job_name":              "dash-case",
+	} {
 		rule := Workflow{
 			Field: field,
 		}
@@ -59,14 +59,14 @@ func TestWorkflowNotCompliant(t *testing.T) {
 
 func TestWorkflowCompliant(t *testing.T) {
 	for field, conf := range map[string]string{
-		"env": "ALL_CAPS",
-		"job_env": "ALL_CAPS",
-		"job_step_env": "ALL_CAPS",
-		"referenced_variable": "ALL_CAPS",
+		"env":                   "ALL_CAPS",
+		"job_env":               "ALL_CAPS",
+		"job_step_env":          "ALL_CAPS",
+		"referenced_variable":   "ALL_CAPS",
 		"dispatched_input_name": "dash-case",
-		"call_input_name": "dash-case",
-		"job_name": "dash-case",
-	}{
+		"call_input_name":       "dash-case",
+		"job_name":              "dash-case",
+	} {
 		rule := Workflow{
 			Field: field,
 		}

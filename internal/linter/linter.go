@@ -45,7 +45,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 	go func() {
 		for _, action := range d.Actions {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
-				if ruleEntry.FileType() & rule.DotGithubFileTypeAction == 0 {
+				if ruleEntry.FileType()&rule.DotGithubFileTypeAction == 0 {
 					continue
 				}
 				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeAction))
@@ -62,7 +62,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 
 		for _, workflow := range d.Workflows {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
-				if ruleEntry.FileType() & rule.DotGithubFileTypeWorkflow == 0 {
+				if ruleEntry.FileType()&rule.DotGithubFileTypeWorkflow == 0 {
 					continue
 				}
 				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeWorkflow))

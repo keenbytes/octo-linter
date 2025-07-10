@@ -60,10 +60,10 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
 				chErrors <- glitch.Glitch{
-					Path: a.Path,
-					Name: a.DirName,
-					Type: rule.DotGithubFileTypeAction,
-					ErrText: fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
+					Path:     a.Path,
+					Name:     a.DirName,
+					Type:     rule.DotGithubFileTypeAction,
+					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 				}
 				compliant = false
@@ -78,10 +78,10 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
 				chErrors <- glitch.Glitch{
-					Path: w.Path,
-					Name: w.DisplayName,
-					Type: rule.DotGithubFileTypeWorkflow,
-					ErrText: fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
+					Path:     w.Path,
+					Name:     w.DisplayName,
+					Type:     rule.DotGithubFileTypeWorkflow,
+					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 				}
 				compliant = false

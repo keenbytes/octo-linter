@@ -53,10 +53,10 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 			if strings.Contains(runsOnStr, "latest") {
 				compliant = false
 				chErrors <- glitch.Glitch{
-					Path: w.Path,
-					Name: w.DisplayName,
-					Type: rule.DotGithubFileTypeWorkflow,
-					ErrText: fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
+					Path:     w.Path,
+					Name:     w.DisplayName,
+					Type:     rule.DotGithubFileTypeWorkflow,
+					ErrText:  fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
 					RuleName: r.ConfigName(0),
 				}
 			}
@@ -69,10 +69,10 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 				if ok2 && strings.Contains(runsOnStr, "latest") {
 					compliant = false
 					chErrors <- glitch.Glitch{
-						Path: w.Path,
-						Name: w.DisplayName,
-						Type: rule.DotGithubFileTypeWorkflow,
-						ErrText: fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
+						Path:     w.Path,
+						Name:     w.DisplayName,
+						Type:     rule.DotGithubFileTypeWorkflow,
+						ErrText:  fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
 						RuleName: r.ConfigName(0),
 					}
 				}

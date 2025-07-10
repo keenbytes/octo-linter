@@ -46,10 +46,10 @@ func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *d
 		for jobName := range w.Jobs {
 			if jobName != conf.(string) {
 				chErrors <- glitch.Glitch{
-					Path: w.Path,
-					Name: w.DisplayName,
-					Type: rule.DotGithubFileTypeWorkflow,
-					ErrText: fmt.Sprintf("has only one job and it should be called '%s'", conf.(string)),
+					Path:     w.Path,
+					Name:     w.DisplayName,
+					Type:     rule.DotGithubFileTypeWorkflow,
+					ErrText:  fmt.Sprintf("has only one job and it should be called '%s'", conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
 				compliant = false

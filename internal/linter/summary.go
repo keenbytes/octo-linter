@@ -9,12 +9,12 @@ import (
 )
 
 type summary struct {
-	mu sync.Mutex
+	mu           sync.Mutex
 	numError     atomic.Int32
 	numWarning   atomic.Int32
 	numJob       atomic.Int32
 	numProcessed atomic.Int32
-	glitches []*glitch.Glitch
+	glitches     []*glitch.Glitch
 }
 
 func newSummary() *summary {
@@ -37,9 +37,9 @@ func (s *summary) markdown(title string, limit int) (md string) {
 	md = fmt.Sprintf("# %s\n", title)
 
 	if len(s.glitches) > 0 {
-			glitchesMd := glitch.ListToMarkdown(s.glitches, limit)
-			md += "Found non-compliant files:\n\n"
-			md += glitchesMd
+		glitchesMd := glitch.ListToMarkdown(s.glitches, limit)
+		md += "Found non-compliant files:\n\n"
+		md += glitchesMd
 	} else {
 		md += "No errors or warning were found\n\n"
 	}

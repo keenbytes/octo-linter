@@ -49,10 +49,10 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 				if w.Jobs[needsStr] == nil {
 					compliant = false
 					chErrors <- glitch.Glitch{
-						Path: w.Path,
-						Name: w.DisplayName,
-						Type: rule.DotGithubFileTypeWorkflow,
-						ErrText: fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, needsStr),
+						Path:     w.Path,
+						Name:     w.DisplayName,
+						Type:     rule.DotGithubFileTypeWorkflow,
+						ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, needsStr),
 						RuleName: r.ConfigName(0),
 					}
 				}
@@ -64,10 +64,10 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 					if w.Jobs[neededJob.(string)] == nil {
 						compliant = false
 						chErrors <- glitch.Glitch{
-							Path: w.Path,
-							Name: w.DisplayName,
-							Type: rule.DotGithubFileTypeWorkflow,
-							ErrText: fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob.(string)),
+							Path:     w.Path,
+							Name:     w.DisplayName,
+							Type:     rule.DotGithubFileTypeWorkflow,
+							ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob.(string)),
 							RuleName: r.ConfigName(0),
 						}
 					}
