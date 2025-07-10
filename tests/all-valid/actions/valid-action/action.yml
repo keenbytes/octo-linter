@@ -40,9 +40,9 @@ runs:
     - name: Calls to existing outputs
       shell: bash
       run: |
-        echo "${{ steps.step-1.outputs.output-1 }}"
-        echo "${{ steps.step-3.outputs.ref }}"
+        echo '${{ steps.step-1.outputs.output-1 }}'
+        echo '${{ steps.step-3.outputs.ref }}'
     
     - name: Call to existing input
       run: |
-        echo "${{ inputs.required-input-1 }}"
+        echo '${{ inputs.required-input-1 }}'
