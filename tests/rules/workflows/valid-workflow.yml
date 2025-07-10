@@ -38,4 +38,4 @@ jobs:
       - uses: actions/checkout@v3
       - shell: bash
         run: |
-          echo "Call to valid input: ${{ inputs.dispatch-input-1 }}"
+          echo 'Call to valid input: ${{ inputs.dispatch-input-1 }}'
