@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/casematch"
@@ -35,7 +36,7 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction {
 		return
@@ -44,7 +45,12 @@ func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *d
 
 	m := casematch.Match(a.DirName, conf.(string))
 	if !m {
-		chErrors <- fmt.Sprintf("action directory name '%s' must be %s", a.DirName, conf.(string))
+		chErrors <- glitch.Glitch{
+			Path: a.Path,
+			Name: a.DirName,
+			Type: rule.DotGithubFileTypeAction,
+			ErrText: fmt.Sprintf("directory name must be %s", conf.(string)),
+		}
 		compliant = false
 	}
 

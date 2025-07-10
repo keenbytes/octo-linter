@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
@@ -16,7 +17,7 @@ type Job struct {
 	value     interface{}
 }
 
-func (j *Job) Run(chWarnings chan<- string, chErrors chan<- string) (compliant bool, err error) {
+func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 
 	done := make(chan struct{})

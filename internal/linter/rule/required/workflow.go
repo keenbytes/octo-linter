@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
@@ -60,7 +61,7 @@ func (r Workflow) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
@@ -72,7 +73,12 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 	case "workflow":
 		for _, field := range confInterfaces {
 			if field.(string) == "name" && w.Name == "" {
-				chErrors <- fmt.Sprintf("workflow '%s' does not have a required %s", w.DisplayName, field.(string))
+				chErrors <- glitch.Glitch{
+					Path: w.Path,
+					Name: w.DisplayName,
+					Type: rule.DotGithubFileTypeWorkflow,
+					ErrText: fmt.Sprintf("does not have a required %s", field.(string)),
+				}
 				compliant = false
 			}
 		}
@@ -85,7 +91,12 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		for inputName, input := range w.On.WorkflowDispatch.Inputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
-					chErrors <- fmt.Sprintf("workflow '%s' dispatch input '%s' does not have a required %s", w.FileName, inputName, field.(string))
+					chErrors <- glitch.Glitch{
+						Path: w.Path,
+						Name: w.DisplayName,
+						Type: rule.DotGithubFileTypeWorkflow,
+						ErrText: fmt.Sprintf("dispatch input '%s' does not have a required %s", inputName, field.(string)),
+					}
 					compliant = false
 				}
 			}
@@ -98,7 +109,12 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		for inputName, input := range w.On.WorkflowCall.Inputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
-					chErrors <- fmt.Sprintf("workflow '%s' call input '%s' does not have a required %s", w.FileName, inputName, field.(string))
+					chErrors <- glitch.Glitch{
+						Path: w.Path,
+						Name: w.DisplayName,
+						Type: rule.DotGithubFileTypeWorkflow,
+						ErrText: fmt.Sprintf("call input '%s' does not have a required %s", inputName, field.(string)),
+					}
 					compliant = false
 				}
 			}

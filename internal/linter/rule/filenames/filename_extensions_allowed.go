@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
@@ -49,7 +50,7 @@ func (r FilenameExtensionsAllowed) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
@@ -61,8 +62,9 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 	}
 	
 	var extension string
-	var fileType string
+	var filePath string
 	var fileTypeName string
+	var fileType int
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
@@ -71,8 +73,9 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		fileParts := strings.Split(pathParts[len(pathParts)-1], ".")
 		extension = fileParts[len(fileParts)-1]
 
-		fileType = "action"
+		filePath = a.Path
 		fileTypeName = a.DirName
+		fileType = rule.DotGithubFileTypeAction
 	}
 
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
@@ -81,8 +84,9 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		fileParts := strings.Split(w.FileName, ".")
 		extension = fileParts[len(fileParts)-1]
 
-		fileType = "workflow"
+		filePath = w.Path
 		fileTypeName = w.DisplayName
+		fileType = rule.DotGithubFileTypeWorkflow
 	}
 
 	var allowedExtensionsList []string
@@ -93,7 +97,12 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		allowedExtensionsList = append(allowedExtensionsList, allowedExtension.(string))
 	}
 	compliant = false
-	chErrors <- fmt.Sprintf("%s '%s' file extension must be one of: %s", fileType, fileTypeName, strings.Join(allowedExtensionsList, ","))
+	chErrors <- glitch.Glitch{
+		Path: filePath,
+		Name: fileTypeName,
+		Type: fileType,
+		ErrText: fmt.Sprintf("file extension must be one of: %s", strings.Join(allowedExtensionsList, ",")),
+	}
 
 	return
 }

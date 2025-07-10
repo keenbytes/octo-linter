@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
@@ -30,7 +31,7 @@ func (r WorkflowNeedsWithExistingJobs) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
 		return
@@ -47,7 +48,12 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 			if ok {
 				if w.Jobs[needsStr] == nil {
 					compliant = false
-					chErrors <- fmt.Sprintf("workflow '%s' job '%s' has non-existing job '%s' in 'needs' field", w.FileName, jobName, needsStr)
+					chErrors <- glitch.Glitch{
+						Path: w.Path,
+						Name: w.DisplayName,
+						Type: rule.DotGithubFileTypeWorkflow,
+						ErrText: fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, needsStr),
+					}
 				}
 			}
 
@@ -56,7 +62,12 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 				for _, neededJob := range needsList {
 					if w.Jobs[neededJob.(string)] == nil {
 						compliant = false
-						chErrors <- fmt.Sprintf("workflow '%s' job '%s' has non-existing job '%s' in 'needs' field", w.FileName, jobName, neededJob.(string))
+						chErrors <- glitch.Glitch{
+							Path: w.Path,
+							Name: w.DisplayName,
+							Type: rule.DotGithubFileTypeWorkflow,
+							ErrText: fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob.(string)),
+						}
 					}
 				}
 			}

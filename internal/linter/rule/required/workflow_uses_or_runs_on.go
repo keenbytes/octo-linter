@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
@@ -31,7 +32,7 @@ func (r WorkflowUsesOrRunsOn) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
@@ -44,14 +45,24 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 
 	for jobName, job := range w.Jobs {
 		if job.RunsOn == nil && job.Uses == "" {
-			chErrors <- fmt.Sprintf("workflow '%s' job '%s' should have either 'uses' or 'runs-on' field", w.FileName, jobName)
+			chErrors <- glitch.Glitch{
+				Path: w.Path,
+				Name: w.DisplayName,
+				Type: rule.DotGithubFileTypeWorkflow,
+				ErrText: fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
+			}
 			compliant = false
 		}
 
 		runsOnStr, ok := job.RunsOn.(string)
 		if ok {
 			if job.Uses == "" && runsOnStr == "" {
-				chErrors <- fmt.Sprintf("workflow '%s' job '%s' should have either 'uses' or 'runs-on' field", w.FileName, jobName)
+				chErrors <- glitch.Glitch{
+					Path: w.Path,
+					Name: w.DisplayName,
+					Type: rule.DotGithubFileTypeWorkflow,
+					ErrText: fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
+				}
 				compliant = false
 			}
 		}

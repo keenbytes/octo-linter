@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
@@ -60,7 +61,7 @@ func (r Action) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction {
 		return
@@ -73,7 +74,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	case "action":
 		for _, field := range confInterfaces {
 			if (field.(string) == "name" && a.Name == "") || (field.(string) == "description" && a.Description == "") {
-				chErrors <- fmt.Sprintf("action '%s' does not have a required %s", a.DirName, field.(string))
+				chErrors <- glitch.Glitch{
+					Path: a.Path,
+					Name: a.DirName,
+					Type: rule.DotGithubFileTypeAction,
+					ErrText: fmt.Sprintf("does not have a required %s", field.(string)),
+				}
 				compliant = false
 			}
 		}
@@ -81,7 +87,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		for inputName, input := range a.Inputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
-					chErrors <- fmt.Sprintf("action '%s' input '%s' does not have a required %s", a.DirName, inputName, field.(string))
+					chErrors <- glitch.Glitch{
+						Path: a.Path,
+						Name: a.DirName,
+						Type: rule.DotGithubFileTypeAction,
+						ErrText: fmt.Sprintf("input '%s' does not have a required %s", inputName, field.(string)),
+					}
 					compliant = false
 				}
 			}
@@ -90,7 +101,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		for outputName, output := range a.Outputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && output.Description == "" {
-					chErrors <- fmt.Sprintf("action '%s' output '%s' does not have a required %s", a.DirName, outputName, field.(string))
+					chErrors <- glitch.Glitch{
+						Path: a.Path,
+						Name: a.DirName,
+						Type: rule.DotGithubFileTypeAction,
+						ErrText: fmt.Sprintf("output '%s' does not have a required %s", outputName, field.(string)),
+					}
 					compliant = false
 				}
 			}

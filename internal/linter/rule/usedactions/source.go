@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
@@ -45,7 +46,7 @@ func (r Source) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
@@ -62,13 +63,21 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}
 
+	var fileType int
+	var filePath string
+	var fileName string
+
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
 			return
 		}
 		steps = a.Runs.Steps
-		msgPrefix[0] = fmt.Sprintf("action '%s'", a.DirName)
+		msgPrefix[0] = ""
+
+		fileType = rule.DotGithubFileTypeAction
+		filePath = a.Path
+		fileName = a.DirName
 	}
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
@@ -79,9 +88,13 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 			if job.Steps == nil || len(job.Steps) == 0 {
 				continue
 			}
-			msgPrefix[len(steps)] = fmt.Sprintf("workflow '%s' job '%s'", w.FileName, jobName)
+			msgPrefix[len(steps)] = fmt.Sprintf("job '%s' ", jobName)
 			steps = append(steps, job.Steps...)
 		}
+
+		fileType = rule.DotGithubFileTypeWorkflow
+		filePath = w.Path
+		fileName = w.DisplayName
 	}
 
 	var errPrefix string
@@ -101,15 +114,30 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		isExternal := reExternal.MatchString(st.Uses)
 
 		if confVal == "local-only" && !isLocal {
-			chErrors <- fmt.Sprintf("%s step %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses)
+			chErrors <- glitch.Glitch{
+				Path: filePath,
+				Name: fileName,
+				Type: fileType,
+				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses),
+			}
 			compliant = false
 		}
 		if confVal == "external-only" && !isExternal {
-			chErrors <- fmt.Sprintf("%s step %d calls action '%s' that is not external", errPrefix, i+1, st.Uses)
+			chErrors <- glitch.Glitch{
+				Path: filePath,
+				Name: fileName,
+				Type: fileType,
+				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, i+1, st.Uses),
+			}
 			compliant = false
 		}
 		if confVal == "local-or-external" && !isLocal && !isExternal {
-			chErrors <- fmt.Sprintf("%s step %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses)
+			chErrors <- glitch.Glitch{
+				Path: filePath,
+				Name: fileName,
+				Type: fileType,
+				ErrText: fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses),
+			}
 			compliant = false
 		}
 	}
