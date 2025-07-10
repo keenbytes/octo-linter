@@ -15,5 +15,5 @@ jobs:
         run: |
           docker run --rm --name octo-linter \
             -v $(pwd)/example/dot-github:/dot-github -v $(pwd)/example:/config \
-            keenbytes/octo-linter:v2.1.0 \
+            keenbytes/octo-linter:v2.1.2 \
             lint -p /dot-github -l WARN -c /config/config.yml
