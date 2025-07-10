@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
     
 jobs:
   main:
@@ -26,3 +29,21 @@ jobs:
         run: |
           cd cmd/octo-linter
           go build .
+
+      - name: Run against test directory
+          set +e
+          cmd/octo-linter/octo-linter lint -p tests/rules
+          if [[ $? != 1 ]]; then
+            echo "!!! octo-linter should return exit code different than 0"
+          fi
+
+          found_errs_in_valid=$(cmd/octo-linter/octo-linter lint -p ../../tests/rules 2>&1 | grep "'valid-workflow\|'valid-action" | wc -l)
+          if [[ $found_errs_in_valid != 0 ]]; then
+            echo "!!! octo-linter should not find errors on valid workflows"
+          fi
+
+          cmd/octo-linter/octo-linter lint -p tests/all-valid
+          if [[ $? != 0 ]]; then
+            echo "!!! octo-linter should return exit code 0 for valid .github directory"
+          fi
+          set -e

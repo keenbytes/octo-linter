@@ -34,11 +34,6 @@ runs:
 
         echo "output-1=aaa" >> $GITHUB_OUTPUT
 
-    - uses: ./.github/actions/required-action
-      id: step-2
-      with:
-        required-input-1: aaa
-
     - uses: actions/checkout@v4
       id: step-3
 
@@ -46,7 +41,6 @@ runs:
       shell: bash
       run: |
         echo "${{ steps.step-1.outputs.output-1 }}"
-        echo "${{ steps.step-2.outputs.output-1 }}"
         echo "${{ steps.step-3.outputs.ref }}"
     
     - name: Call to existing input

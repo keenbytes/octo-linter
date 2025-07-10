@@ -1,0 +1,41 @@
+name: Valid
+on:
+  workflow_dispatch:
+    inputs:
+      dispatch-input-1:
+        description: Sample input
+        required: true
+      dispatch-input-2:
+        description: Another sample input
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      call-input-1:
+        description: Sample input
+        required: true
+      call-input-2:
+        description: Another sample input
+        required: false
+        default: ""
+jobs:
+  job1:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ./.github/actions/valid-action
+        with:
+          required-input-1: "x"
+          optional-input-1: "y"
+      - uses: actions/checkout@v3
+  job2:
+    runs-on: ubuntu-22.04
+    needs: [job1]
+    steps:
+      - uses: ./.github/actions/valid-action
+        with:
+          required-input-1: "x"
+          optional-input-1: "y"
+      - uses: actions/checkout@v3
+      - shell: bash
+        run: |
+          echo "Call to valid input: ${{ inputs.dispatch-input-1 }}"
