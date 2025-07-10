@@ -28,7 +28,7 @@ func main() {
 	cmdLint.Flag("vars-file", "z", "", "Check if variable names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
 	cmdLint.Flag("secrets-file", "s", "", "Check if secret names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
 	cmdLint.Flag("output", "o", "DIR", "Path to where summary markdown gets generated", broccli.TypePathFile, broccli.IsDirectory|broccli.IsExistent)
-	cmdLint.Flag("output-errors", "u", "INT", "Limit numbers of shown errors to specific number", broccli.TypeInt, 0)
+	cmdLint.Flag("output-errors", "u", "INT", "Limit numbers of errors shown in the markdown output file", broccli.TypeInt, 0)
 
 	cmdInit := cli.Command("init", "Create sample dotgithub.yml config file", initHandler)
 	cmdInit.Flag("destination", "d", "FILE", "Destination filename to write to", broccli.TypePathFile, broccli.IsNotExistent)
