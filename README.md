@@ -27,10 +27,12 @@ Check below help message for `lint` command:
       -p,	 --path DIR       Path to .github directory
     
     Optional flags: 
-      -c,	 --config FILE    Linter config with rules in YAML format
-      -l,	 --loglevel       One of NONE,ERR,WARN,DEBUG
-      -s,	 --secrets-file   Check if secret names exist in this file (one per line)
-      -z,	 --vars-file      Check if variable names exist in this file (one per line)
+      -c,	 --config FILE.       Linter config with rules in YAML format
+      -l,	 --loglevel           One of NONE,ERR,WARN,DEBUG
+      -o,	 --output DIR         Path to where summary markdown gets generated
+      -u,	 --output-errors INT  Limit numbers of errors shown in the markdown output file
+      -s,	 --secrets-file       Check if secret names exist in this file (one per line)
+      -z,	 --vars-file          Check if variable names exist in this file (one per line)
 
 Use `-p` argument to point to `.github` directories.  The tool will search for any actions in the `actions`
 directory, where each action is in its own sub-directory and its filename is either `action.yaml` or
@@ -54,10 +56,19 @@ If config is not passed, then the default one is used.  It can be found in
 Note that the image has to be present, either built or pulled from the registry.
 Replace path to the .github directory.
 
-    docker run --rm --name tmp-octo-linter \
-      -v /Users/me/my-repo/.github:/dotgithub \
-      keenbytes/octo-linter:v2.0.0 \
-	  validate -p /dotgithub
+````
+git clone https://github.com/keenbytes/octo-linter.git
+cd octo-linter/example
+
+mkdir output
+
+docker run --platform=linux/amd64 --rm --name octo-linter \
+  -v $(pwd)/dot-github:/dot-github \
+  -v $(pwd):/config \
+  -v $(pwd)/output:/output \
+  keenbytes/octo-linter:v2.1.0 \
+  lint -p /dot-github -l WARN -c /config/config.yml -o /output -u 10
+````
 
 
 ## Exit code

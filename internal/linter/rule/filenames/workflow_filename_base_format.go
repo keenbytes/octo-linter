@@ -54,6 +54,7 @@ func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *
 			Name: w.DisplayName,
 			Type: rule.DotGithubFileTypeWorkflow,
 			ErrText: fmt.Sprintf("filename base must be %s", conf.(string)),
+			RuleName: r.ConfigName(0),
 		}
 		compliant = false
 	}

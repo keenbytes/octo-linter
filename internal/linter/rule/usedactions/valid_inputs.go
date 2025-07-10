@@ -132,6 +132,7 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 							Name: fileName,
 							Type: fileType,
 							ErrText: fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, i+1, daInputName),
+							RuleName: r.ConfigName(fileType),
 						}
 						compliant = false
 					}
@@ -146,6 +147,7 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 						Name: fileName,
 						Type: fileType,
 						ErrText: fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, i+1, usedInput),
+						RuleName: r.ConfigName(fileType),
 					}
 					compliant = false
 				}

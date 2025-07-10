@@ -57,6 +57,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				Name: a.DirName,
 				Type: rule.DotGithubFileTypeAction,
 				ErrText: fmt.Sprintf("calls a step output '%s' but 'runs' does not exist", stepName),
+				RuleName: r.ConfigName(0),
 			}
 			compliant = false
 			continue
@@ -68,6 +69,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				Name: a.DirName,
 				Type: rule.DotGithubFileTypeAction,
 				ErrText: fmt.Sprintf("calls a step '%s' output '%s' but step does not exist", stepName, outputName),
+				RuleName: r.ConfigName(0),
 			}
 			compliant = false
 			continue
@@ -89,6 +91,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 					Name: a.DirName,
 					Type: rule.DotGithubFileTypeAction,
 					ErrText: fmt.Sprintf("calls a step '%s' output '%s' that does not exist", stepName, outputName),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 				continue
@@ -115,6 +118,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				Name: a.DirName,
 				Type: rule.DotGithubFileTypeAction,
 				ErrText: fmt.Sprintf("calls a step '%s' output '%s' on action that does not exist", stepName, outputName),
+				RuleName: r.ConfigName(0),
 			}
 			compliant = false
 			continue
@@ -131,6 +135,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				Name: a.DirName,
 				Type: rule.DotGithubFileTypeAction,
 				ErrText: fmt.Sprintf("calls step '%s' output '%s' on action and that output does not exist", stepName, outputName),
+				RuleName: r.ConfigName(0),
 			}
 			compliant = false
 			continue

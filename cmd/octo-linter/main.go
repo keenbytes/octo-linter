@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/keenbytes/broccli/v3"
 	"github.com/keenbytes/octo-linter/v2/internal/linter"
@@ -26,6 +27,8 @@ func main() {
 	cmdLint.Flag("loglevel", "l", "", "One of INFO,ERR,WARN,DEBUG", broccli.TypeString, 0)
 	cmdLint.Flag("vars-file", "z", "", "Check if variable names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
 	cmdLint.Flag("secrets-file", "s", "", "Check if secret names exist in this file (one per line)", broccli.TypePathFile, broccli.IsExistent)
+	cmdLint.Flag("output", "o", "DIR", "Path to where summary markdown gets generated", broccli.TypePathFile, broccli.IsDirectory|broccli.IsExistent)
+	cmdLint.Flag("output-errors", "u", "INT", "Limit numbers of errors shown in the markdown output file", broccli.TypeInt, 0)
 
 	cmdInit := cli.Command("init", "Create sample dotgithub.yml config file", initHandler)
 	cmdInit.Flag("destination", "d", "FILE", "Destination filename to write to", broccli.TypePathFile, broccli.IsNotExistent)
@@ -127,7 +130,13 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 
 	lint.Config = &cfg
 
-	status, err := lint.Lint(&dotGithub)
+	outputLimit := 0
+	if c.Flag("output-errors") != "" {
+		// flag is already validated by the cli
+		outputLimit, _ = strconv.Atoi(c.Flag("output-errors"))
+	}
+
+	status, err := lint.Lint(&dotGithub, c.Flag("output"), outputLimit)
 	if err != nil {
 		slog.Error(fmt.Sprintf("error linting: %s", err.Error()))
 		return 22

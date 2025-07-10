@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 
@@ -30,4 +31,18 @@ func (s *summary) addGlitch(g *glitch.Glitch) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.glitches = append(s.glitches, g)
+}
+
+func (s *summary) markdown(title string, limit int) (md string) {
+	md = fmt.Sprintf("# %s\n", title)
+
+	if len(s.glitches) > 0 {
+			glitchesMd := glitch.ListToMarkdown(s.glitches, limit)
+			md += "Found non-compliant files:\n\n"
+			md += glitchesMd
+	} else {
+		md += "No errors or warning were found\n\n"
+	}
+
+	return
 }

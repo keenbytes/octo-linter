@@ -79,6 +79,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					Name: a.DirName,
 					Type: rule.DotGithubFileTypeAction,
 					ErrText: fmt.Sprintf("does not have a required %s", field.(string)),
+					RuleName: r.ConfigName(0),
 				}
 				compliant = false
 			}
@@ -92,6 +93,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						Name: a.DirName,
 						Type: rule.DotGithubFileTypeAction,
 						ErrText: fmt.Sprintf("input '%s' does not have a required %s", inputName, field.(string)),
+						RuleName: r.ConfigName(0),
 					}
 					compliant = false
 				}
@@ -106,6 +108,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						Name: a.DirName,
 						Type: rule.DotGithubFileTypeAction,
 						ErrText: fmt.Sprintf("output '%s' does not have a required %s", outputName, field.(string)),
+						RuleName: r.ConfigName(0),
 					}
 					compliant = false
 				}

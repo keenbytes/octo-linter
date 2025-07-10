@@ -142,6 +142,7 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					Name: fileName,
 					Type: fileType,
 					ErrText: fmt.Sprintf("%sstep %d calls non-existing local action '%s'", errPrefix, i+1, actionName),
+					RuleName: r.ConfigName(fileType),
 				}
 			}
 		}
@@ -154,6 +155,7 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					Name: fileName,
 					Type: fileType,
 					ErrText: fmt.Sprintf("%sstep %d calls non-existing external action '%s'", errPrefix, i+1, st.Uses),
+					RuleName: r.ConfigName(fileType),
 				}
 			}
 		}
