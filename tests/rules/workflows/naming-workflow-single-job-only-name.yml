@@ -1,0 +1,24 @@
+on:
+  workflow_dispatch:
+    inputs:
+      dispatch-input-1:
+        required: true
+      dispatch-input-2:
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      call-input-1:
+        required: true
+      call-input-2:
+        required: false
+        default: ""
+jobs:
+  this-should-be-main:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ./.github/actions/valid-action
+        with:
+          required-input-1: "x"
+          optional-input-1: "y"
+      - uses: actions/checkout@v3

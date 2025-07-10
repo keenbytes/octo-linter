@@ -1,0 +1,30 @@
+inputs:
+  required-input-1:
+    required: true
+  optional-input-1:
+    default: ""
+  invalidInput3:
+    default: "value3"
+  INVALID_INPUT_4:
+    default: "value4"
+outputs:
+  output-1:
+    value: "output1"
+  output-2:
+    value: "output2"
+  invalidOutput3:
+    value: "output3"
+  INVALID_OUTPUT_4:
+    value: "output4"
+runs:
+  steps:
+    - name: Simple echo steps
+      shell: bash
+      env:
+        InvalidKey: SomeValue
+        invalid-key: some-value
+        VALID_KEY: value
+      run: |
+        echo "${{ var.InvalidRefValue }}"
+        echo "${{ var.invalid-ref-value }}"
+        echo "${{ var.ALL_CAPS_ONE_WHICH_IS_VALID }}"

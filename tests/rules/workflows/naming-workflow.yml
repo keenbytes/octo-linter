@@ -1,0 +1,59 @@
+name: Valid
+on:
+  workflow_dispatch:
+    inputs:
+      dispatch-input-1:
+        description: Sample input
+        required: true
+      dispatch-input-2:
+        description: Another sample input
+        required: false
+        default: ""
+      dispatchInvalidInput3:
+        default: ""
+      DISPATCH_INVALID_INPUT4:
+        default: ""
+  workflow_call:
+    inputs:
+      call-input-1:
+        description: Sample input
+        required: true
+      call-input-2:
+        description: Another sample input
+        required: false
+        default: ""
+      callInvalidInput3:
+        default: ""
+      CALL_INVALID_INPUT4:
+        default: ""
+env:
+  invalid-env: value1
+  InvalidEnv: value2
+  VALID_ALL_CAPS_ENV: value
+jobs:
+  job1:
+    runs-on: ubuntu-22.04
+    env:
+      invalid-env-1: value1
+      VALID_ALL_CAPS: value
+    steps:
+      - shell: bash
+        env:
+          InvalidEnv1: value
+        run: |
+          echo "${{ env.InvalidVar1 }}"
+          echo "${{ var.invalid-var }}"
+          echo "${{ var.VALID_ALL_CAPS_VARIABLE }}"
+  job2:
+    runs-on: ubuntu-22.04
+    env:
+      invalidEnv1: value1
+      VALID_ALL_CAPS: value
+    steps:
+      - shell: bash
+        env:
+          invalid-env: value1
+        run: |
+          echo "Hello!"
+          echo "${{ var.InvalidVar }}"
+          echo "${{ var.VALID_ALL_CAPS_VARIABLE }}"
