@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
@@ -41,7 +42,7 @@ func (r ValidInputs) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
@@ -57,13 +58,21 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}
 
+	var fileType int
+	var filePath string
+	var fileName string
+
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
 			return
 		}
 		steps = a.Runs.Steps
-		msgPrefix[0] = fmt.Sprintf("action '%s'", a.DirName)
+		msgPrefix[0] = ""
+
+		fileType = rule.DotGithubFileTypeAction
+		filePath = a.Path
+		fileName = a.DirName
 	}
 
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
@@ -75,10 +84,14 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 			if job.Steps == nil || len(job.Steps) == 0 {
 				continue
 			}
-			msgPrefix[len(steps)] = fmt.Sprintf("workflow '%s' job '%s'", w.FileName, jobName)
+			msgPrefix[len(steps)] = fmt.Sprintf("job '%s'", jobName)
 			steps = append(steps, job.Steps...)
 
 		}
+
+		fileType = rule.DotGithubFileTypeWorkflow
+		filePath = w.Path
+		fileName = w.DisplayName
 	}
 
 	var errPrefix string
@@ -114,7 +127,12 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 			for daInputName, daInput := range action.Inputs {
 				if daInput.Required {
 					if st.With == nil || st.With[daInputName] == "" {
-						chErrors <- fmt.Sprintf("%s step %d called action requires input '%s'", errPrefix, i+1, daInputName)
+						chErrors <- glitch.Glitch{
+							Path: filePath,
+							Name: fileName,
+							Type: fileType,
+							ErrText: fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, i+1, daInputName),
+						}
 						compliant = false
 					}
 				}
@@ -123,7 +141,12 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 		if st.With != nil {
 			for usedInput := range st.With {
 				if action.Inputs == nil || action.Inputs[usedInput] == nil {
-					chErrors <- fmt.Sprintf("%s step %d called action non-existing input '%s'", errPrefix, i+1, usedInput)
+					chErrors <- glitch.Glitch{
+						Path: filePath,
+						Name: fileName,
+						Type: fileType,
+						ErrText: fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, i+1, usedInput),
+					}
 					compliant = false
 				}
 			}

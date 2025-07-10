@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
@@ -33,7 +34,7 @@ func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
 		return
@@ -51,13 +52,23 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 		outputName := string(f[2])
 
 		if a.Runs == nil {
-			chErrors <- fmt.Sprintf("action '%s' calls a step output '%s' but 'runs' does not exist", a.DirName, stepName)
+			chErrors <- glitch.Glitch{
+				Path: a.Path,
+				Name: a.DirName,
+				Type: rule.DotGithubFileTypeAction,
+				ErrText: fmt.Sprintf("calls a step output '%s' but 'runs' does not exist", stepName),
+			}
 			compliant = false
 			continue
 		}
 		step := a.Runs.GetStep(string(f[1]))
 		if step == nil {
-			chErrors <- fmt.Sprintf("action '%s' calls a step '%s' output '%s' but step does not exist", a.DirName, stepName, outputName)
+			chErrors <- glitch.Glitch{
+				Path: a.Path,
+				Name: a.DirName,
+				Type: rule.DotGithubFileTypeAction,
+				ErrText: fmt.Sprintf("calls a step '%s' output '%s' but step does not exist", stepName, outputName),
+			}
 			compliant = false
 			continue
 		}
@@ -73,7 +84,12 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				}
 			}
 			if !foundOutput {
-				chErrors <- fmt.Sprintf("action '%s' calls a step '%s' output '%s' that does not exist", a.DirName, stepName, outputName)
+				chErrors <- glitch.Glitch{
+					Path: a.Path,
+					Name: a.DirName,
+					Type: rule.DotGithubFileTypeAction,
+					ErrText: fmt.Sprintf("calls a step '%s' output '%s' that does not exist", stepName, outputName),
+				}
 				compliant = false
 				continue
 			}
@@ -93,8 +109,13 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 		if reExternal.MatchString(step.Uses) {
 			action = d.GetExternalAction(step.Uses)
 		}
-		if action == nil {
-			chErrors <- fmt.Sprintf("action '%s' calls a step '%s' output '%s' on action that does not exist", a.DirName, stepName, outputName)
+		if action == nil {	
+			chErrors <- glitch.Glitch{
+				Path: a.Path,
+				Name: a.DirName,
+				Type: rule.DotGithubFileTypeAction,
+				ErrText: fmt.Sprintf("calls a step '%s' output '%s' on action that does not exist", stepName, outputName),
+			}
 			compliant = false
 			continue
 		}
@@ -105,7 +126,12 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 			}
 		}
 		if !foundOutput {
-			chErrors <- fmt.Sprintf("action '%s' calls step '%s' output '%s' on action and that output does not exist", a.DirName, stepName, outputName)
+			chErrors <- glitch.Glitch{
+				Path: a.Path,
+				Name: a.DirName,
+				Type: rule.DotGithubFileTypeAction,
+				ErrText: fmt.Sprintf("calls step '%s' output '%s' on action and that output does not exist", stepName, outputName),
+			}
 			compliant = false
 			continue
 		}

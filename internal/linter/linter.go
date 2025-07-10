@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
@@ -33,8 +34,8 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 	numCPU := runtime.NumCPU()
 
 	chJobs := make(chan Job)
-	chWarnings := make(chan string)
-	chErrors := make(chan string)
+	chWarnings := make(chan glitch.Glitch)
+	chErrors := make(chan glitch.Glitch)
 
 	wg := sync.WaitGroup{}
 	wg.Add(numCPU)
@@ -116,16 +117,18 @@ func (l *Linter) Lint(d *dotgithub.DotGithub) (uint8, error) {
 
 			for {
 				select {
-				case s, more := <-chWarnings:
+				case glitchInstance, more := <-chWarnings:
 					if more {
+						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
 						if s != "" {
 							slog.Warn(s)
 						}
 					} else {
 						chWarningsClosed = true
 					}
-				case s, more := <-chErrors:
+				case glitchInstance, more := <-chErrors:
 					if more {
+						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
 						if s != "" {
 							slog.Error(s)
 						}

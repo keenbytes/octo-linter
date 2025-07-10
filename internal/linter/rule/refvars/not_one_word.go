@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
@@ -40,7 +41,7 @@ func (r NotOneWord) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
@@ -58,7 +59,12 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
-				chErrors <- fmt.Sprintf("action '%s' calls a variable '%s' that is invalid", a.DirName, string(f[1]))
+				chErrors <- glitch.Glitch{
+					Path: a.Path,
+					Name: a.DirName,
+					Type: rule.DotGithubFileTypeAction,
+					ErrText: fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
+				}
 				compliant = false
 			}
 		}
@@ -70,7 +76,12 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
 			if string(f[1]) != "false" && string(f[1]) != "true" {
-				chErrors <- fmt.Sprintf("workflow '%s' calls a variable '%s' that is invalid", w.FileName, string(f[1]))
+				chErrors <- glitch.Glitch{
+					Path: w.Path,
+					Name: w.DisplayName,
+					Type: rule.DotGithubFileTypeWorkflow,
+					ErrText: fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
+				}
 				compliant = false
 			}
 		}

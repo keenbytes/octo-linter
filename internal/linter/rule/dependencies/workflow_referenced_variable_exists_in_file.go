@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
@@ -32,7 +33,7 @@ func (r WorkflowReferencedVariableExistsInFile) Validate(conf interface{}) error
 	return nil
 }
 
-func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
 		return
@@ -45,12 +46,22 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
 			if v == "vars" && len(d.Vars) > 0 && !d.IsVarExist(string(f[1])) {
-				chErrors <- fmt.Sprintf("workflow '%s' calls a variable '%s' that does not exist in the vars file", w.FileName, string(f[1]))
+				chErrors <- glitch.Glitch{
+					Path: w.Path,
+					Name: w.DisplayName,
+					Type: rule.DotGithubFileTypeWorkflow,
+					ErrText: fmt.Sprintf("calls a variable '%s' that does not exist in the vars file", string(f[1])),
+				}
 				compliant = false
 			}
 
 			if v == "secrets" && len(d.Secrets) > 0 && !d.IsSecretExist(string(f[1])) {
-				chErrors <- fmt.Sprintf("workflow '%s' calls a secret '%s' that does not exist in the secrets file", w.FileName, string(f[1]))
+				chErrors <- glitch.Glitch{
+					Path: w.Path,
+					Name: w.DisplayName,
+					Type: rule.DotGithubFileTypeWorkflow,
+					ErrText: fmt.Sprintf("calls a secret '%s' that does not exist in the secrets file", string(f[1])),
+				}
 				compliant = false
 			}
 		}

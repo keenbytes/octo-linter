@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
 	"github.com/keenbytes/octo-linter/v2/pkg/casematch"
@@ -48,7 +49,7 @@ func (r Action) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- string) (compliant bool, err error) {
+func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction {
 		return
@@ -60,7 +61,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		for inputName := range a.Inputs {
 			m := casematch.Match(inputName, conf.(string))
 			if !m {
-				chErrors <- fmt.Sprintf("action '%s' input '%s' must be %s", a.DirName, inputName, conf.(string))
+				chErrors <- glitch.Glitch{
+					Path: a.Path,
+					Name: a.DirName,
+					Type: rule.DotGithubFileTypeAction,
+					ErrText: fmt.Sprintf("input '%s' must be %s", inputName, conf.(string)),
+				}
 				compliant = false
 			}
 		}
@@ -68,7 +74,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		for outputName := range a.Outputs {
 			m := casematch.Match(outputName, conf.(string))
 			if !m {
-				chErrors <- fmt.Sprintf("action '%s' output '%s' must be %s", a.DirName, outputName, conf.(string))
+				chErrors <- glitch.Glitch{
+					Path: a.Path,
+					Name: a.DirName,
+					Type: rule.DotGithubFileTypeAction,
+					ErrText: fmt.Sprintf("output '%s' must be %s", outputName, conf.(string)),
+				}
 				compliant = false
 			}
 		}
@@ -80,7 +91,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 			for _, f := range found {
 				m := casematch.Match(string(f[1]), conf.(string))
 				if !m {
-					chErrors <- fmt.Sprintf("action '%s' references a variable '%s' that must be %s", a.DirName, string(f[1]), conf.(string))
+					chErrors <- glitch.Glitch{
+						Path: a.Path,
+						Name: a.DirName,
+						Type: rule.DotGithubFileTypeAction,
+						ErrText: fmt.Sprintf("references a variable '%s' that must be %s", string(f[1]), conf.(string)),
+					}
 					compliant = false
 				}
 			}
@@ -97,7 +113,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 			for envName := range step.Env {
 				m := casematch.Match(envName, conf.(string))
 				if !m {
-					chErrors <- fmt.Sprintf("action '%s' step %d env '%s' must be %s", a.DirName, i, envName, conf.(string))
+					chErrors <- glitch.Glitch{
+						Path: a.Path,
+						Name: a.DirName,
+						Type: rule.DotGithubFileTypeAction,
+						ErrText: fmt.Sprintf("step %d env '%s' must be %s", i, envName, conf.(string)),
+					}
 					compliant = false
 				}
 			}
