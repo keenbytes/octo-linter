@@ -24,7 +24,7 @@ type Linter struct {
 	Config *Config
 }
 
-func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (uint8, error) {
+func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (int, error) {
 	if l.Config == nil {
 		panic("Config cannot be nil")
 	}
@@ -182,9 +182,9 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 
 		err := os.WriteFile(outputMd, []byte(md), 0644)
 		if err != nil {
-			return uint8(finalStatus), fmt.Errorf("error writing markdown output: %w", err)
+			return finalStatus, fmt.Errorf("error writing markdown output: %w", err)
 		}
 	}
 
-	return uint8(finalStatus), nil
+	return finalStatus, nil
 }
