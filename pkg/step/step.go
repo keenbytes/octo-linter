@@ -3,7 +3,7 @@ package step
 type Step struct {
 	ParentType string
 	Name       string            `yaml:"name"`
-	Id         string            `yaml:"id"`
+	ID         string            `yaml:"id"`
 	Uses       string            `yaml:"uses"`
 	Shell      string            `yaml:"bash"`
 	Env        map[string]string `yaml:"env"`

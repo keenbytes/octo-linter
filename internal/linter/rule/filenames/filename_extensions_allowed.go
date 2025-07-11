@@ -42,6 +42,7 @@ func (r FilenameExtensionsAllowed) Validate(conf interface{}) error {
 		if !ok {
 			return errors.New("value should be []string")
 		}
+
 		if extension != "yml" && extension != "yaml" {
 			return fmt.Errorf("value can contain only 'yml' and/or 'yaml'")
 		}
@@ -65,10 +66,12 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		return true, nil
 	}
 
-	var extension string
-	var filePath string
-	var fileTypeName string
-	var fileType int
+	var (
+		extension    string
+		filePath     string
+		fileTypeName string
+		fileType     int
+	)
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
@@ -94,10 +97,12 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 	}
 
 	var allowedExtensionsList []string
+
 	for _, allowedExtension := range allowedExtensions {
 		if extension == allowedExtension.(string) {
 			return true, nil
 		}
+
 		allowedExtensionsList = append(allowedExtensionsList, allowedExtension.(string))
 	}
 

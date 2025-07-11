@@ -46,6 +46,7 @@ func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
+
 	w := f.(*workflow.Workflow)
 
 	fileParts := strings.Split(w.FileName, ".")
@@ -60,6 +61,7 @@ func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *
 			ErrText:  fmt.Sprintf("filename base must be %s", conf.(string)),
 			RuleName: r.ConfigName(0),
 		}
+
 		return false, nil
 	}
 

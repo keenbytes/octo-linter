@@ -83,6 +83,7 @@ func main() {
 
 	buf := &bytes.Buffer{}
 	t := template.Must(template.New("gend_tpl").Parse(string(tpl)))
+
 	err = t.Execute(buf, &tplObj)
 	if err != nil {
 		panic(fmt.Sprintf("error executing template: %s", err.Error()))

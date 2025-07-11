@@ -45,6 +45,7 @@ func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *d
 	if f.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
+
 	a := f.(*action.Action)
 
 	m := casematch.Match(a.DirName, conf.(string))
@@ -56,6 +57,7 @@ func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *d
 			ErrText:  fmt.Sprintf("directory name must be %s", conf.(string)),
 			RuleName: r.ConfigName(0),
 		}
+
 		return false, nil
 	}
 

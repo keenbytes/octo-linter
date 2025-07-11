@@ -40,6 +40,7 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 	if f.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
 		return true, nil
 	}
+
 	w := f.(*workflow.Workflow)
 
 	if len(w.Jobs) == 0 {
@@ -54,6 +55,7 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 			if ok {
 				if w.Jobs[needsStr] == nil {
 					compliant = false
+
 					chErrors <- glitch.Glitch{
 						Path:     w.Path,
 						Name:     w.DisplayName,
@@ -69,6 +71,7 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 				for _, neededJob := range needsList {
 					if w.Jobs[neededJob.(string)] == nil {
 						compliant = false
+
 						chErrors <- glitch.Glitch{
 							Path:     w.Path,
 							Name:     w.DisplayName,

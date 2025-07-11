@@ -60,8 +60,6 @@ func (r Workflow) Validate(conf interface{}) error {
 			if field != "description" {
 				return fmt.Errorf("value can contain only 'description'")
 			}
-		default:
-			// nothing
 		}
 	}
 
@@ -77,11 +75,13 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
+
 	w := f.(*workflow.Workflow)
 
 	compliant := true
 
 	confInterfaces := conf.([]interface{})
+
 	switch r.Field {
 	case WorkflowFieldWorkflow:
 		for _, field := range confInterfaces {
@@ -93,6 +93,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					ErrText:  fmt.Sprintf("does not have a required %s", field.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
@@ -112,6 +113,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 						ErrText:  fmt.Sprintf("dispatch input '%s' does not have a required %s", inputName, field.(string)),
 						RuleName: r.ConfigName(0),
 					}
+
 					compliant = false
 				}
 			}
@@ -131,12 +133,11 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 						ErrText:  fmt.Sprintf("call input '%s' does not have a required %s", inputName, field.(string)),
 						RuleName: r.ConfigName(0),
 					}
+
 					compliant = false
 				}
 			}
 		}
-	default:
-		// do nothing
 	}
 
 	return compliant, nil

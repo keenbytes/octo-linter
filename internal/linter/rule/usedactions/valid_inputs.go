@@ -62,15 +62,18 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}
 
-	var fileType int
-	var filePath string
-	var fileName string
+	var (
+		fileType int
+		filePath string
+		fileName string
+	)
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 		if len(a.Runs.Steps) == 0 {
 			return true, nil
 		}
+
 		steps = a.Runs.Steps
 		msgPrefix[0] = ""
 
@@ -84,13 +87,15 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 		if len(w.Jobs) == 0 {
 			return true, nil
 		}
+
 		for jobName, job := range w.Jobs {
 			if len(job.Steps) == 0 {
 				continue
 			}
-			msgPrefix[len(steps)] = fmt.Sprintf("job '%s'", jobName)
-			steps = append(steps, job.Steps...)
 
+			msgPrefix[len(steps)] = fmt.Sprintf("job '%s'", jobName)
+
+			steps = append(steps, job.Steps...)
 		}
 
 		fileType = rule.DotGithubFileTypeWorkflow
@@ -110,6 +115,7 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 		if ok {
 			errPrefix = newErrPrefix
 		}
+
 		if st.Uses == "" {
 			continue
 		}
@@ -118,13 +124,16 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 		isExternal := reExternal.MatchString(st.Uses)
 
 		var action *action.Action
+
 		if isLocal {
 			actionName := strings.ReplaceAll(st.Uses, "./.github/actions/", "")
 			action = d.GetAction(actionName)
 		}
+
 		if isExternal {
 			action = d.GetExternalAction(st.Uses)
 		}
+
 		if action == nil {
 			continue
 		}
@@ -140,11 +149,13 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 							ErrText:  fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, i+1, daInputName),
 							RuleName: r.ConfigName(fileType),
 						}
+
 						compliant = false
 					}
 				}
 			}
 		}
+
 		if st.With != nil {
 			for usedInput := range st.With {
 				if action.Inputs == nil || action.Inputs[usedInput] == nil {
@@ -155,6 +166,7 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 						ErrText:  fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, i+1, usedInput),
 						RuleName: r.ConfigName(fileType),
 					}
+
 					compliant = false
 				}
 			}

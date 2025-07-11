@@ -66,6 +66,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	if f.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
+
 	a := f.(*action.Action)
 
 	compliant := true
@@ -82,6 +83,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					ErrText:  fmt.Sprintf("input '%s' must be %s", inputName, conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
@@ -96,6 +98,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					ErrText:  fmt.Sprintf("output '%s' must be %s", outputName, conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
@@ -103,6 +106,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		varTypes := []string{"env", "var", "secret"}
 		for _, v := range varTypes {
 			re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
+
 			found := re.FindAllSubmatch(a.Raw, -1)
 			for _, f := range found {
 				m := casematch.Match(string(f[1]), conf.(string))
@@ -114,6 +118,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						ErrText:  fmt.Sprintf("references a variable '%s' that must be %s", string(f[1]), conf.(string)),
 						RuleName: r.ConfigName(0),
 					}
+
 					compliant = false
 				}
 			}
@@ -127,6 +132,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 			if len(step.Env) == 0 {
 				continue
 			}
+
 			for envName := range step.Env {
 				m := casematch.Match(envName, conf.(string))
 				if !m {
@@ -137,12 +143,11 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						ErrText:  fmt.Sprintf("step %d env '%s' must be %s", i, envName, conf.(string)),
 						RuleName: r.ConfigName(0),
 					}
+
 					compliant = false
 				}
 			}
 		}
-	default:
-		// do nothing
 	}
 
 	return compliant, nil

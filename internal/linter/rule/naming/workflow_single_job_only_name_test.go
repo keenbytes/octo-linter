@@ -14,12 +14,14 @@ func TestWorkflowSingleJobOnlyNameValidate(t *testing.T) {
 	rule := WorkflowSingleJobOnlyName{}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("Workflow.Validate should return error when conf is not string")
 	}
 
 	confGood := "main"
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("Workflow.Validate should not return error when conf is string")
@@ -33,10 +35,11 @@ func TestWorkflowSingleJobOnlyNameNotCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Workflow.Lint should return false when workflow has only job and its name is not '%s'", conf)
 		}
+
 		if err != nil {
 			t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 		}
@@ -57,10 +60,11 @@ func TestWorkflowSingleJobOnlyNameCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("Workflow.Lint should return true when workflow has only job and its name is '%s'", conf)
 		}
+
 		if err != nil {
 			t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 		}

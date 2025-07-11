@@ -14,12 +14,14 @@ func TestActionReferencedStepOutputExistsValidate(t *testing.T) {
 	rule := ActionReferencedStepOutputExists{}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("ActionReferencedStepOutputExists.Validate should return error when conf is not bool")
 	}
 
 	confGood := true
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("ActionReferencedStepOutputExists.Validate should not return error when conf is bool")
@@ -34,10 +36,11 @@ func TestActionReferencedStepOutputExistsNotCompliant(t *testing.T) {
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("ActionReferencedStepOutputExists.Lint should return false when there are invalid step outputs used in it and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("ActionReferencedStepOutputExists.Lint failed with an error: %s", err.Error())
 		}
@@ -58,10 +61,11 @@ func TestActionCompliant(t *testing.T) {
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("ActionReferencedStepOutputExists.Lint should return true when action does not call invalid step outputs in it and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("ActionReferencedStepOutputExists.Lint failed with an error: %s", err.Error())
 		}

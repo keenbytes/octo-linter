@@ -14,12 +14,14 @@ func TestValidInputsValidate(t *testing.T) {
 	rule := ValidInputs{}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("ValidInputs.Validate should return error when conf is %v", confBad)
 	}
 
 	confGood := true
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("ValidInputs.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
@@ -34,10 +36,11 @@ func TestValidInputsNotCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("ValidInputs.Lint should return false when there invalid inputs used when calling an action")
 		}
+
 		if err != nil {
 			t.Errorf("ValidInputs.Lint failed with an error: %s", err.Error())
 		}
@@ -58,10 +61,11 @@ func TestValidInputsCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("ValidInputs.Lint should return true when there are not any invalid inputs")
 		}
+
 		if err != nil {
 			t.Errorf("ValidInputs.Lint failed with an error: %s", err.Error())
 		}

@@ -14,12 +14,14 @@ func TestFilenameExtensionsAllowedValidate(t *testing.T) {
 	rule := FilenameExtensionsAllowed{}
 
 	confBad := []interface{}{"something", "something2"}
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("FilenameExtensionsAllowed.Validate should return error when conf is %v", confBad)
 	}
 
 	confGood := []interface{}{"yml", "yaml"}
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("FilenameExtensionsAllowed.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
@@ -34,10 +36,11 @@ func TestFilenameExtensionsAllowedNotCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("FilenameExtensionsAllowed.Lint should return false when filename extension is not in config")
 		}
+
 		if err != nil {
 			t.Errorf("FilenameExtensionsAllowed.Lint failed with an error: %s", err.Error())
 		}
@@ -59,10 +62,11 @@ func TestFilenameExtensionsAllowedCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("FilenameExtensionsAllowed.Lint should return true when filename extension is in config")
 		}
+
 		if err != nil {
 			t.Errorf("FilenameExtensionsAllowed.Lint failed with an error: %s", err.Error())
 		}

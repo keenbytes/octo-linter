@@ -41,6 +41,7 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
+
 	w := f.(*workflow.Workflow)
 
 	if !conf.(bool) || len(w.Jobs) == 0 {
@@ -58,6 +59,7 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 		if ok {
 			if strings.Contains(runsOnStr, "latest") {
 				compliant = false
+
 				chErrors <- glitch.Glitch{
 					Path:     w.Path,
 					Name:     w.DisplayName,
@@ -74,6 +76,7 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 				runsOnStr, ok2 := runsOn.(string)
 				if ok2 && strings.Contains(runsOnStr, "latest") {
 					compliant = false
+
 					chErrors <- glitch.Glitch{
 						Path:     w.Path,
 						Name:     w.DisplayName,

@@ -17,9 +17,10 @@ func (ar *ActionRuns) SetParentType(t string) {
 
 func (ar *ActionRuns) GetStep(id string) *step.Step {
 	for _, s := range ar.Steps {
-		if s.Id == id {
+		if s.ID == id {
 			return s
 		}
 	}
+
 	return nil
 }

@@ -70,6 +70,7 @@ func (r NotInDoubleQuotes) Lint(conf interface{}, f dotgithub.File, d *dotgithub
 				ErrText:  fmt.Sprintf("calls a variable '%s' that is in double quotes", string(f[1])),
 				RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 			}
+
 			compliant = false
 		}
 	}
@@ -86,6 +87,7 @@ func (r NotInDoubleQuotes) Lint(conf interface{}, f dotgithub.File, d *dotgithub
 				ErrText:  fmt.Sprintf("calls a variable '%s' that is in double quotes", string(f[1])),
 				RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 			}
+
 			compliant = false
 		}
 	}

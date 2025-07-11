@@ -39,6 +39,7 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
+
 	w := f.(*workflow.Workflow)
 
 	if !conf.(bool) || len(w.Jobs) == 0 {
@@ -56,6 +57,7 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 				ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 				RuleName: r.ConfigName(0),
 			}
+
 			compliant = false
 		}
 
@@ -69,6 +71,7 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 					ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}

@@ -9,6 +9,10 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
+func errRuleTimeout(name string) error {
+	return fmt.Errorf("rule %s timed out", name)
+}
+
 type Job struct {
 	rule      rule.Rule
 	file      dotgithub.File
@@ -17,8 +21,10 @@ type Job struct {
 	value     interface{}
 }
 
-func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
+func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch) (bool, error) {
+	compliant := true
+
+	var err error
 
 	done := make(chan struct{})
 	timer := time.NewTimer(10 * time.Second)
@@ -29,13 +35,14 @@ func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch
 		} else {
 			compliant, err = j.rule.Lint(j.value, j.file, j.dotGithub, chWarnings)
 		}
+
 		close(done)
 	}()
 
 	select {
 	case <-timer.C:
-		return false, fmt.Errorf("rule %s timed out", j.rule.ConfigName(j.file.GetType()))
+		return false, errRuleTimeout(j.rule.ConfigName(j.file.GetType()))
 	case <-done:
-		return compliant, err
+		return compliant, fmt.Errorf("rule lint error: %w", err)
 	}
 }

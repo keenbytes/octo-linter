@@ -40,6 +40,7 @@ func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *d
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
+
 	w := f.(*workflow.Workflow)
 
 	if conf.(string) == "" || w.Jobs == nil {
@@ -47,6 +48,7 @@ func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *d
 	}
 
 	compliant := true
+
 	if len(w.Jobs) == 1 {
 		for jobName := range w.Jobs {
 			if jobName != conf.(string) {
@@ -57,6 +59,7 @@ func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *d
 					ErrText:  fmt.Sprintf("has only one job and it should be called '%s'", conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}

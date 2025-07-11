@@ -75,13 +75,14 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
+
 	w := f.(*workflow.Workflow)
 
 	compliant := true
 
 	switch r.Field {
 	case WorkflowFieldEnv:
-		if w.Env == nil || len(w.Env) == 0 {
+		if len(w.Env) == 0 {
 			return true, nil
 		}
 
@@ -106,6 +107,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 			if len(job.Env) == 0 {
 				continue
 			}
+
 			for envName := range job.Env {
 				m := casematch.Match(envName, conf.(string))
 				if !m {
@@ -125,6 +127,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 				if len(step.Env) == 0 {
 					continue
 				}
+
 				for envName := range step.Env {
 					m := casematch.Match(envName, conf.(string))
 					if !m {
@@ -135,6 +138,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 							ErrText:  fmt.Sprintf("job '%s' step %d env '%s' must be %s", jobName, i, envName, conf.(string)),
 							RuleName: r.ConfigName(0),
 						}
+
 						compliant = false
 					}
 				}
@@ -144,6 +148,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		varTypes := []string{"env", "vars", "secrets"}
 		for _, v := range varTypes {
 			re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
+
 			found := re.FindAllSubmatch(w.Raw, -1)
 			for _, f := range found {
 				m := casematch.Match(string(f[1]), conf.(string))
@@ -155,6 +160,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 						ErrText:  fmt.Sprintf("calls a variable '%s' that must be %s", string(f[1]), conf.(string)),
 						RuleName: r.ConfigName(0),
 					}
+
 					compliant = false
 				}
 			}
@@ -174,6 +180,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					ErrText:  fmt.Sprintf("call input '%s' name must be %s", inputName, conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
@@ -192,6 +199,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					ErrText:  fmt.Sprintf("dispatch input '%s' name must be %s", inputName, conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
@@ -210,11 +218,11 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 					ErrText:  fmt.Sprintf("job '%s' name must be %s", jobName, conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
-	default:
-		// do nothing
 	}
+
 	return compliant, nil
 }

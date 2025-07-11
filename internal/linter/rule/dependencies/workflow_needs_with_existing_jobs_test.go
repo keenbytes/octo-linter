@@ -14,12 +14,14 @@ func TestWorkflowNeedsWithExistingJobsValidate(t *testing.T) {
 	rule := WorkflowNeedsWithExistingJobs{}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("WorkflowNeedsWithExistingJobs.Validate should return error when conf is not bool")
 	}
 
 	confGood := true
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("WorkflowNeedsWithExistingJobs.Validate should not return error when conf is bool")
@@ -34,10 +36,11 @@ func TestWorkflowNeedsWithExistingJobsNotCompliant(t *testing.T) {
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should return false when invalid dependencies between jobs and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("WorkflowNeedsWithExistingJobs.Lint failed with an error: %s", err.Error())
 		}
@@ -58,10 +61,11 @@ func TestWorkflowNeedsWithExistingJobsCompliant(t *testing.T) {
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should return true dependencies between jobs are valid and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("WorkflowNeedsWithExistingJobs.Lint failed with an error: %s", err.Error())
 		}

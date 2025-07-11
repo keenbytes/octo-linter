@@ -72,6 +72,7 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 				}
+
 				compliant = false
 			}
 		}
@@ -90,6 +91,7 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 				}
+
 				compliant = false
 			}
 		}

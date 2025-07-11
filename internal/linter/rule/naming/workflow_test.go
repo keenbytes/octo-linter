@@ -14,12 +14,14 @@ func TestWorkflowValidate(t *testing.T) {
 	rule := Workflow{}
 
 	confBad := "some string"
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("Workflow.Validate should return error when conf is %v", confBad)
 	}
 
 	confGood := "camelCase"
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("Workflow.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
@@ -44,10 +46,11 @@ func TestWorkflowNotCompliant(t *testing.T) {
 		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
 				t.Errorf("Workflow.Lint should return false when workflow field %d does not follow naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 			}
@@ -79,10 +82,11 @@ func TestWorkflowCompliant(t *testing.T) {
 		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
 				t.Errorf("Workflow.Lint should return true when workflow field %d follows naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 			}

@@ -14,12 +14,14 @@ func TestActionValidate(t *testing.T) {
 	rule := Action{}
 
 	confBad := "some string"
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("Action.Validate should return error when conf is %v", confBad)
 	}
 
 	confGood := "camelCase"
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("Action.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
@@ -41,10 +43,11 @@ func TestActionNotCompliant(t *testing.T) {
 		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
 				t.Errorf("Action.Lint should return false when action field %d does not follow naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
 			}
@@ -73,10 +76,11 @@ func TestActionCompliant(t *testing.T) {
 		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
 				t.Errorf("Action.Lint should return true when action field %d follows naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
 			}

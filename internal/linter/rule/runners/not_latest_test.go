@@ -14,12 +14,14 @@ func TestNotLatestValidate(t *testing.T) {
 	rule := NotLatest{}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("NotLatest.Validate should return error when conf is not bool")
 	}
 
 	confGood := true
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("NotLatest.Validate should not return error when conf is bool")
@@ -34,10 +36,11 @@ func TestNotLatestNotCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("NotLatest.Lint should return false when 'latest' is found in at least one job")
 		}
+
 		if err != nil {
 			t.Errorf("NotLatest.Lint failed with an error: %s", err.Error())
 		}
@@ -58,10 +61,11 @@ func TestNotLatestCompliant(t *testing.T) {
 	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("NotLatest.Lint should return true when 'latest' is not in any job")
 		}
+
 		if err != nil {
 			t.Errorf("NotLatest.Lint failed with an error: %s", err.Error())
 		}

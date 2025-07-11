@@ -41,17 +41,20 @@ func (w *Workflow) Unmarshal(fromRaw bool) error {
 	if err != nil {
 		return fmt.Errorf("cannot read file %s: %w", w.Path, err)
 	}
+
 	w.Raw = b
 
 	err = yaml.Unmarshal(w.Raw, &w)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal file %s: %w", w.Path, err)
 	}
+
 	if w.Jobs != nil {
 		for _, j := range w.Jobs {
 			j.SetParentType("workflow")
 		}
 	}
+
 	return nil
 }
 

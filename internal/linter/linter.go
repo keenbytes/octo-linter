@@ -28,6 +28,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 	if l.Config == nil {
 		panic("Config cannot be nil")
 	}
+
 	if d == nil {
 		panic("DotGithub cannot be empty")
 	}
@@ -48,6 +49,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				if ruleEntry.FileType()&rule.DotGithubFileTypeAction == 0 {
 					continue
 				}
+
 				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeAction))
 				chJobs <- Job{
 					rule:      ruleEntry,
@@ -56,6 +58,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 					isError:   isError,
 					value:     l.Config.Values[ruleIdx],
 				}
+
 				summary.numJob.Add(1)
 			}
 		}
@@ -65,6 +68,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				if ruleEntry.FileType()&rule.DotGithubFileTypeWorkflow == 0 {
 					continue
 				}
+
 				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeWorkflow))
 				chJobs <- Job{
 					rule:      ruleEntry,
@@ -73,6 +77,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 					isError:   isError,
 					value:     l.Config.Values[ruleIdx],
 				}
+
 				summary.numJob.Add(1)
 			}
 		}
@@ -92,8 +97,10 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 						slog.String("err", err.Error()),
 					)
 					summary.numError.Add(1)
+
 					continue
 				}
+
 				if !compliant {
 					if job.isError {
 						summary.numError.Add(1)
@@ -101,7 +108,9 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 						summary.numWarning.Add(1)
 					}
 				}
+
 				summary.numProcessed.Add(1)
+
 				continue
 			}
 
@@ -109,6 +118,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 			close(chErrors)
 
 			wg.Done()
+
 			return
 		}
 	}()
@@ -125,10 +135,11 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				case glitchInstance, more := <-chWarnings:
 					if more {
 						slog.Warn(
-							glitchInstance.ErrText, 
+							glitchInstance.ErrText,
 							slog.String("path", glitchInstance.Path),
 							slog.String("rule", glitchInstance.RuleName),
 						)
+
 						glitchInstance.IsError = false
 						summary.addGlitch(&glitchInstance)
 					} else {
@@ -141,6 +152,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 							slog.String("path", glitchInstance.Path),
 							slog.String("rule", glitchInstance.RuleName),
 						)
+
 						glitchInstance.IsError = true
 						summary.addGlitch(&glitchInstance)
 					} else {
