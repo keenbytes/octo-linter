@@ -21,7 +21,7 @@ func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch
 	compliant = true
 
 	done := make(chan struct{})
-	timer := time.NewTimer(time.Duration(10 * time.Second))
+	timer := time.NewTimer(10 * time.Second)
 
 	go func() {
 		if j.isError {
