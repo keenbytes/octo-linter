@@ -9,6 +9,8 @@ import (
 )
 
 func TestWorkflowFilenameBaseFormatValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowFilenameBaseFormat{}
 
 	confBad := "some string"
@@ -25,6 +27,8 @@ func TestWorkflowFilenameBaseFormatValidate(t *testing.T) {
 }
 
 func TestWorkflowFilenameBaseFormatNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowFilenameBaseFormat{}
 	d := ruletest.DotGithub
 
@@ -48,6 +52,8 @@ func TestWorkflowFilenameBaseFormatNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowFilenameBaseFormatCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowFilenameBaseFormat{}
 	conf := "dash-case"
 	d := ruletest.DotGithub

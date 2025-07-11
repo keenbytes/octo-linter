@@ -9,6 +9,8 @@ import (
 )
 
 func TestNotInDoubleQuotesValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := NotInDoubleQuotes{}
 
 	confBad := 4
@@ -25,6 +27,8 @@ func TestNotInDoubleQuotesValidate(t *testing.T) {
 }
 
 func TestNotInDoubleQuotesNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotInDoubleQuotes{}
 	conf := true
 	d := ruletest.DotGithub
@@ -48,6 +52,8 @@ func TestNotInDoubleQuotesNotCompliant(t *testing.T) {
 }
 
 func TestNotInDoubleQuotesCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotInDoubleQuotes{}
 	conf := true
 	d := ruletest.DotGithub

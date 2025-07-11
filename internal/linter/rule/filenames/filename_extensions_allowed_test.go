@@ -9,6 +9,8 @@ import (
 )
 
 func TestFilenameExtensionsAllowedValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := FilenameExtensionsAllowed{}
 
 	confBad := []interface{}{"something", "something2"}
@@ -25,6 +27,8 @@ func TestFilenameExtensionsAllowedValidate(t *testing.T) {
 }
 
 func TestFilenameExtensionsAllowedNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := FilenameExtensionsAllowed{}
 	conf := []interface{}{"yaml"}
 	d := ruletest.DotGithub
@@ -48,6 +52,8 @@ func TestFilenameExtensionsAllowedNotCompliant(t *testing.T) {
 }
 
 func TestFilenameExtensionsAllowedCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := FilenameExtensionsAllowed{}
 	conf := []interface{}{"yml"}
 	d := ruletest.DotGithub

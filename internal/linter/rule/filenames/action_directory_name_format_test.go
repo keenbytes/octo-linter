@@ -9,6 +9,8 @@ import (
 )
 
 func TestActionDirectoryNameFormatValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := ActionDirectoryNameFormat{}
 
 	confBad := "some string"
@@ -25,6 +27,8 @@ func TestActionDirectoryNameFormatValidate(t *testing.T) {
 }
 
 func TestActionDirectoryNameFormatNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ActionDirectoryNameFormat{}
 	d := ruletest.DotGithub
 
@@ -48,6 +52,8 @@ func TestActionDirectoryNameFormatNotCompliant(t *testing.T) {
 }
 
 func TestActionDirectoryNameFormatCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ActionDirectoryNameFormat{}
 	conf := "dash-case"
 	d := ruletest.DotGithub

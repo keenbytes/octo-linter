@@ -9,6 +9,8 @@ import (
 )
 
 func TestActionReferencedStepOutputExistsValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := ActionReferencedStepOutputExists{}
 
 	confBad := 4
@@ -25,6 +27,8 @@ func TestActionReferencedStepOutputExistsValidate(t *testing.T) {
 }
 
 func TestActionReferencedStepOutputExistsNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ActionReferencedStepOutputExists{}
 	d := ruletest.DotGithub
 	conf := true
@@ -47,6 +51,8 @@ func TestActionReferencedStepOutputExistsNotCompliant(t *testing.T) {
 }
 
 func TestActionCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ActionReferencedStepOutputExists{}
 	d := ruletest.DotGithub
 	conf := true

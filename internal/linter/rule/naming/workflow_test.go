@@ -9,6 +9,8 @@ import (
 )
 
 func TestWorkflowValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{}
 
 	confBad := "some string"
@@ -25,6 +27,8 @@ func TestWorkflowValidate(t *testing.T) {
 }
 
 func TestWorkflowNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	for field, conf := range map[string]string{
 		"env":                   "ALL_CAPS",
 		"job_env":               "ALL_CAPS",
@@ -58,6 +62,8 @@ func TestWorkflowNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowCompliant(t *testing.T) {
+	t.Parallel()
+
 	for field, conf := range map[string]string{
 		"env":                   "ALL_CAPS",
 		"job_env":               "ALL_CAPS",

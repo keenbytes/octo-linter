@@ -9,6 +9,8 @@ import (
 )
 
 func TestSourceValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 
 	for _, confBad := range []interface{}{4, true, "wrong"} {
@@ -27,6 +29,8 @@ func TestSourceValidate(t *testing.T) {
 }
 
 func TestLocalOnly(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 	conf := "local-only"
 	d := ruletest.DotGithub
@@ -50,6 +54,8 @@ func TestLocalOnly(t *testing.T) {
 }
 
 func TestExternalOnlyOnAction(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 	conf := "external-only"
 	d := ruletest.DotGithub
@@ -73,6 +79,8 @@ func TestExternalOnlyOnAction(t *testing.T) {
 }
 
 func TestLocalOrExternalOnAction(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 	conf := "local-or-external"
 	d := ruletest.DotGithub

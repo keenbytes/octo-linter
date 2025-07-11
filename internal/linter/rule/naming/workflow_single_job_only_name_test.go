@@ -9,6 +9,8 @@ import (
 )
 
 func TestWorkflowSingleJobOnlyNameValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowSingleJobOnlyName{}
 
 	confBad := 4
@@ -24,6 +26,8 @@ func TestWorkflowSingleJobOnlyNameValidate(t *testing.T) {
 	}
 }
 func TestWorkflowSingleJobOnlyNameNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowSingleJobOnlyName{}
 	conf := "main"
 	d := ruletest.DotGithub
@@ -46,6 +50,8 @@ func TestWorkflowSingleJobOnlyNameNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowSingleJobOnlyNameCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowSingleJobOnlyName{}
 	conf := "main"
 	d := ruletest.DotGithub

@@ -9,6 +9,8 @@ import (
 )
 
 func TestNotOneWordValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := NotOneWord{}
 
 	confBad := 4
@@ -25,6 +27,8 @@ func TestNotOneWordValidate(t *testing.T) {
 }
 
 func TestNotOneWordNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotOneWord{}
 	conf := true
 	d := ruletest.DotGithub
@@ -48,6 +52,8 @@ func TestNotOneWordNotCompliant(t *testing.T) {
 }
 
 func TestNotOneWordCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotOneWord{}
 	conf := true
 	d := ruletest.DotGithub

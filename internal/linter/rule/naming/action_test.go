@@ -9,6 +9,8 @@ import (
 )
 
 func TestActionValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{}
 
 	confBad := "some string"
@@ -25,6 +27,8 @@ func TestActionValidate(t *testing.T) {
 }
 
 func TestActionNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	for field, conf := range map[string]string{
 		"input_name":          "dash-case",
 		"output_name":         "dash-case",
@@ -55,6 +59,8 @@ func TestActionNotCompliant(t *testing.T) {
 }
 
 func TestActionCompliant(t *testing.T) {
+	t.Parallel()
+
 	for field, conf := range map[string]string{
 		"input_name":          "dash-case",
 		"output_name":         "dash-case",

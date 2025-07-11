@@ -9,6 +9,8 @@ import (
 )
 
 func TestActionValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{
 		Field: "action",
 	}
@@ -45,6 +47,8 @@ func TestActionValidate(t *testing.T) {
 }
 
 func TestActionFieldActionNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{
 		Field: "action",
 	}
@@ -69,6 +73,8 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 }
 
 func TestActionFieldInputOutputNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	for _, field := range []string{"input", "output"} {
 		rule := Action{
 			Field: field,
@@ -95,6 +101,8 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 }
 
 func TestActionFieldActionCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{
 		Field: "action",
 	}
@@ -119,6 +127,8 @@ func TestActionFieldActionCompliant(t *testing.T) {
 }
 
 func TestActionFieldInputOutputCompliant(t *testing.T) {
+	t.Parallel()
+
 	for _, field := range []string{"input", "output"} {
 		rule := Action{
 			Field: field,

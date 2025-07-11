@@ -9,6 +9,8 @@ import (
 )
 
 func TestWorkflowValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{
 		Field: "workflow",
 	}
@@ -44,6 +46,8 @@ func TestWorkflowValidate(t *testing.T) {
 	}
 }
 func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{
 		Field: "workflow",
 	}
@@ -68,6 +72,8 @@ func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	for _, field := range []string{"dispatch_input", "call_input"} {
 		rule := Workflow{
 			Field: field,
@@ -94,6 +100,8 @@ func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{
 		Field: "workflow",
 	}
@@ -118,6 +126,8 @@ func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldCallInputDispatchInputCompliant(t *testing.T) {
+	t.Parallel()
+
 	for _, field := range []string{"dispatch_input", "call_input"} {
 		rule := Workflow{
 			Field: field,

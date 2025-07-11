@@ -9,6 +9,8 @@ import (
 )
 
 func TestValidInputsValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := ValidInputs{}
 
 	confBad := 4
@@ -25,6 +27,8 @@ func TestValidInputsValidate(t *testing.T) {
 }
 
 func TestValidInputsNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ValidInputs{}
 	conf := true
 	d := ruletest.DotGithub
@@ -47,6 +51,8 @@ func TestValidInputsNotCompliant(t *testing.T) {
 }
 
 func TestValidInputsCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ValidInputs{}
 	conf := true
 	d := ruletest.DotGithub

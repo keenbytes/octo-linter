@@ -9,6 +9,8 @@ import (
 )
 
 func TestWorkflowUsesOrRunsOnValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowUsesOrRunsOn{}
 
 	confBad := 4
@@ -25,6 +27,8 @@ func TestWorkflowUsesOrRunsOnValidate(t *testing.T) {
 }
 
 func TestWorkflowUsesOrRunsOnNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowUsesOrRunsOn{}
 	conf := true
 	d := ruletest.DotGithub
@@ -47,6 +51,8 @@ func TestWorkflowUsesOrRunsOnNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowUsesOrRunsOnCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowUsesOrRunsOn{}
 	conf := true
 	d := ruletest.DotGithub

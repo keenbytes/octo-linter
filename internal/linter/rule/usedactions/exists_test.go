@@ -9,6 +9,8 @@ import (
 )
 
 func TestExistsValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Exists{}
 
 	confBad := []interface{}{"something", "something2"}
@@ -25,6 +27,8 @@ func TestExistsValidate(t *testing.T) {
 }
 
 func TestLocal(t *testing.T) {
+	t.Parallel()
+
 	rule := Exists{}
 	conf := []interface{}{"local"}
 	d := ruletest.DotGithub
@@ -47,6 +51,8 @@ func TestLocal(t *testing.T) {
 }
 
 func TestExternal(t *testing.T) {
+	t.Parallel()
+
 	rule := Exists{}
 	conf := []interface{}{"external"}
 	d := ruletest.DotGithub
@@ -69,6 +75,8 @@ func TestExternal(t *testing.T) {
 }
 
 func TestLocalExternal(t *testing.T) {
+	t.Parallel()
+
 	rule := Exists{}
 	conf := []interface{}{"local", "external"}
 	d := ruletest.DotGithub

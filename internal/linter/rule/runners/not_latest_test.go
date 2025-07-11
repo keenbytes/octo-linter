@@ -9,6 +9,8 @@ import (
 )
 
 func TestNotLatestValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := NotLatest{}
 
 	confBad := 4
@@ -25,6 +27,8 @@ func TestNotLatestValidate(t *testing.T) {
 }
 
 func TestNotLatestNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotLatest{}
 	conf := true
 	d := ruletest.DotGithub
@@ -47,6 +51,8 @@ func TestNotLatestNotCompliant(t *testing.T) {
 }
 
 func TestNotLatestCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotLatest{}
 	conf := true
 	d := ruletest.DotGithub

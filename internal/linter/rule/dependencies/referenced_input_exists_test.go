@@ -9,6 +9,8 @@ import (
 )
 
 func TestReferencedInputExistsValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
 
 	confBad := 4
@@ -25,6 +27,8 @@ func TestReferencedInputExistsValidate(t *testing.T) {
 }
 
 func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
 	d := ruletest.DotGithub
 	conf := true
@@ -47,6 +51,8 @@ func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
 }
 
 func TestReferencedInputExistsActionCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
 	d := ruletest.DotGithub
 	conf := true
@@ -69,6 +75,8 @@ func TestReferencedInputExistsActionCompliant(t *testing.T) {
 }
 
 func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
 	d := ruletest.DotGithub
 	conf := true
@@ -91,6 +99,8 @@ func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
 }
 
 func TestReferencedInputExistsWorkflowCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
 	d := ruletest.DotGithub
 	conf := true
