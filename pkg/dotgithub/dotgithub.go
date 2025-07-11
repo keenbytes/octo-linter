@@ -43,17 +43,22 @@ func (d *DotGithub) ReadDir(p string) error {
 		if err != nil {
 			return err
 		}
-		if a.Runs != nil && len(a.Runs.Steps) > 0 {
-			for i, step := range a.Runs.Steps {
-				if reExternal.MatchString(step.Uses) {
-					err := d.DownloadExternalAction(step.Uses)
-					if err != nil {
-						slog.Error(fmt.Sprintf("action '%s' step %d: error downloading external action '%s': %s", a.DirName, i, step.Uses, err.Error()))
-					}
-				}
+
+		if a.Runs == nil || len(a.Runs.Steps) == 0 {
+			continue
+		}
+
+		for i, step := range a.Runs.Steps {
+			if !reExternal.MatchString(step.Uses) {
+				continue
+			}
+			err := d.DownloadExternalAction(step.Uses)
+			if err != nil {
+				slog.Error(fmt.Sprintf("action '%s' step %d: error downloading external action '%s': %s", a.DirName, i, step.Uses, err.Error()))
 			}
 		}
 	}
+
 	for _, w := range d.Workflows {
 		err := w.Unmarshal(false)
 		if err != nil {
@@ -64,18 +69,20 @@ func (d *DotGithub) ReadDir(p string) error {
 			if err != nil {
 				return err
 			}
-			if len(w.Jobs) > 0 {
-				for _, job := range w.Jobs {
-					if len(job.Steps) == 0 {
+			if len(w.Jobs) == 0 {
+				continue
+			}
+			for _, job := range w.Jobs {
+				if len(job.Steps) == 0 {
+					continue
+				}
+				for i, step := range job.Steps {
+					if !reExternal.MatchString(step.Uses) {
 						continue
 					}
-					for i, step := range job.Steps {
-						if reExternal.MatchString(step.Uses) {
-							err := d.DownloadExternalAction(step.Uses)
-							if err != nil {
-								slog.Error(fmt.Sprintf("workflow '%s' step %d: error downloading external action '%s': %s", w.FileName, i, step.Uses, err.Error()))
-							}
-						}
+					err := d.DownloadExternalAction(step.Uses)
+					if err != nil {
+						slog.Error(fmt.Sprintf("workflow '%s' step %d: error downloading external action '%s': %s", w.FileName, i, step.Uses, err.Error()))
 					}
 				}
 			}
