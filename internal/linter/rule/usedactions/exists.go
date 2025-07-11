@@ -138,7 +138,7 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		isExternal := reExternal.MatchString(st.Uses)
 
 		if checkLocal && isLocal {
-			actionName := strings.Replace(st.Uses, "./.github/actions/", "", -1)
+			actionName := strings.ReplaceAll(st.Uses, "./.github/actions/", "")
 			action := d.GetAction(actionName)
 			if action == nil {
 				compliant = false

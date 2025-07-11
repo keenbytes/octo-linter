@@ -111,7 +111,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 		var action *action.Action
 		// local action
 		if reLocal.MatchString(step.Uses) {
-			actionName := strings.Replace(step.Uses, "./.github/actions/", "", -1)
+			actionName := strings.ReplaceAll(step.Uses, "./.github/actions/", "")
 			action = d.GetAction(actionName)
 		}
 		// external action

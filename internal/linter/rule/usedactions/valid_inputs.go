@@ -119,7 +119,7 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 
 		var action *action.Action
 		if isLocal {
-			actionName := strings.Replace(st.Uses, "./.github/actions/", "", -1)
+			actionName := strings.ReplaceAll(st.Uses, "./.github/actions/", "")
 			action = d.GetAction(actionName)
 		}
 		if isExternal {

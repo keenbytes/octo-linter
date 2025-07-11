@@ -29,8 +29,8 @@ func (w *Workflow) Unmarshal(fromRaw bool) error {
 	// TODO: fromRaw is not implemented
 	pathSplit := strings.Split(w.Path, "/")
 	w.FileName = pathSplit[len(pathSplit)-1]
-	workflowName := strings.Replace(w.FileName, ".yaml", "", -1)
-	w.DisplayName = strings.Replace(workflowName, ".yml", "", -1)
+	workflowName := strings.ReplaceAll(w.FileName, ".yaml", "")
+	w.DisplayName = strings.ReplaceAll(workflowName, ".yml", "")
 
 	slog.Debug(fmt.Sprintf("reading %s ...", w.Path))
 
