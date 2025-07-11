@@ -42,6 +42,11 @@ func (r ReferencedInputExists) Validate(conf interface{}) error {
 }
 
 func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
+	err = r.Validate(conf)
+	if err != nil {
+		return
+	}
+
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return

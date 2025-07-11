@@ -38,6 +38,11 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 }
 
 func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
+	err = r.Validate(conf)
+	if err != nil {
+		return
+	}
+
 	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return
