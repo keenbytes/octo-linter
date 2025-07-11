@@ -52,7 +52,7 @@ func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
 		Field: WorkflowFieldWorkflow,
 	}
 	conf := []interface{}{"name"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -79,7 +79,7 @@ func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -106,7 +106,7 @@ func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
 		Field: WorkflowFieldWorkflow,
 	}
 	conf := []interface{}{"name"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -133,7 +133,7 @@ func TestWorkflowFieldCallInputDispatchInputCompliant(t *testing.T) {
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)

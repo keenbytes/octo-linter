@@ -33,7 +33,7 @@ func TestLocalOnly(t *testing.T) {
 
 	rule := Source{}
 	conf := "local-only"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
@@ -58,7 +58,7 @@ func TestExternalOnlyOnAction(t *testing.T) {
 
 	rule := Source{}
 	conf := "external-only"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
@@ -83,7 +83,7 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 
 	rule := Source{}
 	conf := "local-or-external"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)

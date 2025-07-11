@@ -53,7 +53,7 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 		Field: ActionFieldAction,
 	}
 	conf := []interface{}{"name", "description"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -80,7 +80,7 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -107,7 +107,7 @@ func TestActionFieldActionCompliant(t *testing.T) {
 		Field: ActionFieldAction,
 	}
 	conf := []interface{}{"name", "description"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -134,7 +134,7 @@ func TestActionFieldInputOutputCompliant(t *testing.T) {
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)

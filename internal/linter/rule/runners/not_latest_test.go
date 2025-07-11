@@ -31,7 +31,7 @@ func TestNotLatestNotCompliant(t *testing.T) {
 
 	rule := NotLatest{}
 	conf := true
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -55,7 +55,7 @@ func TestNotLatestCompliant(t *testing.T) {
 
 	rule := NotLatest{}
 	conf := true
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)

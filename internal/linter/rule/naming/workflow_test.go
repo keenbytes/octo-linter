@@ -41,7 +41,7 @@ func TestWorkflowNotCompliant(t *testing.T) {
 		rule := Workflow{
 			Field: field,
 		}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
@@ -76,7 +76,7 @@ func TestWorkflowCompliant(t *testing.T) {
 		rule := Workflow{
 			Field: field,
 		}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)

@@ -30,7 +30,7 @@ func TestActionDirectoryNameFormatNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ActionDirectoryNameFormat{}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	for _, nameFormat := range []string{"camelCase", "PascalCase", "ALL_CAPS"} {
 		fn := func(f dotgithub.File, n string) {
@@ -56,7 +56,7 @@ func TestActionDirectoryNameFormatCompliant(t *testing.T) {
 
 	rule := ActionDirectoryNameFormat{}
 	conf := "dash-case"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)

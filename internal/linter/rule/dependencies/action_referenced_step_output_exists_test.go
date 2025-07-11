@@ -30,7 +30,7 @@ func TestActionReferencedStepOutputExistsNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ActionReferencedStepOutputExists{}
-	d := ruletest.DotGithub
+	d := DotGithub
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
@@ -54,7 +54,7 @@ func TestActionCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ActionReferencedStepOutputExists{}
-	d := ruletest.DotGithub
+	d := DotGithub
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
