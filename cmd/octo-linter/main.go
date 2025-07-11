@@ -31,7 +31,7 @@ const (
 	ExitErrReadingVarsFile       = 41
 	ExitErrReadingSecretsFile    = 42
 	ExitErrCheckingDstPath       = 50
-	ExitDstFileExists            = 51
+	ExitDstFileIsDir             = 51
 	ExitErrWritingCfg            = 52
 )
 
@@ -66,15 +66,17 @@ func versionHandler(ctx context.Context, c *broccli.Broccli) int {
 func initHandler(ctx context.Context, c *broccli.Broccli) int {
 	path := c.Flag("destination")
 	if path == "" {
-		_, err := os.Stat(configFileName)
+		fileInfo, err := os.Stat(configFileName)
 		if err != nil {
 			if !os.IsNotExist(err) {
 				slog.Error(fmt.Sprintf("error checking if destination path exists: %s", err.Error()))
 				return ExitErrCheckingDstPath
 			}
 		} else {
-			slog.Error(fmt.Sprintf("file %s already exists, remove it or use --destination flag to change the destination", configFileName))
-			return ExitDstFileExists
+			if fileInfo.IsDir() {
+				slog.Error(fmt.Sprintf("file %s already exists and it is a directory, remove it first or use --destination flag to change the destination", configFileName))
+				return ExitDstFileIsDir
+			}
 		}
 		path = configFileName
 	}
