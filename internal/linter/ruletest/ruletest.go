@@ -11,14 +11,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
-var DotGithub *dotgithub.DotGithub
-
-func init() {
-	DotGithub = &dotgithub.DotGithub{}
-	DotGithub.ReadDir("../../../../tests/rules")
-}
-
-func Lint(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *dotgithub.DotGithub) (compliant bool, err error, ruleErrors []string) {
+func Lint(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *dotgithub.DotGithub) (compliant bool, ruleErrors []string, err error) {
 	compliant = true
 
 	timer := time.After(time.Duration(timeout) * time.Second)
@@ -36,6 +29,7 @@ loop:
 		case <-timer:
 			err = errors.New("timeout")
 			compliant = false
+
 			break loop
 		case glitchInstance, more := <-chErrors:
 			if more {
@@ -55,6 +49,7 @@ func Action(d *dotgithub.DotGithub, action string, fn func(f dotgithub.File, n s
 		if n != action {
 			continue
 		}
+
 		log.Printf("running test on action %s...", n)
 		fn(f, n)
 	}
@@ -65,6 +60,7 @@ func Workflow(d *dotgithub.DotGithub, workflow string, fn func(f dotgithub.File,
 		if n != workflow {
 			continue
 		}
+
 		log.Printf("running test on workflow %s...", n)
 		fn(f, n)
 	}

@@ -41,17 +41,23 @@ func (r NotOneWord) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
+func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
+	}
+
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 
 	if !conf.(bool) {
-		return
+		return true, nil
 	}
 
 	re := regexp.MustCompile(`\${{[ ]*([a-zA-Z0-9\-_]+)[ ]*}}`)
+
+	compliant := true
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
@@ -66,6 +72,7 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 				}
+
 				compliant = false
 			}
 		}
@@ -84,10 +91,11 @@ func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGit
 					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 				}
+
 				compliant = false
 			}
 		}
 	}
 
-	return
+	return compliant, nil
 }

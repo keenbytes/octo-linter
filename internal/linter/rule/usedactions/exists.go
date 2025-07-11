@@ -44,6 +44,7 @@ func (r Exists) Validate(conf interface{}) error {
 		if !ok {
 			return errors.New("value should be []string")
 		}
+
 		if source != "local" && source != "external" {
 			return fmt.Errorf("value can contain only 'local' and/or 'external'")
 		}
@@ -52,27 +53,34 @@ func (r Exists) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
 	}
 
-	var checkLocal bool
-	var checkExternal bool
+	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
+		return true, nil
+	}
+
+	var (
+		checkLocal    bool
+		checkExternal bool
+	)
 
 	valInterfaces := conf.([]interface{})
 	for _, v := range valInterfaces {
 		if v == "local" {
 			checkLocal = true
 		}
+
 		if v == "external" {
 			checkExternal = true
 		}
 	}
 
 	if !checkLocal && !checkExternal {
-		return
+		return true, nil
 	}
 
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
@@ -81,15 +89,18 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}
 
-	var fileType int
-	var filePath string
-	var fileName string
+	var (
+		fileType int
+		filePath string
+		fileName string
+	)
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
-		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
-			return
+		if len(a.Runs.Steps) == 0 {
+			return true, nil
 		}
+
 		steps = a.Runs.Steps
 		msgPrefix[0] = ""
 
@@ -100,14 +111,17 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
-		if w.Jobs == nil || len(w.Jobs) == 0 {
-			return
+		if len(w.Jobs) == 0 {
+			return true, nil
 		}
+
 		for jobName, job := range w.Jobs {
-			if job.Steps == nil || len(job.Steps) == 0 {
+			if len(job.Steps) == 0 {
 				continue
 			}
+
 			msgPrefix[len(steps)] = fmt.Sprintf("job '%s' ", jobName)
+
 			steps = append(steps, job.Steps...)
 		}
 
@@ -121,22 +135,28 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		errPrefix = msgPrefix[0]
 	}
 
+	compliant := true
+
 	for i, st := range steps {
 		newErrPrefix, ok := msgPrefix[i]
 		if ok {
 			errPrefix = newErrPrefix
 		}
+
 		if st.Uses == "" {
 			continue
 		}
+
 		isLocal := reLocal.MatchString(st.Uses)
 		isExternal := reExternal.MatchString(st.Uses)
 
 		if checkLocal && isLocal {
-			actionName := strings.Replace(st.Uses, "./.github/actions/", "", -1)
+			actionName := strings.ReplaceAll(st.Uses, "./.github/actions/", "")
+
 			action := d.GetAction(actionName)
 			if action == nil {
 				compliant = false
+
 				chErrors <- glitch.Glitch{
 					Path:     filePath,
 					Name:     fileName,
@@ -146,10 +166,12 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				}
 			}
 		}
+
 		if checkExternal && isExternal {
 			action := d.GetExternalAction(st.Uses)
 			if action == nil {
 				compliant = false
+
 				chErrors <- glitch.Glitch{
 					Path:     filePath,
 					Name:     fileName,
@@ -161,5 +183,5 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		}
 	}
 
-	return
+	return compliant, nil
 }

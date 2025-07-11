@@ -11,9 +11,7 @@ import (
 )
 
 // Workflow checks if workflow has `runs-on` or `uses` field. At least of them must be defined.
-type WorkflowUsesOrRunsOn struct {
-	Field string
-}
+type WorkflowUsesOrRunsOn struct{}
 
 func (r WorkflowUsesOrRunsOn) ConfigName(int) string {
 	return "required_fields__workflow_requires_uses_or_runs_on_required"
@@ -32,16 +30,23 @@ func (r WorkflowUsesOrRunsOn) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
 	}
+
+	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+		return true, nil
+	}
+
 	w := f.(*workflow.Workflow)
 
-	if !conf.(bool) || w.Jobs == nil || len(w.Jobs) == 0 {
-		return
+	if !conf.(bool) || len(w.Jobs) == 0 {
+		return true, nil
 	}
+
+	compliant := true
 
 	for jobName, job := range w.Jobs {
 		if job.RunsOn == nil && job.Uses == "" {
@@ -52,6 +57,7 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 				ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 				RuleName: r.ConfigName(0),
 			}
+
 			compliant = false
 		}
 
@@ -65,10 +71,11 @@ func (r WorkflowUsesOrRunsOn) Lint(conf interface{}, f dotgithub.File, d *dotgit
 					ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
 	}
 
-	return
+	return compliant, nil
 }

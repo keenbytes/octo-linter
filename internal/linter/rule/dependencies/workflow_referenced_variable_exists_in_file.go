@@ -33,16 +33,24 @@ func (r WorkflowReferencedVariableExistsInFile) Validate(conf interface{}) error
 	return nil
 }
 
-func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
-		return
+func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
 	}
+
+	if f.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
+		return true, nil
+	}
+
 	w := f.(*workflow.Workflow)
+
+	compliant := true
 
 	varTypes := []string{"vars", "secrets"}
 	for _, v := range varTypes {
 		re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
+
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
 			if v == "vars" && len(d.Vars) > 0 && !d.IsVarExist(string(f[1])) {
@@ -53,6 +61,7 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 					ErrText:  fmt.Sprintf("calls a variable '%s' that does not exist in the vars file", string(f[1])),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 
@@ -64,10 +73,11 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 					ErrText:  fmt.Sprintf("calls a secret '%s' that does not exist in the secrets file", string(f[1])),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
 	}
 
-	return
+	return compliant, nil
 }

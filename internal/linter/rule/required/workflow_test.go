@@ -9,34 +9,40 @@ import (
 )
 
 func TestWorkflowValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{
-		Field: "workflow",
+		Field: WorkflowFieldWorkflow,
 	}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("Workflow.Validate should return error when conf is not []string")
 	}
 
 	confGood := []interface{}{"name"}
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("Workflow.Validate should not return error when conf is []string")
 	}
 
-	for _, f := range []string{"dispatch_input", "call_input"} {
+	for _, f := range []int{WorkflowFieldDispatchInput, WorkflowFieldCallInput} {
 		rule = Workflow{
 			Field: f,
 		}
 
 		confBad2 := []interface{}{"name", "description"}
+
 		err = rule.Validate(confBad2)
 		if err == nil {
 			t.Errorf("Workflow.Validate should return error when conf contains invalid values")
 		}
 
 		confGood2 := []interface{}{"description"}
+
 		err = rule.Validate(confGood2)
 		if err != nil {
 			t.Errorf("Workflow.Validate should not return error when conf contains valid values")
@@ -44,17 +50,20 @@ func TestWorkflowValidate(t *testing.T) {
 	}
 }
 func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{
-		Field: "workflow",
+		Field: WorkflowFieldWorkflow,
 	}
 	conf := []interface{}{"name"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Workflow.Lint should return false when workflow does not have a 'name' field")
 		}
+
 		if err != nil {
 			t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 		}
@@ -68,18 +77,21 @@ func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
-	for _, field := range []string{"dispatch_input", "call_input"} {
+	t.Parallel()
+
+	for _, field := range []int{WorkflowFieldDispatchInput, WorkflowFieldCallInput} {
 		rule := Workflow{
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Workflow.Lint should return false when workflow %s does not have a 'description' field", field)
+				t.Errorf("Workflow.Lint should return false when workflow field %d does not have a 'description' field", field)
 			}
+
 			if err != nil {
 				t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 			}
@@ -94,17 +106,20 @@ func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{
-		Field: "workflow",
+		Field: WorkflowFieldWorkflow,
 	}
 	conf := []interface{}{"name"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("Workflow.Lint should return true when workflow has a 'name' field")
 		}
+
 		if err != nil {
 			t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 		}
@@ -118,18 +133,21 @@ func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
 }
 
 func TestWorkflowFieldCallInputDispatchInputCompliant(t *testing.T) {
-	for _, field := range []string{"dispatch_input", "call_input"} {
+	t.Parallel()
+
+	for _, field := range []int{WorkflowFieldDispatchInput, WorkflowFieldCallInput} {
 		rule := Workflow{
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Workflow.Lint should return true when workflow %s has a 'description' field", field)
+				t.Errorf("Workflow.Lint should return true when workflow field %d has a 'description' field", field)
 			}
+
 			if err != nil {
 				t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 			}

@@ -9,15 +9,19 @@ import (
 )
 
 func TestReferencedInputExistsValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("ReferencedInputExists.Validate should return error when conf is not bool")
 	}
 
 	confGood := true
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("ReferencedInputExists.Validate should not return error when conf is bool")
@@ -25,15 +29,18 @@ func TestReferencedInputExistsValidate(t *testing.T) {
 }
 
 func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
-	d := ruletest.DotGithub
+	d := DotGithub
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("ReferencedInputExists.Lint should return false when there are referenced to non-existing inputs and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("ReferencedInputExists.Lint failed with an error: %s", err.Error())
 		}
@@ -47,15 +54,18 @@ func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
 }
 
 func TestReferencedInputExistsActionCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
-	d := ruletest.DotGithub
+	d := DotGithub
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("ReferencedInputExists.Lint should return true when there are no referenced to non-existing inputs and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("ReferencedInputExists.Lint failed with an error: %s", err.Error())
 		}
@@ -69,15 +79,18 @@ func TestReferencedInputExistsActionCompliant(t *testing.T) {
 }
 
 func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
-	d := ruletest.DotGithub
+	d := DotGithub
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("ReferencedInputExists.Lint should return false when there are referenced to non-existing inputs and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("ReferencedInputExists.Lint failed with an error: %s", err.Error())
 		}
@@ -91,15 +104,18 @@ func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
 }
 
 func TestReferencedInputExistsWorkflowCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := ReferencedInputExists{}
-	d := ruletest.DotGithub
+	d := DotGithub
 	conf := true
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("ReferencedInputExists.Lint should return true when there are no referenced to non-existing inputs and conf is %v", conf)
 		}
+
 		if err != nil {
 			t.Errorf("ReferencedInputExists.Lint failed with an error: %s", err.Error())
 		}

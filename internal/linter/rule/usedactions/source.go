@@ -46,15 +46,19 @@ func (r Source) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
+func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
+	}
+
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 
 	confVal := conf.(string)
 	if confVal == "" {
-		return
+		return true, nil
 	}
 
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-zA-Z0-9\-_]+|[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-_]+)$`)
@@ -63,15 +67,18 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}
 
-	var fileType int
-	var filePath string
-	var fileName string
+	var (
+		fileType int
+		filePath string
+		fileName string
+	)
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
-		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
-			return
+		if len(a.Runs.Steps) == 0 {
+			return true, nil
 		}
+
 		steps = a.Runs.Steps
 		msgPrefix[0] = ""
 
@@ -79,16 +86,20 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		filePath = a.Path
 		fileName = a.DirName
 	}
+
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
-		if w.Jobs == nil || len(w.Jobs) == 0 {
-			return
+		if len(w.Jobs) == 0 {
+			return true, nil
 		}
+
 		for jobName, job := range w.Jobs {
-			if job.Steps == nil || len(job.Steps) == 0 {
+			if len(job.Steps) == 0 {
 				continue
 			}
+
 			msgPrefix[len(steps)] = fmt.Sprintf("job '%s' ", jobName)
+
 			steps = append(steps, job.Steps...)
 		}
 
@@ -102,14 +113,18 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		errPrefix = msgPrefix[0]
 	}
 
+	compliant := true
+
 	for i, st := range steps {
 		newErrPrefix, ok := msgPrefix[i]
 		if ok {
 			errPrefix = newErrPrefix
 		}
+
 		if st.Uses == "" {
 			continue
 		}
+
 		isLocal := reLocal.MatchString(st.Uses)
 		isExternal := reExternal.MatchString(st.Uses)
 
@@ -121,8 +136,10 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
+
 			compliant = false
 		}
+
 		if confVal == "external-only" && !isExternal {
 			chErrors <- glitch.Glitch{
 				Path:     filePath,
@@ -131,8 +148,10 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, i+1, st.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
+
 			compliant = false
 		}
+
 		if confVal == "local-or-external" && !isLocal && !isExternal {
 			chErrors <- glitch.Glitch{
 				Path:     filePath,
@@ -141,9 +160,10 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
+
 			compliant = false
 		}
 	}
 
-	return
+	return compliant, nil
 }

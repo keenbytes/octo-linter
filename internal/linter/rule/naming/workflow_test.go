@@ -9,15 +9,19 @@ import (
 )
 
 func TestWorkflowValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Workflow{}
 
 	confBad := "some string"
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("Workflow.Validate should return error when conf is %v", confBad)
 	}
 
 	confGood := "camelCase"
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("Workflow.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
@@ -25,25 +29,28 @@ func TestWorkflowValidate(t *testing.T) {
 }
 
 func TestWorkflowNotCompliant(t *testing.T) {
-	for field, conf := range map[string]string{
-		"env":                   "ALL_CAPS",
-		"job_env":               "ALL_CAPS",
-		"job_step_env":          "ALL_CAPS",
-		"referenced_variable":   "ALL_CAPS",
-		"dispatched_input_name": "dash-case",
-		"call_input_name":       "dash-case",
-		"job_name":              "dash-case",
+	t.Parallel()
+
+	for field, conf := range map[int]string{
+		WorkflowFieldEnv:                "ALL_CAPS",
+		WorkflowFieldJobEnv:             "ALL_CAPS",
+		WorkflowFieldJobStepEnv:         "ALL_CAPS",
+		WorkflowFieldReferencedVariable: "ALL_CAPS",
+		WorkflowFieldDispatchInputName:  "dash-case",
+		WorkflowFieldCallInputName:      "dash-case",
+		WorkflowFieldJobName:            "dash-case",
 	} {
 		rule := Workflow{
 			Field: field,
 		}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Workflow.Lint should return false when workflow %s does not follow naming convention of '%s'", field, conf)
+				t.Errorf("Workflow.Lint should return false when workflow field %d does not follow naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 			}
@@ -58,25 +65,28 @@ func TestWorkflowNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowCompliant(t *testing.T) {
-	for field, conf := range map[string]string{
-		"env":                   "ALL_CAPS",
-		"job_env":               "ALL_CAPS",
-		"job_step_env":          "ALL_CAPS",
-		"referenced_variable":   "ALL_CAPS",
-		"dispatched_input_name": "dash-case",
-		"call_input_name":       "dash-case",
-		"job_name":              "dash-case",
+	t.Parallel()
+
+	for field, conf := range map[int]string{
+		WorkflowFieldEnv:                "ALL_CAPS",
+		WorkflowFieldJobEnv:             "ALL_CAPS",
+		WorkflowFieldJobStepEnv:         "ALL_CAPS",
+		WorkflowFieldReferencedVariable: "ALL_CAPS",
+		WorkflowFieldDispatchInputName:  "dash-case",
+		WorkflowFieldCallInputName:      "dash-case",
+		WorkflowFieldJobName:            "dash-case",
 	} {
 		rule := Workflow{
 			Field: field,
 		}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Workflow.Lint should return true when workflow %s follows naming convention of '%s'", field, conf)
+				t.Errorf("Workflow.Lint should return true when workflow field %d follows naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Workflow.Lint failed with an error: %s", err.Error())
 			}

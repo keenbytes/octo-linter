@@ -41,20 +41,27 @@ func (r ReferencedInputExists) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
+func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
+	}
+
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 
 	if !conf.(bool) {
-		return
+		return true, nil
 	}
+
+	compliant := true
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 
 		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
+
 		found := re.FindAllSubmatch(a.Raw, -1)
 		for _, f := range found {
 			if a.Inputs == nil || a.Inputs[string(f[1])] == nil {
@@ -65,6 +72,7 @@ func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgi
 					ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 				}
+
 				compliant = false
 			}
 		}
@@ -73,17 +81,21 @@ func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgi
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
 		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
+
 		found := re.FindAllSubmatch(w.Raw, -1)
 		for _, f := range found {
 			notInInputs := true
+
 			if w.On != nil {
 				if w.On.WorkflowCall != nil && w.On.WorkflowCall.Inputs != nil && w.On.WorkflowCall.Inputs[string(f[1])] != nil {
 					notInInputs = false
 				}
+
 				if w.On.WorkflowDispatch != nil && w.On.WorkflowDispatch.Inputs != nil && w.On.WorkflowDispatch.Inputs[string(f[1])] != nil {
 					notInInputs = false
 				}
 			}
+
 			if notInInputs {
 				chErrors <- glitch.Glitch{
 					Path:     w.Path,
@@ -92,10 +104,11 @@ func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgi
 					ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(f[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 				}
+
 				compliant = false
 			}
 		}
 	}
 
-	return
+	return compliant, nil
 }

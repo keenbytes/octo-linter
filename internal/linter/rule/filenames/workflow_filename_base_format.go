@@ -37,11 +37,16 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
 	}
+
+	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+		return true, nil
+	}
+
 	w := f.(*workflow.Workflow)
 
 	fileParts := strings.Split(w.FileName, ".")
@@ -56,8 +61,9 @@ func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, d *
 			ErrText:  fmt.Sprintf("filename base must be %s", conf.(string)),
 			RuleName: r.ConfigName(0),
 		}
-		compliant = false
+
+		return false, nil
 	}
 
-	return
+	return true, nil
 }

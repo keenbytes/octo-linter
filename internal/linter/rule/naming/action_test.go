@@ -9,15 +9,19 @@ import (
 )
 
 func TestActionValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{}
 
 	confBad := "some string"
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("Action.Validate should return error when conf is %v", confBad)
 	}
 
 	confGood := "camelCase"
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("Action.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
@@ -25,22 +29,25 @@ func TestActionValidate(t *testing.T) {
 }
 
 func TestActionNotCompliant(t *testing.T) {
-	for field, conf := range map[string]string{
-		"input_name":          "dash-case",
-		"output_name":         "dash-case",
-		"referenced_variable": "ALL_CAPS",
-		"step_env":            "ALL_CAPS",
+	t.Parallel()
+
+	for field, conf := range map[int]string{
+		ActionFieldInputName:          "dash-case",
+		ActionFieldOutputName:         "dash-case",
+		ActionFieldReferencedVariable: "ALL_CAPS",
+		ActionFieldStepEnv:            "ALL_CAPS",
 	} {
 		rule := Action{
 			Field: field,
 		}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Action.Lint should return false when action %s does not follow naming convention of '%s'", field, conf)
+				t.Errorf("Action.Lint should return false when action field %d does not follow naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
 			}
@@ -55,22 +62,25 @@ func TestActionNotCompliant(t *testing.T) {
 }
 
 func TestActionCompliant(t *testing.T) {
-	for field, conf := range map[string]string{
-		"input_name":          "dash-case",
-		"output_name":         "dash-case",
-		"referenced_variable": "ALL_CAPS",
-		"step_env":            "ALL_CAPS",
+	t.Parallel()
+
+	for field, conf := range map[int]string{
+		ActionFieldInputName:          "dash-case",
+		ActionFieldOutputName:         "dash-case",
+		ActionFieldReferencedVariable: "ALL_CAPS",
+		ActionFieldStepEnv:            "ALL_CAPS",
 	} {
 		rule := Action{
 			Field: field,
 		}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Action.Lint should return true when action %s follows naming convention of '%s'", field, conf)
+				t.Errorf("Action.Lint should return true when action field %d follows naming convention of '%s'", field, conf)
 			}
+
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
 			}

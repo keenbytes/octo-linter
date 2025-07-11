@@ -24,12 +24,14 @@ func newSummary() *summary {
 		numJob:       atomic.Int32{},
 		numProcessed: atomic.Int32{},
 	}
+
 	return s
 }
 
 func (s *summary) addGlitch(g *glitch.Glitch) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	s.glitches = append(s.glitches, g)
 }
 

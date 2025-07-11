@@ -9,6 +9,8 @@ import (
 )
 
 func TestSourceValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 
 	for _, confBad := range []interface{}{4, true, "wrong"} {
@@ -27,15 +29,18 @@ func TestSourceValidate(t *testing.T) {
 }
 
 func TestLocalOnly(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 	conf := "local-only"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Source.Lint on %s should return false when there are external actions and conf is %v", n, conf)
 		}
+
 		if err != nil {
 			t.Errorf("Source.Lint on %s failed with an error: %s", n, err.Error())
 		}
@@ -50,15 +55,18 @@ func TestLocalOnly(t *testing.T) {
 }
 
 func TestExternalOnlyOnAction(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 	conf := "external-only"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Source.Lint on %s should return false when there are local actions and conf is %v", n, conf)
 		}
+
 		if err != nil {
 			t.Errorf("Source.Lint on %s failed with an error: %s", n, err.Error())
 		}
@@ -73,15 +81,18 @@ func TestExternalOnlyOnAction(t *testing.T) {
 }
 
 func TestLocalOrExternalOnAction(t *testing.T) {
+	t.Parallel()
+
 	rule := Source{}
 	conf := "local-or-external"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(3, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Source.Lint on %s should return false when there are invalid actions that are nor local nor external, and conf is %v", n, conf)
 		}
+
 		if err != nil {
 			t.Errorf("Source.Lint on %s failed with an error: %s", n, err.Error())
 		}

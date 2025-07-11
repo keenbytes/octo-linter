@@ -9,15 +9,19 @@ import (
 )
 
 func TestWorkflowFilenameBaseFormatValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowFilenameBaseFormat{}
 
 	confBad := "some string"
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("WorkflowFilenameBaseFormat.Validate should return error when conf is %v", confBad)
 	}
 
 	confGood := "camelCase"
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("WorkflowFilenameBaseFormat.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
@@ -25,15 +29,18 @@ func TestWorkflowFilenameBaseFormatValidate(t *testing.T) {
 }
 
 func TestWorkflowFilenameBaseFormatNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowFilenameBaseFormat{}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	for _, nameFormat := range []string{"camelCase", "PascalCase", "ALL_CAPS"} {
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, nameFormat, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, nameFormat, f, d)
 			if compliant {
 				t.Errorf("WorkflowFilenameBaseFormat.Lint should return false when filename is not %s", nameFormat)
 			}
+
 			if err != nil {
 				t.Errorf("WorkflowFilenameBaseFormat.Lint failed with an error: %s", err.Error())
 			}
@@ -48,15 +55,18 @@ func TestWorkflowFilenameBaseFormatNotCompliant(t *testing.T) {
 }
 
 func TestWorkflowFilenameBaseFormatCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := WorkflowFilenameBaseFormat{}
 	conf := "dash-case"
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("WorkflowFilenameBaseFormat.Lint should return true when filename is %s", conf)
 		}
+
 		if err != nil {
 			t.Errorf("WorkflowFilenameBaseFormat.Lint failed with an error: %s", err.Error())
 		}

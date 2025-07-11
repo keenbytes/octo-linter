@@ -32,16 +32,23 @@ func (r NotLatest) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
 	}
+
+	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+		return true, nil
+	}
+
 	w := f.(*workflow.Workflow)
 
-	if !conf.(bool) || w.Jobs == nil || len(w.Jobs) == 0 {
-		return
+	if !conf.(bool) || len(w.Jobs) == 0 {
+		return true, nil
 	}
+
+	compliant := true
 
 	for jobName, job := range w.Jobs {
 		if job.RunsOn == nil {
@@ -52,6 +59,7 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 		if ok {
 			if strings.Contains(runsOnStr, "latest") {
 				compliant = false
+
 				chErrors <- glitch.Glitch{
 					Path:     w.Path,
 					Name:     w.DisplayName,
@@ -68,6 +76,7 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 				runsOnStr, ok2 := runsOn.(string)
 				if ok2 && strings.Contains(runsOnStr, "latest") {
 					compliant = false
+
 					chErrors <- glitch.Glitch{
 						Path:     w.Path,
 						Name:     w.DisplayName,
@@ -80,5 +89,5 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 		}
 	}
 
-	return
+	return compliant, nil
 }

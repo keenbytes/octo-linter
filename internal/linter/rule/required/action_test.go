@@ -9,34 +9,40 @@ import (
 )
 
 func TestActionValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{
-		Field: "action",
+		Field: ActionFieldAction,
 	}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("Action.Validate should return error when conf is not []string")
 	}
 
 	confGood := []interface{}{"name", "description"}
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("Action.Validate should not return error when conf is []string")
 	}
 
-	for _, f := range []string{"input", "output"} {
+	for _, f := range []int{ActionFieldInput, ActionFieldOutput} {
 		rule = Action{
 			Field: f,
 		}
 
 		confBad2 := []interface{}{"name", "description"}
+
 		err = rule.Validate(confBad2)
 		if err == nil {
 			t.Errorf("Action.Validate should return error when conf contains invalid values")
 		}
 
 		confGood2 := []interface{}{"description"}
+
 		err = rule.Validate(confGood2)
 		if err != nil {
 			t.Errorf("Action.Validate should not return error when conf contains valid values")
@@ -45,17 +51,20 @@ func TestActionValidate(t *testing.T) {
 }
 
 func TestActionFieldActionNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{
-		Field: "action",
+		Field: ActionFieldAction,
 	}
 	conf := []interface{}{"name", "description"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Action.Lint should return false when action does not have a 'name' and/or 'description' field")
 		}
+
 		if err != nil {
 			t.Errorf("Action.Lint failed with an error: %s", err.Error())
 		}
@@ -69,18 +78,21 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 }
 
 func TestActionFieldInputOutputNotCompliant(t *testing.T) {
-	for _, field := range []string{"input", "output"} {
+	t.Parallel()
+
+	for _, field := range []int{ActionFieldInput, ActionFieldOutput} {
 		rule := Action{
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Action.Lint should return false when action %s does not have a 'description' field", field)
+				t.Errorf("Action.Lint should return false when action field %d does not have a 'description' field", field)
 			}
+
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
 			}
@@ -95,17 +107,20 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 }
 
 func TestActionFieldActionCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := Action{
-		Field: "action",
+		Field: ActionFieldAction,
 	}
 	conf := []interface{}{"name", "description"}
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("Action.Lint should return true when action has both 'name' and 'description' field")
 		}
+
 		if err != nil {
 			t.Errorf("Action.Lint failed with an error: %s", err.Error())
 		}
@@ -119,18 +134,21 @@ func TestActionFieldActionCompliant(t *testing.T) {
 }
 
 func TestActionFieldInputOutputCompliant(t *testing.T) {
-	for _, field := range []string{"input", "output"} {
+	t.Parallel()
+
+	for _, field := range []int{ActionFieldInput, ActionFieldOutput} {
 		rule := Action{
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := ruletest.DotGithub
+		d := DotGithub
 
 		fn := func(f dotgithub.File, n string) {
-			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Action.Lint should return true when action %s has a 'description' field", field)
+				t.Errorf("Action.Lint should return true when action field %d has a 'description' field", field)
 			}
+
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
 			}

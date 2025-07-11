@@ -22,18 +22,22 @@ func ListToMarkdown(glitches []*Glitch, limit int) (s string) {
 	s = `|Item|Error|
 |---|---|
 `
+
 	for i, g := range glitches {
 		if limit > 0 && i == limit {
 			break
 		}
+
 		name := fmt.Sprintf(`a/%s`, g.Name)
 		if g.Type == DotGithubFileTypeWorkflow {
 			name = fmt.Sprintf(`w/%s`, g.Name)
 		}
+
 		level := `🟠`
 		if g.IsError {
 			level = `🔴`
 		}
+
 		s += fmt.Sprintf("|%s|%s %s *(%s)*|\n", name, level, g.ErrText, g.RuleName)
 	}
 

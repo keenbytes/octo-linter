@@ -24,10 +24,11 @@ type Linter struct {
 	Config *Config
 }
 
-func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (uint8, error) {
+func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (int, error) {
 	if l.Config == nil {
 		panic("Config cannot be nil")
 	}
+
 	if d == nil {
 		panic("DotGithub cannot be empty")
 	}
@@ -48,6 +49,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 				if ruleEntry.FileType()&rule.DotGithubFileTypeAction == 0 {
 					continue
 				}
+
 				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeAction))
 				chJobs <- Job{
 					rule:      ruleEntry,
@@ -56,6 +58,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 					isError:   isError,
 					value:     l.Config.Values[ruleIdx],
 				}
+
 				summary.numJob.Add(1)
 			}
 		}
@@ -65,6 +68,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 				if ruleEntry.FileType()&rule.DotGithubFileTypeWorkflow == 0 {
 					continue
 				}
+
 				isError := l.Config.IsError(ruleEntry.ConfigName(rule.DotGithubFileTypeWorkflow))
 				chJobs <- Job{
 					rule:      ruleEntry,
@@ -73,6 +77,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 					isError:   isError,
 					value:     l.Config.Values[ruleIdx],
 				}
+
 				summary.numJob.Add(1)
 			}
 		}
@@ -87,10 +92,15 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 			if more {
 				compliant, err := job.Run(chWarnings, chErrors)
 				if err != nil {
-					slog.Error(fmt.Sprintf("%s\n", err.Error()))
+					slog.Error(
+						"error running job",
+						slog.String("err", err.Error()),
+					)
 					summary.numError.Add(1)
+
 					continue
 				}
+
 				if !compliant {
 					if job.isError {
 						summary.numError.Add(1)
@@ -98,7 +108,9 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 						summary.numWarning.Add(1)
 					}
 				}
+
 				summary.numProcessed.Add(1)
+
 				continue
 			}
 
@@ -106,6 +118,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 			close(chErrors)
 
 			wg.Done()
+
 			return
 		}
 	}()
@@ -121,23 +134,27 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 				select {
 				case glitchInstance, more := <-chWarnings:
 					if more {
-						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
-						if s != "" {
-							slog.Warn(s)
-							glitchInstance.IsError = false
-							summary.addGlitch(&glitchInstance)
-						}
+						slog.Warn(
+							glitchInstance.ErrText,
+							slog.String("path", glitchInstance.Path),
+							slog.String("rule", glitchInstance.RuleName),
+						)
+
+						glitchInstance.IsError = false
+						summary.addGlitch(&glitchInstance)
 					} else {
 						chWarningsClosed = true
 					}
 				case glitchInstance, more := <-chErrors:
 					if more {
-						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
-						if s != "" {
-							slog.Error(s)
-							glitchInstance.IsError = true
-							summary.addGlitch(&glitchInstance)
-						}
+						slog.Error(
+							glitchInstance.ErrText,
+							slog.String("path", glitchInstance.Path),
+							slog.String("rule", glitchInstance.RuleName),
+						)
+
+						glitchInstance.IsError = true
+						summary.addGlitch(&glitchInstance)
 					} else {
 						chErrorsClosed = true
 					}
@@ -163,14 +180,19 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 		}
 	}
 
-	slog.Debug(fmt.Sprintf("number of rules returning errors: %d", summary.numError.Load()))
-	slog.Debug(fmt.Sprintf("number of rules returning warnings: %d", summary.numWarning.Load()))
-	slog.Debug(fmt.Sprintf("number of rules processed in total: %d", summary.numProcessed.Load()))
-	slog.Debug(fmt.Sprintf("number of glitches: %d", len(summary.glitches)))
+	slog.Debug(
+		"summary",
+		slog.Int("rules_returning_errors", int(summary.numError.Load())),
+		slog.Int("rules_processed", int(summary.numProcessed.Load())),
+		slog.Int("glitches", len(summary.glitches)),
+	)
 
 	if output != "" {
 		outputMd := filepath.Join(output, "output.md")
-		slog.Debug(fmt.Sprintf("writing output to %s...", outputMd))
+		slog.Debug(
+			"writing markdown output",
+			slog.String("path", outputMd),
+		)
 
 		_ = os.Remove(outputMd)
 
@@ -182,9 +204,9 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (u
 
 		err := os.WriteFile(outputMd, []byte(md), 0644)
 		if err != nil {
-			return uint8(finalStatus), fmt.Errorf("error writing markdown output: %w", err)
+			return finalStatus, fmt.Errorf("error writing markdown output: %w", err)
 		}
 	}
 
-	return uint8(finalStatus), nil
+	return finalStatus, nil
 }

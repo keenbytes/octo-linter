@@ -14,18 +14,26 @@ import (
 
 // Action checks if specified action field adheres to the selected naming convention.
 type Action struct {
-	Field string
+	Field int
 }
+
+const (
+	_ = iota
+	ActionFieldInputName
+	ActionFieldOutputName
+	ActionFieldReferencedVariable
+	ActionFieldStepEnv
+)
 
 func (r Action) ConfigName(int) string {
 	switch r.Field {
-	case "input_name":
+	case ActionFieldInputName:
 		return "naming_conventions__action_input_name_format"
-	case "output_name":
+	case ActionFieldOutputName:
 		return "naming_conventions__action_output_name_format"
-	case "referenced_variable":
+	case ActionFieldReferencedVariable:
 		return "naming_conventions__action_referenced_variable_format"
-	case "step_env":
+	case ActionFieldStepEnv:
 		return "naming_conventions__action_step_env_format"
 	default:
 		return "naming_conventions__action_*"
@@ -49,15 +57,22 @@ func (r Action) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeAction {
-		return
+func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
 	}
+
+	if f.GetType() != rule.DotGithubFileTypeAction {
+		return true, nil
+	}
+
 	a := f.(*action.Action)
 
+	compliant := true
+
 	switch r.Field {
-	case "input_name":
+	case ActionFieldInputName:
 		for inputName := range a.Inputs {
 			m := casematch.Match(inputName, conf.(string))
 			if !m {
@@ -68,10 +83,11 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					ErrText:  fmt.Sprintf("input '%s' must be %s", inputName, conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
-	case "output_name":
+	case ActionFieldOutputName:
 		for outputName := range a.Outputs {
 			m := casematch.Match(outputName, conf.(string))
 			if !m {
@@ -82,13 +98,15 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 					ErrText:  fmt.Sprintf("output '%s' must be %s", outputName, conf.(string)),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
 			}
 		}
-	case "referenced_variable":
+	case ActionFieldReferencedVariable:
 		varTypes := []string{"env", "var", "secret"}
 		for _, v := range varTypes {
 			re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
+
 			found := re.FindAllSubmatch(a.Raw, -1)
 			for _, f := range found {
 				m := casematch.Match(string(f[1]), conf.(string))
@@ -100,19 +118,21 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						ErrText:  fmt.Sprintf("references a variable '%s' that must be %s", string(f[1]), conf.(string)),
 						RuleName: r.ConfigName(0),
 					}
+
 					compliant = false
 				}
 			}
 		}
-	case "step_env":
-		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
-			return
+	case ActionFieldStepEnv:
+		if len(a.Runs.Steps) == 0 {
+			return true, nil
 		}
 
 		for i, step := range a.Runs.Steps {
-			if step.Env == nil || len(step.Env) == 0 {
+			if len(step.Env) == 0 {
 				continue
 			}
+
 			for envName := range step.Env {
 				m := casematch.Match(envName, conf.(string))
 				if !m {
@@ -123,13 +143,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 						ErrText:  fmt.Sprintf("step %d env '%s' must be %s", i, envName, conf.(string)),
 						RuleName: r.ConfigName(0),
 					}
+
 					compliant = false
 				}
 			}
 		}
-	default:
-		// do nothing
 	}
 
-	return
+	return compliant, nil
 }

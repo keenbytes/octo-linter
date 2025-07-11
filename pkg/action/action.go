@@ -25,20 +25,28 @@ type Action struct {
 
 func (a *Action) Unmarshal(fromRaw bool) error {
 	if !fromRaw {
-		slog.Debug(fmt.Sprintf("reading %s...", a.Path))
+		slog.Debug(
+			"reading action file",
+			slog.String("path", a.Path),
+		)
+
 		b, err := os.ReadFile(a.Path)
 		if err != nil {
 			return fmt.Errorf("cannot read file %s: %w", a.Path, err)
 		}
+
 		a.Raw = b
 	}
+
 	err := yaml.Unmarshal(a.Raw, &a)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal file %s: %w", a.Path, err)
 	}
+
 	if a.Runs != nil {
 		a.Runs.SetParentType("action")
 	}
+
 	return nil
 }
 

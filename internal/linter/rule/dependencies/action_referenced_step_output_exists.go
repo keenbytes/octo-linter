@@ -34,17 +34,24 @@ func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	compliant = true
-	if f.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
-		return
+func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
+	if err != nil {
+		return false, err
 	}
+
+	if f.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
+		return true, nil
+	}
+
 	a := f.(*action.Action)
 
 	re := regexp.MustCompile(`\${{[ ]*steps\.([a-zA-Z0-9\-_]+)\.outputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 	reAppendToGithubOutput := regexp.MustCompile(`echo[ ]+["']([a-zA-Z0-9\-_]+)=.*["'][ ]+.*>>[ ]+\$GITHUB_OUTPUT`)
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
 	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
+
+	compliant := true
 
 	found := re.FindAllSubmatch(a.Raw, -1)
 	for _, f := range found {
@@ -59,9 +66,12 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				ErrText:  fmt.Sprintf("calls a step output '%s' but 'runs' does not exist", stepName),
 				RuleName: r.ConfigName(0),
 			}
+
 			compliant = false
+
 			continue
 		}
+
 		step := a.Runs.GetStep(string(f[1]))
 		if step == nil {
 			chErrors <- glitch.Glitch{
@@ -71,7 +81,9 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				ErrText:  fmt.Sprintf("calls a step '%s' output '%s' but step does not exist", stepName, outputName),
 				RuleName: r.ConfigName(0),
 			}
+
 			compliant = false
+
 			continue
 		}
 
@@ -85,6 +97,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 					foundOutput = true
 				}
 			}
+
 			if !foundOutput {
 				chErrors <- glitch.Glitch{
 					Path:     a.Path,
@@ -93,7 +106,9 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 					ErrText:  fmt.Sprintf("calls a step '%s' output '%s' that does not exist", stepName, outputName),
 					RuleName: r.ConfigName(0),
 				}
+
 				compliant = false
+
 				continue
 			}
 		}
@@ -105,13 +120,14 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 		var action *action.Action
 		// local action
 		if reLocal.MatchString(step.Uses) {
-			actionName := strings.Replace(step.Uses, "./.github/actions/", "", -1)
+			actionName := strings.ReplaceAll(step.Uses, "./.github/actions/", "")
 			action = d.GetAction(actionName)
 		}
 		// external action
 		if reExternal.MatchString(step.Uses) {
 			action = d.GetExternalAction(step.Uses)
 		}
+
 		if action == nil {
 			chErrors <- glitch.Glitch{
 				Path:     a.Path,
@@ -120,7 +136,9 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				ErrText:  fmt.Sprintf("calls a step '%s' output '%s' on action that does not exist", stepName, outputName),
 				RuleName: r.ConfigName(0),
 			}
+
 			compliant = false
+
 			continue
 		}
 
@@ -129,6 +147,7 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				foundOutput = true
 			}
 		}
+
 		if !foundOutput {
 			chErrors <- glitch.Glitch{
 				Path:     a.Path,
@@ -137,10 +156,12 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 				ErrText:  fmt.Sprintf("calls step '%s' output '%s' on action and that output does not exist", stepName, outputName),
 				RuleName: r.ConfigName(0),
 			}
+
 			compliant = false
+
 			continue
 		}
 	}
 
-	return
+	return compliant, nil
 }

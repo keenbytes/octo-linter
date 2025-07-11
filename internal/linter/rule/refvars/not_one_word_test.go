@@ -9,15 +9,19 @@ import (
 )
 
 func TestNotOneWordValidate(t *testing.T) {
+	t.Parallel()
+
 	rule := NotOneWord{}
 
 	confBad := 4
+
 	err := rule.Validate(confBad)
 	if err == nil {
 		t.Errorf("NotOneWord.Validate should return error when conf is not bool")
 	}
 
 	confGood := true
+
 	err = rule.Validate(confGood)
 	if err != nil {
 		t.Errorf("NotOneWord.Validate should not return error when conf is bool")
@@ -25,15 +29,18 @@ func TestNotOneWordValidate(t *testing.T) {
 }
 
 func TestNotOneWordNotCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotOneWord{}
 	conf := true
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("NotOneWord.Lint should return false when there is a reference to a 'one-word' variable")
 		}
+
 		if err != nil {
 			t.Errorf("NotOneWord.Lint failed with an error: %s", err.Error())
 		}
@@ -48,15 +55,18 @@ func TestNotOneWordNotCompliant(t *testing.T) {
 }
 
 func TestNotOneWordCompliant(t *testing.T) {
+	t.Parallel()
+
 	rule := NotOneWord{}
 	conf := true
-	d := ruletest.DotGithub
+	d := DotGithub
 
 	fn := func(f dotgithub.File, n string) {
-		compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
+		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("NotOneWord.Lint should return true when there are not any vars that are one word")
 		}
+
 		if err != nil {
 			t.Errorf("NotOneWord.Lint failed with an error: %s", err.Error())
 		}

@@ -1,6 +1,8 @@
 package linter
 
 import (
+	"fmt"
+
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule/filenames"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule/naming"
@@ -23,14 +25,12 @@ func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}
 			{{ $fieldName }}: {{ $fieldValue }},
 			{{- end }}
 		}
+
 		err := ruleInstance.Validate(ruleConfig)
 		if err != nil {
-			return err
+			return fmt.Errorf("rule validation error: %w", err)
 		}
   {{- end }}
-
-	default:
-		// do nothing for now
 	}
 
 	if ruleInstance != nil {
