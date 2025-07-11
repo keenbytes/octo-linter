@@ -43,7 +43,7 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 	}
 	w := f.(*workflow.Workflow)
 
-	if !conf.(bool) || w.Jobs == nil || len(w.Jobs) == 0 {
+	if !conf.(bool) || len(w.Jobs) == 0 {
 		return true, nil
 	}
 

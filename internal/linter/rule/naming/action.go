@@ -111,12 +111,12 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 			}
 		}
 	case "step_env":
-		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
+		if len(a.Runs.Steps) == 0 {
 			return true, nil
 		}
 
 		for i, step := range a.Runs.Steps {
-			if step.Env == nil || len(step.Env) == 0 {
+			if len(step.Env) == 0 {
 				continue
 			}
 			for envName := range step.Env {

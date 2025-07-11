@@ -68,7 +68,7 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
-		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
+		if len(a.Runs.Steps) == 0 {
 			return true, nil
 		}
 		steps = a.Runs.Steps
@@ -81,11 +81,11 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
-		if w.Jobs == nil || len(w.Jobs) == 0 {
+		if len(w.Jobs) == 0 {
 			return true, nil
 		}
 		for jobName, job := range w.Jobs {
-			if job.Steps == nil || len(job.Steps) == 0 {
+			if len(job.Steps) == 0 {
 				continue
 			}
 			msgPrefix[len(steps)] = fmt.Sprintf("job '%s'", jobName)

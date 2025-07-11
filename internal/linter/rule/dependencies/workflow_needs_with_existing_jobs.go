@@ -42,7 +42,7 @@ func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, 
 	}
 	w := f.(*workflow.Workflow)
 
-	if w.Jobs == nil || len(w.Jobs) == 0 {
+	if len(w.Jobs) == 0 {
 		return true, nil
 	}
 

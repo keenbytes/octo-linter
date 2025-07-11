@@ -43,7 +43,7 @@ func (d *DotGithub) ReadDir(p string) error {
 		if err != nil {
 			return err
 		}
-		if a.Runs != nil && a.Runs.Steps != nil && len(a.Runs.Steps) > 0 {
+		if a.Runs != nil && len(a.Runs.Steps) > 0 {
 			for i, step := range a.Runs.Steps {
 				if reExternal.MatchString(step.Uses) {
 					err := d.DownloadExternalAction(step.Uses)
@@ -64,9 +64,9 @@ func (d *DotGithub) ReadDir(p string) error {
 			if err != nil {
 				return err
 			}
-			if w.Jobs != nil && len(w.Jobs) > 0 {
+			if len(w.Jobs) > 0 {
 				for _, job := range w.Jobs {
-					if job.Steps == nil || len(job.Steps) == 0 {
+					if len(job.Steps) == 0 {
 						continue
 					}
 					for i, step := range job.Steps {

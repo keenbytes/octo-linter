@@ -87,12 +87,12 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 			}
 		}
 	case "job_env":
-		if w.Jobs == nil || len(w.Jobs) == 0 {
+		if len(w.Jobs) == 0 {
 			return true, nil
 		}
 
 		for jobName, job := range w.Jobs {
-			if job.Env == nil || len(job.Env) == 0 {
+			if len(job.Env) == 0 {
 				continue
 			}
 			for envName := range job.Env {
@@ -111,7 +111,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 	case "job_step_env":
 		for jobName, job := range w.Jobs {
 			for i, step := range job.Steps {
-				if step.Env == nil || len(step.Env) == 0 {
+				if len(step.Env) == 0 {
 					continue
 				}
 				for envName := range step.Env {
@@ -149,7 +149,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 			}
 		}
 	case "dispatch_input_name":
-		if w.On == nil || w.On.WorkflowDispatch == nil || w.On.WorkflowDispatch.Inputs == nil || len(w.On.WorkflowDispatch.Inputs) == 0 {
+		if w.On == nil || w.On.WorkflowDispatch == nil || len(w.On.WorkflowDispatch.Inputs) == 0 {
 			return true, nil
 		}
 
@@ -167,7 +167,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 			}
 		}
 	case "call_input_name":
-		if w.On == nil || w.On.WorkflowCall == nil || w.On.WorkflowCall.Inputs == nil || len(w.On.WorkflowCall.Inputs) == 0 {
+		if w.On == nil || w.On.WorkflowCall == nil || len(w.On.WorkflowCall.Inputs) == 0 {
 			return true, nil
 		}
 
@@ -185,7 +185,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 			}
 		}
 	case "job_name":
-		if w.Jobs == nil || len(w.Jobs) == 0 {
+		if len(w.Jobs) == 0 {
 			return true, nil
 		}
 
