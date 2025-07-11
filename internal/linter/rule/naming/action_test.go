@@ -29,11 +29,11 @@ func TestActionValidate(t *testing.T) {
 func TestActionNotCompliant(t *testing.T) {
 	t.Parallel()
 
-	for field, conf := range map[string]string{
-		"input_name":          "dash-case",
-		"output_name":         "dash-case",
-		"referenced_variable": "ALL_CAPS",
-		"step_env":            "ALL_CAPS",
+	for field, conf := range map[int]string{
+		ActionFieldInputName:          "dash-case",
+		ActionFieldOutputName:         "dash-case",
+		ActionFieldReferencedVariable: "ALL_CAPS",
+		ActionFieldStepEnv:            "ALL_CAPS",
 	} {
 		rule := Action{
 			Field: field,
@@ -43,7 +43,7 @@ func TestActionNotCompliant(t *testing.T) {
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Action.Lint should return false when action %s does not follow naming convention of '%s'", field, conf)
+				t.Errorf("Action.Lint should return false when action field %d does not follow naming convention of '%s'", field, conf)
 			}
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
@@ -61,11 +61,11 @@ func TestActionNotCompliant(t *testing.T) {
 func TestActionCompliant(t *testing.T) {
 	t.Parallel()
 
-	for field, conf := range map[string]string{
-		"input_name":          "dash-case",
-		"output_name":         "dash-case",
-		"referenced_variable": "ALL_CAPS",
-		"step_env":            "ALL_CAPS",
+	for field, conf := range map[int]string{
+		ActionFieldInputName:          "dash-case",
+		ActionFieldOutputName:         "dash-case",
+		ActionFieldReferencedVariable: "ALL_CAPS",
+		ActionFieldStepEnv:            "ALL_CAPS",
 	} {
 		rule := Action{
 			Field: field,
@@ -75,7 +75,7 @@ func TestActionCompliant(t *testing.T) {
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Action.Lint should return true when action %s follows naming convention of '%s'", field, conf)
+				t.Errorf("Action.Lint should return true when action field %d follows naming convention of '%s'", field, conf)
 			}
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())

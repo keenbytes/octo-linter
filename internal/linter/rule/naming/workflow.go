@@ -14,24 +14,35 @@ import (
 
 // Workflow checks if specified workflow field adheres to the selected naming convention.
 type Workflow struct {
-	Field string
+	Field int
 }
+
+const (
+	_ = iota
+	WorkflowFieldEnv
+	WorkflowFieldJobEnv
+	WorkflowFieldJobStepEnv
+	WorkflowFieldReferencedVariable
+	WorkflowFieldDispatchInputName
+	WorkflowFieldCallInputName
+	WorkflowFieldJobName
+)
 
 func (r Workflow) ConfigName(int) string {
 	switch r.Field {
-	case "env":
+	case WorkflowFieldEnv:
 		return "naming_conventions__workflow_env_format"
-	case "job_env":
+	case WorkflowFieldJobEnv:
 		return "naming_conventions__workflow_job_env_format"
-	case "job_step_env":
+	case WorkflowFieldJobStepEnv:
 		return "naming_conventions__workflow_job_step_env_format"
-	case "referenced_variable":
+	case WorkflowFieldReferencedVariable:
 		return "naming_conventions__workflow_referenced_variable_format"
-	case "dispatch_input_name":
+	case WorkflowFieldDispatchInputName:
 		return "naming_conventions__workflow_dispatch_input_name_format"
-	case "call_input_name":
+	case WorkflowFieldCallInputName:
 		return "naming_conventions__workflow_call_input_name_format"
-	case "job_name":
+	case WorkflowFieldJobName:
 		return "naming_conventions__workflow_job_name_format"
 	default:
 		return "naming_conventions__workflow_*"
@@ -69,7 +80,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 	compliant := true
 
 	switch r.Field {
-	case "env":
+	case WorkflowFieldEnv:
 		if w.Env == nil || len(w.Env) == 0 {
 			return true, nil
 		}
@@ -86,7 +97,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 				}
 			}
 		}
-	case "job_env":
+	case WorkflowFieldJobEnv:
 		if len(w.Jobs) == 0 {
 			return true, nil
 		}
@@ -108,7 +119,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 				}
 			}
 		}
-	case "job_step_env":
+	case WorkflowFieldJobStepEnv:
 		for jobName, job := range w.Jobs {
 			for i, step := range job.Steps {
 				if len(step.Env) == 0 {
@@ -129,7 +140,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 				}
 			}
 		}
-	case "referenced_variable":
+	case WorkflowFieldReferencedVariable:
 		varTypes := []string{"env", "vars", "secrets"}
 		for _, v := range varTypes {
 			re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
@@ -148,7 +159,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 				}
 			}
 		}
-	case "dispatch_input_name":
+	case WorkflowFieldDispatchInputName:
 		if w.On == nil || w.On.WorkflowDispatch == nil || len(w.On.WorkflowDispatch.Inputs) == 0 {
 			return true, nil
 		}
@@ -166,7 +177,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 				compliant = false
 			}
 		}
-	case "call_input_name":
+	case WorkflowFieldCallInputName:
 		if w.On == nil || w.On.WorkflowCall == nil || len(w.On.WorkflowCall.Inputs) == 0 {
 			return true, nil
 		}
@@ -184,7 +195,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 				compliant = false
 			}
 		}
-	case "job_name":
+	case WorkflowFieldJobName:
 		if len(w.Jobs) == 0 {
 			return true, nil
 		}

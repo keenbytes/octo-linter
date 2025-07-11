@@ -12,16 +12,23 @@ import (
 
 // Action checks if required fields within actions are defined
 type Action struct {
-	Field string
+	Field int
 }
+
+const (
+	_ = iota
+	ActionFieldAction
+	ActionFieldInput
+	ActionFieldOutput
+)
 
 func (r Action) ConfigName(int) string {
 	switch r.Field {
-	case "action":
+	case ActionFieldAction:
 		return "required_fields__action_requires"
-	case "input":
+	case ActionFieldInput:
 		return "required_fields__action_input_requires"
-	case "output":
+	case ActionFieldOutput:
 		return "required_fields__action_output_requires"
 	default:
 		return "required_fields__action_*_requires"
@@ -45,11 +52,11 @@ func (r Action) Validate(conf interface{}) error {
 		}
 
 		switch r.Field {
-		case "action":
+		case ActionFieldAction:
 			if field != "name" && field != "description" {
 				return fmt.Errorf("value can contain only 'name' and/or 'description'")
 			}
-		case "input", "output":
+		case ActionFieldInput, ActionFieldOutput:
 			if field != "description" {
 				return fmt.Errorf("value can contain only 'description'")
 			}
@@ -76,7 +83,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 
 	compliant := true
 	switch r.Field {
-	case "action":
+	case ActionFieldAction:
 		for _, field := range confInterfaces {
 			if (field.(string) == "name" && a.Name == "") || (field.(string) == "description" && a.Description == "") {
 				chErrors <- glitch.Glitch{
@@ -89,7 +96,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				compliant = false
 			}
 		}
-	case "input":
+	case ActionFieldInput:
 		for inputName, input := range a.Inputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
@@ -104,7 +111,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 				}
 			}
 		}
-	case "output":
+	case ActionFieldOutput:
 		for outputName, output := range a.Outputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && output.Description == "" {

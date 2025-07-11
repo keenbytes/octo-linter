@@ -12,7 +12,7 @@ func TestActionValidate(t *testing.T) {
 	t.Parallel()
 
 	rule := Action{
-		Field: "action",
+		Field: ActionFieldAction,
 	}
 
 	confBad := 4
@@ -27,7 +27,7 @@ func TestActionValidate(t *testing.T) {
 		t.Errorf("Action.Validate should not return error when conf is []string")
 	}
 
-	for _, f := range []string{"input", "output"} {
+	for _, f := range []int{ActionFieldInput, ActionFieldOutput} {
 		rule = Action{
 			Field: f,
 		}
@@ -50,7 +50,7 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := Action{
-		Field: "action",
+		Field: ActionFieldAction,
 	}
 	conf := []interface{}{"name", "description"}
 	d := ruletest.DotGithub
@@ -75,7 +75,7 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 	t.Parallel()
 
-	for _, field := range []string{"input", "output"} {
+	for _, field := range []int{ActionFieldInput, ActionFieldOutput} {
 		rule := Action{
 			Field: field,
 		}
@@ -85,7 +85,7 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Action.Lint should return false when action %s does not have a 'description' field", field)
+				t.Errorf("Action.Lint should return false when action field %d does not have a 'description' field", field)
 			}
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())
@@ -104,7 +104,7 @@ func TestActionFieldActionCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := Action{
-		Field: "action",
+		Field: ActionFieldAction,
 	}
 	conf := []interface{}{"name", "description"}
 	d := ruletest.DotGithub
@@ -129,7 +129,7 @@ func TestActionFieldActionCompliant(t *testing.T) {
 func TestActionFieldInputOutputCompliant(t *testing.T) {
 	t.Parallel()
 
-	for _, field := range []string{"input", "output"} {
+	for _, field := range []int{ActionFieldInput, ActionFieldOutput} {
 		rule := Action{
 			Field: field,
 		}
@@ -139,7 +139,7 @@ func TestActionFieldInputOutputCompliant(t *testing.T) {
 		fn := func(f dotgithub.File, n string) {
 			compliant, err, ruleErrors := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Action.Lint should return true when action %s has a 'description' field", field)
+				t.Errorf("Action.Lint should return true when action field %d has a 'description' field", field)
 			}
 			if err != nil {
 				t.Errorf("Action.Lint failed with an error: %s", err.Error())

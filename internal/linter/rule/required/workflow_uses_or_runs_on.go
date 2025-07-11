@@ -11,9 +11,7 @@ import (
 )
 
 // Workflow checks if workflow has `runs-on` or `uses` field. At least of them must be defined.
-type WorkflowUsesOrRunsOn struct {
-	Field string
-}
+type WorkflowUsesOrRunsOn struct{}
 
 func (r WorkflowUsesOrRunsOn) ConfigName(int) string {
 	return "required_fields__workflow_requires_uses_or_runs_on_required"
