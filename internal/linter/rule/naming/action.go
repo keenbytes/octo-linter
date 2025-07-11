@@ -49,17 +49,18 @@ func (r Action) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction {
-		return
+		return true, nil
 	}
 	a := f.(*action.Action)
+
+	compliant := true
 
 	switch r.Field {
 	case "input_name":
@@ -111,7 +112,7 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		}
 	case "step_env":
 		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
-			return
+			return true, nil
 		}
 
 		for i, step := range a.Runs.Steps {
@@ -136,5 +137,5 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		// do nothing
 	}
 
-	return
+	return compliant, nil
 }

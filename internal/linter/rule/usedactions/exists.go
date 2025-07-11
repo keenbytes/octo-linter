@@ -52,15 +52,14 @@ func (r Exists) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 
 	var checkLocal bool
@@ -77,7 +76,7 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	}
 
 	if !checkLocal && !checkExternal {
-		return
+		return true, nil
 	}
 
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
@@ -93,7 +92,7 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	if f.GetType() == rule.DotGithubFileTypeAction {
 		a := f.(*action.Action)
 		if a.Runs == nil || a.Runs.Steps == nil || len(a.Runs.Steps) == 0 {
-			return
+			return true, nil
 		}
 		steps = a.Runs.Steps
 		msgPrefix[0] = ""
@@ -106,7 +105,7 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 	if f.GetType() == rule.DotGithubFileTypeWorkflow {
 		w := f.(*workflow.Workflow)
 		if w.Jobs == nil || len(w.Jobs) == 0 {
-			return
+			return true, nil
 		}
 		for jobName, job := range w.Jobs {
 			if job.Steps == nil || len(job.Steps) == 0 {
@@ -126,6 +125,7 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		errPrefix = msgPrefix[0]
 	}
 
+	compliant := true
 	for i, st := range steps {
 		newErrPrefix, ok := msgPrefix[i]
 		if ok {
@@ -166,5 +166,5 @@ func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		}
 	}
 
-	return
+	return compliant, nil
 }

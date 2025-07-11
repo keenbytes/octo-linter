@@ -31,22 +31,22 @@ func (r WorkflowSingleJobOnlyName) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 	w := f.(*workflow.Workflow)
 
 	if conf.(string) == "" || w.Jobs == nil {
-		return
+		return true, nil
 	}
 
+	compliant := true
 	if len(w.Jobs) == 1 {
 		for jobName := range w.Jobs {
 			if jobName != conf.(string) {
@@ -62,5 +62,5 @@ func (r WorkflowSingleJobOnlyName) Lint(conf interface{}, f dotgithub.File, d *d
 		}
 	}
 
-	return
+	return compliant, nil
 }

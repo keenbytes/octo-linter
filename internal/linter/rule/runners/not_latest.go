@@ -32,21 +32,22 @@ func (r NotLatest) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 	w := f.(*workflow.Workflow)
 
 	if !conf.(bool) || w.Jobs == nil || len(w.Jobs) == 0 {
-		return
+		return true, nil
 	}
+
+	compliant := true
 
 	for jobName, job := range w.Jobs {
 		if job.RunsOn == nil {
@@ -85,5 +86,5 @@ func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGith
 		}
 	}
 
-	return
+	return compliant, nil
 }

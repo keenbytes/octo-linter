@@ -33,17 +33,18 @@ func (r WorkflowReferencedVariableExistsInFile) Validate(conf interface{}) error
 	return nil
 }
 
-func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
-		return
+		return true, nil
 	}
 	w := f.(*workflow.Workflow)
+
+	compliant := true
 
 	varTypes := []string{"vars", "secrets"}
 	for _, v := range varTypes {
@@ -74,5 +75,5 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgith
 		}
 	}
 
-	return
+	return compliant, nil
 }

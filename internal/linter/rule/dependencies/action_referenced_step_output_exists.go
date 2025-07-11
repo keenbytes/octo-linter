@@ -34,16 +34,14 @@ func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
-
 	if f.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
-		return
+		return true, nil
 	}
 	a := f.(*action.Action)
 
@@ -51,6 +49,8 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 	reAppendToGithubOutput := regexp.MustCompile(`echo[ ]+["']([a-zA-Z0-9\-_]+)=.*["'][ ]+.*>>[ ]+\$GITHUB_OUTPUT`)
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
 	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
+
+	compliant := true
 
 	found := re.FindAllSubmatch(a.Raw, -1)
 	for _, f := range found {
@@ -148,5 +148,5 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 		}
 	}
 
-	return
+	return compliant, nil
 }

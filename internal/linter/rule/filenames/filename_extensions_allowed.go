@@ -50,20 +50,19 @@ func (r FilenameExtensionsAllowed) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 
 	allowedExtensions, ok := conf.([]interface{})
 	if !ok {
-		return
+		return true, nil
 	}
 
 	var extension string
@@ -97,11 +96,11 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 	var allowedExtensionsList []string
 	for _, allowedExtension := range allowedExtensions {
 		if extension == allowedExtension.(string) {
-			return
+			return true, nil
 		}
 		allowedExtensionsList = append(allowedExtensionsList, allowedExtension.(string))
 	}
-	compliant = false
+
 	chErrors <- glitch.Glitch{
 		Path:     filePath,
 		Name:     fileTypeName,
@@ -110,5 +109,5 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		RuleName: r.ConfigName(fileType),
 	}
 
-	return
+	return false, nil
 }

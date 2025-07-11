@@ -61,17 +61,18 @@ func (r Workflow) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 	w := f.(*workflow.Workflow)
+
+	compliant := true
 
 	confInterfaces := conf.([]interface{})
 	switch r.Field {
@@ -91,7 +92,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 
 	case "dispatch_input":
 		if w.On == nil || w.On.WorkflowDispatch == nil || w.On.WorkflowDispatch.Inputs == nil || len(w.On.WorkflowDispatch.Inputs) == 0 {
-			return
+			return true, nil
 		}
 
 		for inputName, input := range w.On.WorkflowDispatch.Inputs {
@@ -110,7 +111,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		}
 	case "call_input":
 		if w.On == nil || w.On.WorkflowCall == nil || w.On.WorkflowCall.Inputs == nil || len(w.On.WorkflowCall.Inputs) == 0 {
-			return
+			return true, nil
 		}
 
 		for inputName, input := range w.On.WorkflowCall.Inputs {
@@ -131,5 +132,5 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		// do nothing
 	}
 
-	return
+	return compliant, nil
 }

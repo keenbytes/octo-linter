@@ -36,15 +36,14 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeAction {
-		return
+		return true, nil
 	}
 	a := f.(*action.Action)
 
@@ -57,8 +56,8 @@ func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *d
 			ErrText:  fmt.Sprintf("directory name must be %s", conf.(string)),
 			RuleName: r.ConfigName(0),
 		}
-		compliant = false
+		return false, nil
 	}
 
-	return
+	return true, nil
 }

@@ -55,22 +55,23 @@ func (r Workflow) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (compliant bool, err error) {
-	err = r.Validate(conf)
+func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+	err := r.Validate(conf)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	compliant = true
 	if f.GetType() != rule.DotGithubFileTypeWorkflow {
-		return
+		return true, nil
 	}
 	w := f.(*workflow.Workflow)
+
+	compliant := true
 
 	switch r.Field {
 	case "env":
 		if w.Env == nil || len(w.Env) == 0 {
-			return
+			return true, nil
 		}
 
 		for envName := range w.Env {
@@ -87,7 +88,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		}
 	case "job_env":
 		if w.Jobs == nil || len(w.Jobs) == 0 {
-			return
+			return true, nil
 		}
 
 		for jobName, job := range w.Jobs {
@@ -149,7 +150,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		}
 	case "dispatch_input_name":
 		if w.On == nil || w.On.WorkflowDispatch == nil || w.On.WorkflowDispatch.Inputs == nil || len(w.On.WorkflowDispatch.Inputs) == 0 {
-			return
+			return true, nil
 		}
 
 		for inputName := range w.On.WorkflowDispatch.Inputs {
@@ -167,7 +168,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		}
 	case "call_input_name":
 		if w.On == nil || w.On.WorkflowCall == nil || w.On.WorkflowCall.Inputs == nil || len(w.On.WorkflowCall.Inputs) == 0 {
-			return
+			return true, nil
 		}
 
 		for inputName := range w.On.WorkflowCall.Inputs {
@@ -185,7 +186,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 		}
 	case "job_name":
 		if w.Jobs == nil || len(w.Jobs) == 0 {
-			return
+			return true, nil
 		}
 
 		for jobName := range w.Jobs {
@@ -204,5 +205,5 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithu
 	default:
 		// do nothing
 	}
-	return
+	return compliant, nil
 }
