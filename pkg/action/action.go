@@ -25,7 +25,10 @@ type Action struct {
 
 func (a *Action) Unmarshal(fromRaw bool) error {
 	if !fromRaw {
-		slog.Debug(fmt.Sprintf("reading %s...", a.Path))
+		slog.Debug(
+			"reading action file",
+			slog.String("path", a.Path),
+		)
 		b, err := os.ReadFile(a.Path)
 		if err != nil {
 			return fmt.Errorf("cannot read file %s: %w", a.Path, err)

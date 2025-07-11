@@ -87,7 +87,10 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 			if more {
 				compliant, err := job.Run(chWarnings, chErrors)
 				if err != nil {
-					slog.Error(fmt.Sprintf("%s\n", err.Error()))
+					slog.Error(
+						"error running job",
+						slog.String("err", err.Error()),
+					)
 					summary.numError.Add(1)
 					continue
 				}
@@ -121,23 +124,25 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				select {
 				case glitchInstance, more := <-chWarnings:
 					if more {
-						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
-						if s != "" {
-							slog.Warn(s)
-							glitchInstance.IsError = false
-							summary.addGlitch(&glitchInstance)
-						}
+						slog.Warn(
+							glitchInstance.ErrText, 
+							slog.String("path", glitchInstance.Path),
+							slog.String("rule", glitchInstance.RuleName),
+						)
+						glitchInstance.IsError = false
+						summary.addGlitch(&glitchInstance)
 					} else {
 						chWarningsClosed = true
 					}
 				case glitchInstance, more := <-chErrors:
 					if more {
-						s := fmt.Sprintf("%s %s: %s", glitchInstance.Path, glitchInstance.RuleName, glitchInstance.ErrText)
-						if s != "" {
-							slog.Error(s)
-							glitchInstance.IsError = true
-							summary.addGlitch(&glitchInstance)
-						}
+						slog.Error(
+							glitchInstance.ErrText,
+							slog.String("path", glitchInstance.Path),
+							slog.String("rule", glitchInstance.RuleName),
+						)
+						glitchInstance.IsError = true
+						summary.addGlitch(&glitchInstance)
 					} else {
 						chErrorsClosed = true
 					}
@@ -163,14 +168,19 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 		}
 	}
 
-	slog.Debug(fmt.Sprintf("number of rules returning errors: %d", summary.numError.Load()))
-	slog.Debug(fmt.Sprintf("number of rules returning warnings: %d", summary.numWarning.Load()))
-	slog.Debug(fmt.Sprintf("number of rules processed in total: %d", summary.numProcessed.Load()))
-	slog.Debug(fmt.Sprintf("number of glitches: %d", len(summary.glitches)))
+	slog.Debug(
+		"summary",
+		slog.Int("rules_returning_errors", int(summary.numError.Load())),
+		slog.Int("rules_processed", int(summary.numProcessed.Load())),
+		slog.Int("glitches", len(summary.glitches)),
+	)
 
 	if output != "" {
 		outputMd := filepath.Join(output, "output.md")
-		slog.Debug(fmt.Sprintf("writing output to %s...", outputMd))
+		slog.Debug(
+			"writing markdown output",
+			slog.String("path", outputMd),
+		)
 
 		_ = os.Remove(outputMd)
 

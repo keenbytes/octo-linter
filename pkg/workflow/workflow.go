@@ -32,7 +32,10 @@ func (w *Workflow) Unmarshal(fromRaw bool) error {
 	workflowName := strings.ReplaceAll(w.FileName, ".yaml", "")
 	w.DisplayName = strings.ReplaceAll(workflowName, ".yml", "")
 
-	slog.Debug(fmt.Sprintf("reading %s ...", w.Path))
+	slog.Debug(
+		"reading workflow file",
+		slog.String("path", w.Path),
+	)
 
 	b, err := os.ReadFile(w.Path)
 	if err != nil {

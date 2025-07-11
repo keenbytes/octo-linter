@@ -54,7 +54,13 @@ func (d *DotGithub) ReadDir(p string) error {
 			}
 			err := d.DownloadExternalAction(step.Uses)
 			if err != nil {
-				slog.Error(fmt.Sprintf("action '%s' step %d: error downloading external action '%s': %s", a.DirName, i, step.Uses, err.Error()))
+				slog.Error(
+					"error downloading external action",
+					slog.String("action", a.DirName),
+					slog.Int("step", i),
+					slog.String("uses", step.Uses),
+					slog.String("err", err.Error()),
+				)
 			}
 		}
 	}
@@ -82,7 +88,13 @@ func (d *DotGithub) ReadDir(p string) error {
 					}
 					err := d.DownloadExternalAction(step.Uses)
 					if err != nil {
-						slog.Error(fmt.Sprintf("workflow '%s' step %d: error downloading external action '%s': %s", w.FileName, i, step.Uses, err.Error()))
+						slog.Error(
+							"error downloading external action",
+							slog.String("workflow", w.FileName),
+							slog.Int("step", i),
+							slog.String("uses", step.Uses),
+							slog.String("err", err.Error()),
+						)
 					}
 				}
 			}
@@ -99,7 +111,10 @@ func (d *DotGithub) ReadVars(path string) error {
 
 	d.Vars = make(map[string]bool)
 
-	slog.Debug(fmt.Sprintf("reading file with list of possible variable names %s ...", path))
+	slog.Debug(
+		"reading file with list of possible variable names...",
+		slog.String("path", path),
+	)
 
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -120,7 +135,10 @@ func (d *DotGithub) ReadSecrets(path string) error {
 
 	d.Secrets = make(map[string]bool)
 
-	slog.Debug(fmt.Sprintf("reading file with list of possible secret names %s ...", path))
+	slog.Debug(
+		"reading file with list of possible secret names...",
+		slog.String("path", path),
+	)
 
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -161,9 +179,13 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 	}
 	actionURLPrefix := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s", ownerRepoDir[0], ownerRepoDir[1], repoVersion[1])
 
-	slog.Debug(fmt.Sprintf("downloading %s ...", actionURLPrefix+directory+"/action.yml"))
+	urlYML := actionURLPrefix+directory+"/action.yml"
+	slog.Debug(
+		"downloading external action yaml",
+		slog.String("url", urlYML),
+	)
 
-	req, err := http.NewRequest("GET", actionURLPrefix+directory+"/action.yml", strings.NewReader(""))
+	req, err := http.NewRequest("GET", urlYML, strings.NewReader(""))
 	if err != nil {
 		return err
 	}
@@ -174,9 +196,13 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		slog.Debug(fmt.Sprintf("downloading %s ...", actionURLPrefix+directory+"/action.yaml"))
+		urlYAML := actionURLPrefix+directory+"/action.yaml"
+		slog.Debug(
+			"downloading external action yaml",
+			slog.String("url", urlYAML),
+		)
 
-		req, err = http.NewRequest("GET", actionURLPrefix+directory+"/action.yaml", strings.NewReader(""))
+		req, err = http.NewRequest("GET", urlYAML, strings.NewReader(""))
 		if err != nil {
 			return err
 		}

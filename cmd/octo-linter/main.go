@@ -69,12 +69,19 @@ func initHandler(ctx context.Context, c *broccli.Broccli) int {
 		fileInfo, err := os.Stat(configFileName)
 		if err != nil {
 			if !os.IsNotExist(err) {
-				slog.Error(fmt.Sprintf("error checking if destination path exists: %s", err.Error()))
+				slog.Error(
+					"error checking if destination path exists",
+					slog.String("destination", configFileName),
+					slog.String("err", err.Error()),
+				)
 				return ExitErrCheckingDstPath
 			}
 		} else {
 			if fileInfo.IsDir() {
-				slog.Error(fmt.Sprintf("file %s already exists and it is a directory, remove it first or use --destination flag to change the destination", configFileName))
+				slog.Error(
+					"destination file already exists and it is a directory, remove it first or use --destination flag to change the destination",
+					slog.String("destination", configFileName),
+				)
 				return ExitDstFileIsDir
 			}
 		}
@@ -83,11 +90,18 @@ func initHandler(ctx context.Context, c *broccli.Broccli) int {
 
 	err := os.WriteFile(path, linter.GetDefaultConfig(), 0644)
 	if err != nil {
-		slog.Error(fmt.Sprintf("error writing default config: %s", err.Error()))
+		slog.Error(
+			"error writing default config",
+			slog.String("path", path),
+			slog.String("err", err.Error()),
+		)
 		return ExitErrWritingCfg
 	}
 
-	slog.Info(fmt.Sprintf("Sample configuration file %s has been created. Run 'lint' command with '-c' flag or put the file in the .github directory.", path))
+	slog.Info(
+		"Sample configuration file has been created. Run 'lint' command with '-c' flag or put the file in the .github directory.",
+		slog.String("path", path),
+	)
 	return ExitOK
 }
 
@@ -107,28 +121,43 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 
 	err := dotGithub.ReadDir(c.Flag("path"))
 	if err != nil {
-		slog.Error(fmt.Sprintf("error initializing: %s", err.Error()))
+		slog.Error(
+			"error initializing",
+			slog.String("path", c.Flag("path")),
+			slog.String("err", err.Error()),
+		)
 		return ExitErrReadingDotGithubDir
 	}
 
 	if varsFile != "" {
 		err = dotGithub.ReadVars(varsFile)
 		if err != nil {
-			slog.Error(fmt.Sprintf("error reading vars file: %s", err.Error()))
+			slog.Error(
+				"error reading vars file",
+				slog.String("path", varsFile),
+				slog.String("err", err.Error()),
+			)
 			return ExitErrReadingVarsFile
 		}
 	}
 	if secretsFile != "" {
 		err = dotGithub.ReadSecrets(secretsFile)
 		if err != nil {
-			slog.Error(fmt.Sprintf("error reading secrets file: %s", err.Error()))
+			slog.Error(
+				"error reading secrets file",
+				slog.String("path", secretsFile),
+				slog.String("err", err.Error()),
+			)
 			return ExitErrReadingSecretsFile
 		}
 	}
 
 	cfgFile, err := getConfigFilePath(c.Flag("config"), c.Flag("path"))
 	if err != nil {
-		slog.Error(fmt.Sprintf("error getting config file: %s", err.Error()))
+		slog.Error(
+			"error getting config file",
+			slog.String("err", err.Error()),
+		)
 		return ExitErrGettingCfgFile
 	}
 
@@ -136,13 +165,20 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 	if cfgFile != "" {
 		err := cfg.ReadFile(cfgFile)
 		if err != nil {
-			slog.Error(fmt.Sprintf("error reading config file: %s", err.Error()))
+			slog.Error(
+				"error reading config file",
+				slog.String("path", cfgFile),
+				slog.String("err", err.Error()),
+			)
 			return ExitErrReadingCfgFile
 		}
 	} else {
 		err := cfg.ReadDefaultFile()
 		if err != nil {
-			slog.Error(fmt.Sprintf("error reading default config file: %s", err.Error()))
+			slog.Error(
+				"error reading default config file",
+				slog.String("err", err.Error()),
+			)
 			return ExitErrReadingDefaultCfgFile
 		}
 	}
@@ -157,7 +193,10 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 
 	status, err := lint.Lint(&dotGithub, c.Flag("output"), outputLimit)
 	if err != nil {
-		slog.Error(fmt.Sprintf("error linting: %s", err.Error()))
+		slog.Error(
+			"error linting",
+			slog.String("err", err.Error()),
+		)
 		return ExitErrLinting
 	}
 
