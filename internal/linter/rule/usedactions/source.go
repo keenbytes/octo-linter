@@ -15,9 +15,9 @@ import (
 
 // Source checks if referenced action (in `uses`) in steps has valid path.
 // This rule can be configured to allow local actions, external actions, or both.
-type Source struct {
-}
+type Source struct{}
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r Source) ConfigName(t int) string {
 	switch t {
 	case rule.DotGithubFileTypeWorkflow:
@@ -29,10 +29,12 @@ func (r Source) ConfigName(t int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r Source) FileType() int {
 	return rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r Source) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
@@ -40,19 +42,30 @@ func (r Source) Validate(conf interface{}) error {
 	}
 
 	if val != "local-only" && val != "local-or-external" && val != "external-only" && val != "" {
-		return fmt.Errorf("%s supports 'local-only', 'external-only', 'local-or-external' or empty value only", r.ConfigName(0))
+		return fmt.Errorf(
+			"%s supports 'local-only', 'external-only', 'local-or-external' or empty value only",
+			r.ConfigName(0),
+		)
 	}
 
 	return nil
 }
 
-func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r Source) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if f.GetType() != rule.DotGithubFileTypeAction &&
+		f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -61,8 +74,12 @@ func (r Source) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub,
 		return true, nil
 	}
 
-	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-zA-Z0-9\-_]+|[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-_]+)$`)
-	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
+	reLocal := regexp.MustCompile(
+		`^\.\/\.github\/actions\/([a-zA-Z0-9\-_]+|[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-_]+)$`,
+	)
+	reExternal := regexp.MustCompile(
+		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
+	)
 
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}

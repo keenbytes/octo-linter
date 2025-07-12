@@ -24,7 +24,11 @@ func TestActionValidate(t *testing.T) {
 
 	err = rule.Validate(confGood)
 	if err != nil {
-		t.Errorf("Action.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
+		t.Errorf(
+			"Action.Validate should not return error (%s) when conf is %v",
+			err.Error(),
+			confGood,
+		)
 	}
 }
 
@@ -40,12 +44,16 @@ func TestActionNotCompliant(t *testing.T) {
 		rule := Action{
 			Field: field,
 		}
-		d := DotGithub
+		d := ruletest.GetDotGithub()
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Action.Lint should return false when action field %d does not follow naming convention of '%s'", field, conf)
+				t.Errorf(
+					"Action.Lint should return false when action field %d does not follow naming convention of '%s'",
+					field,
+					conf,
+				)
 			}
 
 			if err != nil {
@@ -53,7 +61,10 @@ func TestActionNotCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) != 2 {
-				t.Errorf("Action.Lint should send 2 errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+				t.Errorf(
+					"Action.Lint should send 2 errors over the channel, got [%s]",
+					strings.Join(ruleErrors, "\n"),
+				)
 			}
 		}
 
@@ -73,12 +84,16 @@ func TestActionCompliant(t *testing.T) {
 		rule := Action{
 			Field: field,
 		}
-		d := DotGithub
+		d := ruletest.GetDotGithub()
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Action.Lint should return true when action field %d follows naming convention of '%s'", field, conf)
+				t.Errorf(
+					"Action.Lint should return true when action field %d follows naming convention of '%s'",
+					field,
+					conf,
+				)
 			}
 
 			if err != nil {
@@ -86,7 +101,10 @@ func TestActionCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) != 0 {
-				t.Errorf("Action.Lint should not send any errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+				t.Errorf(
+					"Action.Lint should not send any errors over the channel, got [%s]",
+					strings.Join(ruleErrors, "\n"),
+				)
 			}
 		}
 

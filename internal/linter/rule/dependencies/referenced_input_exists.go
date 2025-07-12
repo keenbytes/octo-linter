@@ -13,10 +13,11 @@ import (
 )
 
 // ReferencedInputExists scans the code for all input references and verifies that each has been previously defined.
-// During action or workflow execution, if a reference to an undefined input is found, it is replaced with an empty string.
-type ReferencedInputExists struct {
-}
+// During action or workflow execution, if a reference to an undefined input is found, it is replaced with an empty
+// string.
+type ReferencedInputExists struct{}
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r ReferencedInputExists) ConfigName(t int) string {
 	switch t {
 	case rule.DotGithubFileTypeWorkflow:
@@ -28,10 +29,12 @@ func (r ReferencedInputExists) ConfigName(t int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r ReferencedInputExists) FileType() int {
 	return rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r ReferencedInputExists) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
@@ -41,13 +44,21 @@ func (r ReferencedInputExists) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r ReferencedInputExists) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if f.GetType() != rule.DotGithubFileTypeAction &&
+		f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -87,11 +98,13 @@ func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, d *dotgi
 			notInInputs := true
 
 			if w.On != nil {
-				if w.On.WorkflowCall != nil && w.On.WorkflowCall.Inputs != nil && w.On.WorkflowCall.Inputs[string(f[1])] != nil {
+				if w.On.WorkflowCall != nil && w.On.WorkflowCall.Inputs != nil &&
+					w.On.WorkflowCall.Inputs[string(f[1])] != nil {
 					notInInputs = false
 				}
 
-				if w.On.WorkflowDispatch != nil && w.On.WorkflowDispatch.Inputs != nil && w.On.WorkflowDispatch.Inputs[string(f[1])] != nil {
+				if w.On.WorkflowDispatch != nil && w.On.WorkflowDispatch.Inputs != nil &&
+					w.On.WorkflowDispatch.Inputs[string(f[1])] != nil {
 					notInInputs = false
 				}
 			}

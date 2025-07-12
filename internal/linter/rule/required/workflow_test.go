@@ -49,6 +49,7 @@ func TestWorkflowValidate(t *testing.T) {
 		}
 	}
 }
+
 func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
 	t.Parallel()
 
@@ -56,9 +57,9 @@ func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
 		Field: WorkflowFieldWorkflow,
 	}
 	conf := []interface{}{"name"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Workflow.Lint should return false when workflow does not have a 'name' field")
@@ -84,12 +85,15 @@ func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := DotGithub
+		d := ruletest.GetDotGithub()
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Workflow.Lint should return false when workflow field %d does not have a 'description' field", field)
+				t.Errorf(
+					"Workflow.Lint should return false when workflow field %d does not have a 'description' field",
+					field,
+				)
 			}
 
 			if err != nil {
@@ -97,7 +101,10 @@ func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) != 2 {
-				t.Errorf("Workflow.Lint should send 2 errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+				t.Errorf(
+					"Workflow.Lint should send 2 errors over the channel, got [%s]",
+					strings.Join(ruleErrors, "\n"),
+				)
 			}
 		}
 
@@ -112,9 +119,9 @@ func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
 		Field: WorkflowFieldWorkflow,
 	}
 	conf := []interface{}{"name"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("Workflow.Lint should return true when workflow has a 'name' field")
@@ -125,7 +132,10 @@ func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 0 {
-			t.Errorf("Workflow.Lint should not send any error over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Workflow.Lint should not send any error over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -140,12 +150,15 @@ func TestWorkflowFieldCallInputDispatchInputCompliant(t *testing.T) {
 			Field: field,
 		}
 		conf := []interface{}{"description"}
-		d := DotGithub
+		d := ruletest.GetDotGithub()
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Workflow.Lint should return true when workflow field %d has a 'description' field", field)
+				t.Errorf(
+					"Workflow.Lint should return true when workflow field %d has a 'description' field",
+					field,
+				)
 			}
 
 			if err != nil {
@@ -153,7 +166,10 @@ func TestWorkflowFieldCallInputDispatchInputCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) != 0 {
-				t.Errorf("Workflow.Lint should not send any errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+				t.Errorf(
+					"Workflow.Lint should not send any errors over the channel, got [%s]",
+					strings.Join(ruleErrors, "\n"),
+				)
 			}
 		}
 

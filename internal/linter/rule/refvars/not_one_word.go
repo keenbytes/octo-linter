@@ -12,11 +12,12 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
-// NotOneWord checks for variable references that are single-word or single-level, e.g. `${{ something }}` instead of `${{ inputs.something }}`.
+// NotOneWord checks for variable references that are single-word or single-level, e.g. `${{ something }}` instead of
+// `${{ inputs.something }}`.
 // Only the values `true` and `false` are permitted in this form; all other variables are considered invalid.
-type NotOneWord struct {
-}
+type NotOneWord struct{}
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r NotOneWord) ConfigName(t int) string {
 	switch t {
 	case rule.DotGithubFileTypeWorkflow:
@@ -28,10 +29,12 @@ func (r NotOneWord) ConfigName(t int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r NotOneWord) FileType() int {
 	return rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r NotOneWord) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
@@ -41,13 +44,21 @@ func (r NotOneWord) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r NotOneWord) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r NotOneWord) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if f.GetType() != rule.DotGithubFileTypeAction &&
+		f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 

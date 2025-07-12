@@ -24,7 +24,11 @@ func TestWorkflowFilenameBaseFormatValidate(t *testing.T) {
 
 	err = rule.Validate(confGood)
 	if err != nil {
-		t.Errorf("WorkflowFilenameBaseFormat.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
+		t.Errorf(
+			"WorkflowFilenameBaseFormat.Validate should not return error (%s) when conf is %v",
+			err.Error(),
+			confGood,
+		)
 	}
 }
 
@@ -32,13 +36,16 @@ func TestWorkflowFilenameBaseFormatNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := WorkflowFilenameBaseFormat{}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	for _, nameFormat := range []string{"camelCase", "PascalCase", "ALL_CAPS"} {
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, nameFormat, f, d)
 			if compliant {
-				t.Errorf("WorkflowFilenameBaseFormat.Lint should return false when filename is not %s", nameFormat)
+				t.Errorf(
+					"WorkflowFilenameBaseFormat.Lint should return false when filename is not %s",
+					nameFormat,
+				)
 			}
 
 			if err != nil {
@@ -46,7 +53,10 @@ func TestWorkflowFilenameBaseFormatNotCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) == 0 {
-				t.Errorf("WorkflowFilenameBaseFormat.Lint should send an error over the channel when filename is not %s", nameFormat)
+				t.Errorf(
+					"WorkflowFilenameBaseFormat.Lint should send an error over the channel when filename is not %s",
+					nameFormat,
+				)
 			}
 		}
 
@@ -59,9 +69,9 @@ func TestWorkflowFilenameBaseFormatCompliant(t *testing.T) {
 
 	rule := WorkflowFilenameBaseFormat{}
 	conf := "dash-case"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("WorkflowFilenameBaseFormat.Lint should return true when filename is %s", conf)
@@ -72,7 +82,10 @@ func TestWorkflowFilenameBaseFormatCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) > 0 {
-			t.Errorf("WorkflowFilenameBaseFormat.Lint should not send any error over the channel, sent %s", strings.Join(ruleErrors, "|"))
+			t.Errorf(
+				"WorkflowFilenameBaseFormat.Lint should not send any error over the channel, sent %s",
+				strings.Join(ruleErrors, "|"),
+			)
 		}
 	}
 

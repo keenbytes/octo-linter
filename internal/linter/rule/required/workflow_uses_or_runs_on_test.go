@@ -33,12 +33,14 @@ func TestWorkflowUsesOrRunsOnNotCompliant(t *testing.T) {
 
 	rule := WorkflowUsesOrRunsOn{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("WorkflowUsesOrRunsOn.Lint should return false when a job does not have 'uses' or 'runs-on'")
+			t.Errorf(
+				"WorkflowUsesOrRunsOn.Lint should return false when a job does not have 'uses' or 'runs-on'",
+			)
 		}
 
 		if err != nil {
@@ -58,12 +60,14 @@ func TestWorkflowUsesOrRunsOnCompliant(t *testing.T) {
 
 	rule := WorkflowUsesOrRunsOn{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("WorkflowUsesOrRunsOn.Lint should return true when all the jobs have either 'uses' or 'runs-on'")
+			t.Errorf(
+				"WorkflowUsesOrRunsOn.Lint should return true when all the jobs have either 'uses' or 'runs-on'",
+			)
 		}
 
 		if err != nil {
@@ -71,7 +75,10 @@ func TestWorkflowUsesOrRunsOnCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) > 0 {
-			t.Errorf("WorkflowUsesOrRunsOn.Lint should not send any error over the channel, sent %s", strings.Join(ruleErrors, "|"))
+			t.Errorf(
+				"WorkflowUsesOrRunsOn.Lint should not send any error over the channel, sent %s",
+				strings.Join(ruleErrors, "|"),
+			)
 		}
 	}
 

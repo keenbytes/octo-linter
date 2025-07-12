@@ -11,18 +11,21 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
-// NotLatest checks whether 'runs-on' does not contain the 'latest' string. In some case, runner version (image) should be frozen, instead of using the latest.
-type NotLatest struct {
-}
+// NotLatest checks whether 'runs-on' does not contain the 'latest' string. In some case, runner version (image)
+// should be frozen, instead of using the latest.
+type NotLatest struct{}
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r NotLatest) ConfigName(int) string {
 	return "workflow_runners__not_latest"
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r NotLatest) FileType() int {
 	return rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r NotLatest) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
@@ -32,7 +35,14 @@ func (r NotLatest) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r NotLatest) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r NotLatest) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

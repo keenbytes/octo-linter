@@ -27,17 +27,21 @@ func TestWorkflowSingleJobOnlyNameValidate(t *testing.T) {
 		t.Errorf("Workflow.Validate should not return error when conf is string")
 	}
 }
+
 func TestWorkflowSingleJobOnlyNameNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := WorkflowSingleJobOnlyName{}
 	conf := "main"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("Workflow.Lint should return false when workflow has only job and its name is not '%s'", conf)
+			t.Errorf(
+				"Workflow.Lint should return false when workflow has only job and its name is not '%s'",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -57,12 +61,15 @@ func TestWorkflowSingleJobOnlyNameCompliant(t *testing.T) {
 
 	rule := WorkflowSingleJobOnlyName{}
 	conf := "main"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("Workflow.Lint should return true when workflow has only job and its name is '%s'", conf)
+			t.Errorf(
+				"Workflow.Lint should return true when workflow has only job and its name is '%s'",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -70,7 +77,10 @@ func TestWorkflowSingleJobOnlyNameCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 0 {
-			t.Errorf("Workflow.Lint should not send any error over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Workflow.Lint should not send any error over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 

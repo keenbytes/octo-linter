@@ -10,11 +10,15 @@ linters:
         main:
           allow:
             - $gostd
+            - github.com/keenbytes/octo-linter
             - github.com/keenbytes/broccli/v3
             - gopkg.in/yaml.v2
   exclusions:
     generated: disable
     rules:
+      - linters:
+          - gochecknoglobals
+        path: internal/linter/ruletest/ruletest.go
       - linters:
           - err113
           - exhaustruct

@@ -2,7 +2,6 @@ package filenames
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -13,9 +12,9 @@ import (
 )
 
 // FilenameExtensionsAllowed checks if file extension is one of the specific values, eg. 'yml' or 'yaml'.
-type FilenameExtensionsAllowed struct {
-}
+type FilenameExtensionsAllowed struct{}
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r FilenameExtensionsAllowed) ConfigName(t int) string {
 	switch t {
 	case rule.DotGithubFileTypeWorkflow:
@@ -27,10 +26,12 @@ func (r FilenameExtensionsAllowed) ConfigName(t int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r FilenameExtensionsAllowed) FileType() int {
 	return rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r FilenameExtensionsAllowed) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
@@ -44,20 +45,28 @@ func (r FilenameExtensionsAllowed) Validate(conf interface{}) error {
 		}
 
 		if extension != "yml" && extension != "yaml" {
-			return fmt.Errorf("value can contain only 'yml' and/or 'yaml'")
+			return errors.New("value can contain only 'yml' and/or 'yaml'")
 		}
 	}
 
 	return nil
 }
 
-func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r FilenameExtensionsAllowed) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if f.GetType() != rule.DotGithubFileTypeAction &&
+		f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -96,7 +105,7 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		fileType = rule.DotGithubFileTypeWorkflow
 	}
 
-	var allowedExtensionsList []string
+	allowedExtensionsList := make([]string, 0, len(allowedExtensions))
 
 	for _, allowedExtension := range allowedExtensions {
 		if extension == allowedExtension.(string) {
@@ -110,7 +119,7 @@ func (r FilenameExtensionsAllowed) Lint(conf interface{}, f dotgithub.File, d *d
 		Path:     filePath,
 		Name:     fileTypeName,
 		Type:     fileType,
-		ErrText:  fmt.Sprintf("file extension must be one of: %s", strings.Join(allowedExtensionsList, ",")),
+		ErrText:  "file extension must be one of: " + strings.Join(allowedExtensionsList, ","),
 		RuleName: r.ConfigName(fileType),
 	}
 

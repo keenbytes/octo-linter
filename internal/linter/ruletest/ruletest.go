@@ -1,9 +1,12 @@
+// Package ruletest contains helper functions for testing rules.
 package ruletest
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -11,15 +14,40 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
-func Lint(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *dotgithub.DotGithub) (compliant bool, ruleErrors []string, err error) {
-	compliant = true
+var (
+	testDotGithub *dotgithub.DotGithub
+	testDotGithubOnce sync.Once
+)
+
+// GetDotGithub returns DitGithub with test rules.
+func GetDotGithub() *dotgithub.DotGithub {
+	testDotGithubOnce.Do(func() {
+		testDotGithub = &dotgithub.DotGithub{}
+		_ = testDotGithub.ReadDir(context.Background(), "../../../../tests/rules")
+	})
+	return testDotGithub
+}
+
+// Lint runs a rule with specific configuration on a specified file and returns all lint errors and a boolean
+// indicating whether it is compliant or not.
+func Lint(
+	timeout int,
+	rule rule.Rule,
+	conf interface{},
+	file dotgithub.File,
+	dotGithub *dotgithub.DotGithub,
+) (bool, []string, error) {
+	compliant := true
+	ruleErrors := []string{}
+
+	var err error
 
 	timer := time.After(time.Duration(timeout) * time.Second)
 
 	chErrors := make(chan glitch.Glitch)
 
 	go func() {
-		compliant, err = rule.Lint(conf, f, d, chErrors)
+		compliant, err = rule.Lint(conf, file, dotGithub, chErrors)
 		close(chErrors)
 	}()
 
@@ -41,27 +69,37 @@ loop:
 		}
 	}
 
-	return
+	return compliant, ruleErrors, err
 }
 
-func Action(d *dotgithub.DotGithub, action string, fn func(f dotgithub.File, n string)) {
-	for n, f := range d.Actions {
-		if n != action {
+// Action runs a test function on a specific action in DotGithub.
+func Action(
+	dotGithub *dotgithub.DotGithub,
+	actionToTest string,
+	testFunc func(file dotgithub.File, name string),
+) {
+	for actionName, actionFile := range dotGithub.Actions {
+		if actionName != actionToTest {
 			continue
 		}
 
-		log.Printf("running test on action %s...", n)
-		fn(f, n)
+		log.Printf("running test on action %s...", actionName)
+		testFunc(actionFile, actionName)
 	}
 }
 
-func Workflow(d *dotgithub.DotGithub, workflow string, fn func(f dotgithub.File, n string)) {
-	for n, f := range d.Workflows {
-		if n != workflow {
+// Workflow runs a test function on a specific workflow from DotGithub.
+func Workflow(
+	dotGithub *dotgithub.DotGithub,
+	workflowToTest string,
+	testFunc func(file dotgithub.File, name string),
+) {
+	for workflowName, workflowFile := range dotGithub.Workflows {
+		if workflowName != workflowToTest {
 			continue
 		}
 
-		log.Printf("running test on workflow %s...", n)
-		fn(f, n)
+		log.Printf("running test on workflow %s...", workflowName)
+		testFunc(workflowFile, workflowName)
 	}
 }

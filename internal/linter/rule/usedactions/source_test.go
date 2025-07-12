@@ -33,12 +33,16 @@ func TestLocalOnly(t *testing.T) {
 
 	rule := Source{}
 	conf := "local-only"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
-			t.Errorf("Source.Lint on %s should return false when there are external actions and conf is %v", n, conf)
+			t.Errorf(
+				"Source.Lint on %s should return false when there are external actions and conf is %v",
+				n,
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -46,7 +50,11 @@ func TestLocalOnly(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 3 {
-			t.Errorf("Source.Lint on %s should send 3 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Source.Lint on %s should send 3 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -59,12 +67,16 @@ func TestExternalOnlyOnAction(t *testing.T) {
 
 	rule := Source{}
 	conf := "external-only"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
-			t.Errorf("Source.Lint on %s should return false when there are local actions and conf is %v", n, conf)
+			t.Errorf(
+				"Source.Lint on %s should return false when there are local actions and conf is %v",
+				n,
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -72,7 +84,11 @@ func TestExternalOnlyOnAction(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("Source.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Source.Lint on %s should send 2 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -85,12 +101,17 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 
 	rule := Source{}
 	conf := "local-or-external"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
-			t.Errorf("Source.Lint on %s should return false when there are invalid actions that are nor local nor external, and conf is %v", n, conf)
+			t.Errorf(
+				"Source.Lint on %s should return false when there are invalid actions that are nor local nor external, and"+
+					" conf is %v",
+				n,
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -98,7 +119,11 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 1 {
-			t.Errorf("Source.Lint on %s should send 1 error over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Source.Lint on %s should send 1 error over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 

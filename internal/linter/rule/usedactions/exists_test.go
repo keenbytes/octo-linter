@@ -24,7 +24,11 @@ func TestExistsValidate(t *testing.T) {
 
 	err = rule.Validate(confGood)
 	if err != nil {
-		t.Errorf("Exists.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
+		t.Errorf(
+			"Exists.Validate should not return error (%s) when conf is %v",
+			err.Error(),
+			confGood,
+		)
 	}
 }
 
@@ -33,7 +37,7 @@ func TestLocal(t *testing.T) {
 
 	rule := Exists{}
 	conf := []interface{}{"local"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
@@ -46,7 +50,11 @@ func TestLocal(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Exists.Lint on %s should send 2 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -59,7 +67,7 @@ func TestExternal(t *testing.T) {
 
 	rule := Exists{}
 	conf := []interface{}{"external"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
@@ -72,7 +80,11 @@ func TestExternal(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Exists.Lint on %s should send 2 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -85,7 +97,7 @@ func TestLocalExternal(t *testing.T) {
 
 	rule := Exists{}
 	conf := []interface{}{"local", "external"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
@@ -98,7 +110,11 @@ func TestLocalExternal(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 4 {
-			t.Errorf("Exists.Lint on %s should send 4 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Exists.Lint on %s should send 4 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
