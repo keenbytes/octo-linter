@@ -35,7 +35,7 @@ func TestWorkflowNeedsWithExistingJobsNotCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should return false when invalid dependencies between jobs and conf is %v", conf)
@@ -60,7 +60,7 @@ func TestWorkflowNeedsWithExistingJobsCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should return true dependencies between jobs are valid and conf is %v", conf)

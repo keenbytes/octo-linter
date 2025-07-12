@@ -1,3 +1,4 @@
+// Package ruletest contains helper functions for testing rules.
 package ruletest
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
+// Lint runs a rule with specific configuration on a specified file and returns all lint errors and a boolean indicating whether it is compliant or not.
 func Lint(timeout int, rule rule.Rule, conf interface{}, f dotgithub.File, d *dotgithub.DotGithub) (compliant bool, ruleErrors []string, err error) {
 	compliant = true
 
@@ -44,6 +46,7 @@ loop:
 	return
 }
 
+// Action runs a test function on a specific action in DotGithub.
 func Action(d *dotgithub.DotGithub, action string, fn func(f dotgithub.File, n string)) {
 	for n, f := range d.Actions {
 		if n != action {
@@ -55,6 +58,7 @@ func Action(d *dotgithub.DotGithub, action string, fn func(f dotgithub.File, n s
 	}
 }
 
+// Workflow runs a test function on a specific workflow from DotGithub.
 func Workflow(d *dotgithub.DotGithub, workflow string, fn func(f dotgithub.File, n string)) {
 	for n, f := range d.Workflows {
 		if n != workflow {

@@ -17,11 +17,15 @@ type Action struct {
 
 const (
 	_ = iota
+	// ActionFieldAction specifies that the rule targets top-level fields in a GitHub Actions action.
 	ActionFieldAction
+	// ActionFieldInput specifies that the rule targets the 'inputs' section.
 	ActionFieldInput
+	// ActionFieldOutput specifies that the rule targets the 'outputs' section.
 	ActionFieldOutput
 )
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r Action) ConfigName(int) string {
 	switch r.Field {
 	case ActionFieldAction:
@@ -35,10 +39,12 @@ func (r Action) ConfigName(int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r Action) FileType() int {
 	return rule.DotGithubFileTypeAction
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r Action) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
@@ -66,7 +72,9 @@ func (r Action) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r Action) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

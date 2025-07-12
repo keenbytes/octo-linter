@@ -15,15 +15,23 @@ import (
 )
 
 const (
+	// HasNoErrorsOrWarnings indicates that linting completed with no errors or warnings.
 	HasNoErrorsOrWarnings = iota
+
+	// HasErrors indicates that one or more rules failed and were classified as errors.
 	HasErrors
+
+	// HasOnlyWarnings indicates that some rules failed, but they were configured as warnings only.
 	HasOnlyWarnings
 )
 
+// Linter represents a linter with specific configuration.
 type Linter struct {
 	Config *Config
 }
 
+// Lint runs rules on the given DotGithub and returns the result.
+// Optionally writes a markdown summary to an output file.
 func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (int, error) {
 	if l.Config == nil {
 		panic("Config cannot be nil")

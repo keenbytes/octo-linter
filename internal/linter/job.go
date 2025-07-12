@@ -13,6 +13,7 @@ func errRuleTimeout(name string) error {
 	return fmt.Errorf("rule %s timed out", name)
 }
 
+// Job represents a single run of a rule against a .github file (action or workflow).
 type Job struct {
 	rule      rule.Rule
 	file      dotgithub.File
@@ -21,6 +22,7 @@ type Job struct {
 	value     interface{}
 }
 
+// Run execute the Job and sends any errors or warnings to specified channels.
 func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch) (bool, error) {
 	compliant := true
 

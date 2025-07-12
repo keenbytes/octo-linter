@@ -42,7 +42,7 @@ func TestActionNotCompliant(t *testing.T) {
 		}
 		d := DotGithub
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
 				t.Errorf("Action.Lint should return false when action field %d does not follow naming convention of '%s'", field, conf)
@@ -75,7 +75,7 @@ func TestActionCompliant(t *testing.T) {
 		}
 		d := DotGithub
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
 				t.Errorf("Action.Lint should return true when action field %d follows naming convention of '%s'", field, conf)

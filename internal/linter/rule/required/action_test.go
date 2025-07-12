@@ -59,7 +59,7 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 	conf := []interface{}{"name", "description"}
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Action.Lint should return false when action does not have a 'name' and/or 'description' field")
@@ -87,7 +87,7 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 		conf := []interface{}{"description"}
 		d := DotGithub
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
 				t.Errorf("Action.Lint should return false when action field %d does not have a 'description' field", field)
@@ -115,7 +115,7 @@ func TestActionFieldActionCompliant(t *testing.T) {
 	conf := []interface{}{"name", "description"}
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("Action.Lint should return true when action has both 'name' and 'description' field")
@@ -143,7 +143,7 @@ func TestActionFieldInputOutputCompliant(t *testing.T) {
 		conf := []interface{}{"description"}
 		d := DotGithub
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
 				t.Errorf("Action.Lint should return true when action field %d has a 'description' field", field)

@@ -35,7 +35,7 @@ func TestWorkflowUsesOrRunsOnNotCompliant(t *testing.T) {
 	conf := true
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("WorkflowUsesOrRunsOn.Lint should return false when a job does not have 'uses' or 'runs-on'")
@@ -60,7 +60,7 @@ func TestWorkflowUsesOrRunsOnCompliant(t *testing.T) {
 	conf := true
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("WorkflowUsesOrRunsOn.Lint should return true when all the jobs have either 'uses' or 'runs-on'")

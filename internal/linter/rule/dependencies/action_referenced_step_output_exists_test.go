@@ -35,7 +35,7 @@ func TestActionReferencedStepOutputExistsNotCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("ActionReferencedStepOutputExists.Lint should return false when there are invalid step outputs used in it and conf is %v", conf)
@@ -60,7 +60,7 @@ func TestActionCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("ActionReferencedStepOutputExists.Lint should return true when action does not call invalid step outputs in it and conf is %v", conf)

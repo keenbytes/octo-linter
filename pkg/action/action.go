@@ -1,3 +1,4 @@
+// Package action contains code related to GitHub Actions action.
 package action
 
 import (
@@ -9,20 +10,23 @@ import (
 )
 
 const (
+	// DotGithubFileTypeAction represents the action file type. Used in a bitmask and must be a power of 2.
 	DotGithubFileTypeAction = 1
 )
 
+// Action represents a GitHub Actions' action parsed from a YAML file.
 type Action struct {
 	Path        string
 	Raw         []byte
 	DirName     string
 	Name        string                   `yaml:"name"`
 	Description string                   `yaml:"description"`
-	Inputs      map[string]*ActionInput  `yaml:"inputs"`
-	Outputs     map[string]*ActionOutput `yaml:"outputs"`
-	Runs        *ActionRuns              `yaml:"runs"`
+	Inputs      map[string]*Input  `yaml:"inputs"`
+	Outputs     map[string]*Output `yaml:"outputs"`
+	Runs        *Runs              `yaml:"runs"`
 }
 
+// Unmarshal parses YAML from a file in struct's Path or from struct's Raw field.
 func (a *Action) Unmarshal(fromRaw bool) error {
 	if !fromRaw {
 		slog.Debug(
@@ -50,6 +54,7 @@ func (a *Action) Unmarshal(fromRaw bool) error {
 	return nil
 }
 
+// GetType returns the int value representing the action file type. See dotgithub.File interface.
 func (a *Action) GetType() int {
 	return DotGithubFileTypeAction
 }

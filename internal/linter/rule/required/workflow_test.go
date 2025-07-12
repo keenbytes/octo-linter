@@ -58,7 +58,7 @@ func TestWorkflowFieldWorkflowNotCompliant(t *testing.T) {
 	conf := []interface{}{"name"}
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("Workflow.Lint should return false when workflow does not have a 'name' field")
@@ -86,7 +86,7 @@ func TestWorkflowFieldCallInputDispatchInputNotCompliant(t *testing.T) {
 		conf := []interface{}{"description"}
 		d := DotGithub
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
 				t.Errorf("Workflow.Lint should return false when workflow field %d does not have a 'description' field", field)
@@ -114,7 +114,7 @@ func TestWorkflowFieldWorkflowCompliant(t *testing.T) {
 	conf := []interface{}{"name"}
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("Workflow.Lint should return true when workflow has a 'name' field")
@@ -142,7 +142,7 @@ func TestWorkflowFieldCallInputDispatchInputCompliant(t *testing.T) {
 		conf := []interface{}{"description"}
 		d := DotGithub
 
-		fn := func(f dotgithub.File, n string) {
+		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
 				t.Errorf("Workflow.Lint should return true when workflow field %d has a 'description' field", field)

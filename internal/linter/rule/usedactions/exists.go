@@ -18,6 +18,7 @@ import (
 type Exists struct {
 }
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r Exists) ConfigName(t int) string {
 	switch t {
 	case rule.DotGithubFileTypeWorkflow:
@@ -29,10 +30,12 @@ func (r Exists) ConfigName(t int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r Exists) FileType() int {
 	return rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r Exists) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
@@ -53,6 +56,8 @@ func (r Exists) Validate(conf interface{}) error {
 	return nil
 }
 
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
 func (r Exists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {

@@ -17,14 +17,17 @@ import (
 type ActionReferencedStepOutputExists struct {
 }
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r ActionReferencedStepOutputExists) ConfigName(int) string {
 	return "dependencies__action_referenced_step_output_must_exist"
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r ActionReferencedStepOutputExists) FileType() int {
 	return rule.DotGithubFileTypeAction
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
@@ -34,6 +37,8 @@ func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 	return nil
 }
 
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
 func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {

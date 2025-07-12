@@ -1,3 +1,4 @@
+// Package main contains octo-linter command.
 package main
 
 import (
@@ -59,12 +60,12 @@ func main() {
 	os.Exit(cli.Run(context.Background()))
 }
 
-func versionHandler(ctx context.Context, c *broccli.Broccli) int {
+func versionHandler(_ context.Context, _ *broccli.Broccli) int {
 	fmt.Fprintf(os.Stdout, VERSION+"\n")
 	return ExitOK
 }
 
-func initHandler(ctx context.Context, c *broccli.Broccli) int {
+func initHandler(_ context.Context, c *broccli.Broccli) int {
 	path := c.Flag("destination")
 	if path == "" {
 		fileInfo, err := os.Stat(configFileName)
@@ -111,7 +112,7 @@ func initHandler(ctx context.Context, c *broccli.Broccli) int {
 	return ExitOK
 }
 
-func lintHandler(ctx context.Context, c *broccli.Broccli) int {
+func lintHandler(_ context.Context, c *broccli.Broccli) int {
 	logLevel := loglevel.GetLogLevelFromString(c.Flag("loglevel"))
 	varsFile := c.Flag("vars-file")
 	secretsFile := c.Flag("secrets-file")

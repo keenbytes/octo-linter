@@ -35,7 +35,7 @@ func TestValidInputsNotCompliant(t *testing.T) {
 	conf := true
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("ValidInputs.Lint should return false when there invalid inputs used when calling an action")
@@ -60,7 +60,7 @@ func TestValidInputsCompliant(t *testing.T) {
 	conf := true
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("ValidInputs.Lint should return true when there are not any invalid inputs")

@@ -1,3 +1,4 @@
+// Package dotgithub reads the contents of a .github directory, parsing all actions and workflows into structured data.
 package dotgithub
 
 import (
@@ -14,6 +15,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
+// DotGithub represents contents of .github directory.
 type DotGithub struct {
 	Actions         map[string]*action.Action
 	ExternalActions map[string]*action.Action
@@ -22,6 +24,7 @@ type DotGithub struct {
 	Secrets         map[string]bool
 }
 
+// ReadDir scans the given directory and parses all GitHub Actions workflow and action YAML files into the struct.
 func (d *DotGithub) ReadDir(p string) error {
 	d.Actions = make(map[string]*action.Action)
 	d.Workflows = make(map[string]*workflow.Workflow)
@@ -111,6 +114,7 @@ func (d *DotGithub) ReadDir(p string) error {
 	return nil
 }
 
+// ReadVars reads a file with GitHub Actions variables, parsing each line into the struct as a variable.
 func (d *DotGithub) ReadVars(path string) error {
 	if path == "" {
 		return nil
@@ -136,6 +140,7 @@ func (d *DotGithub) ReadVars(path string) error {
 	return nil
 }
 
+// ReadSecrets reads a file with GitHub Actions secrets, parsing each line into the struct as a secret.
 func (d *DotGithub) ReadSecrets(path string) error {
 	if path == "" {
 		return nil
@@ -161,10 +166,12 @@ func (d *DotGithub) ReadSecrets(path string) error {
 	return nil
 }
 
+// GetAction returns an Action by its name.
 func (d *DotGithub) GetAction(n string) *action.Action {
 	return d.Actions[n]
 }
 
+// GetExternalAction returns an Action that is defined outside the current repository, by name.
 func (d *DotGithub) GetExternalAction(n string) *action.Action {
 	if d.ExternalActions == nil {
 		d.ExternalActions = map[string]*action.Action{}
@@ -173,6 +180,7 @@ func (d *DotGithub) GetExternalAction(n string) *action.Action {
 	return d.ExternalActions[n]
 }
 
+// DownloadExternalAction downloads a GitHub Action from its “uses” path (e.g., "actions/checkout@v4").
 func (d *DotGithub) DownloadExternalAction(path string) error {
 	if d.ExternalActions == nil {
 		d.ExternalActions = map[string]*action.Action{}
@@ -340,11 +348,13 @@ func (d *DotGithub) getWorkflowsFromDir(p string) error {
 	return nil
 }
 
+// IsVarExist checks whether the variable has been loaded from the variables file.
 func (d *DotGithub) IsVarExist(n string) bool {
 	_, ok := d.Vars[n]
 	return ok
 }
 
+// IsSecretExist checks whether the secret has been loaded from the secrets file.
 func (d *DotGithub) IsSecretExist(n string) bool {
 	_, ok := d.Secrets[n]
 	return ok

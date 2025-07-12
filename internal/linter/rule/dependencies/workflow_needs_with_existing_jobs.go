@@ -14,14 +14,17 @@ import (
 type WorkflowNeedsWithExistingJobs struct {
 }
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r WorkflowNeedsWithExistingJobs) ConfigName(int) string {
 	return "dependencies__workflow_needs_field_must_contain_already_existing_jobs"
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r WorkflowNeedsWithExistingJobs) FileType() int {
 	return rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r WorkflowNeedsWithExistingJobs) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
@@ -31,7 +34,9 @@ func (r WorkflowNeedsWithExistingJobs) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

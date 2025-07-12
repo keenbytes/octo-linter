@@ -16,14 +16,17 @@ import (
 type WorkflowReferencedVariableExistsInFile struct {
 }
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r WorkflowReferencedVariableExistsInFile) ConfigName(int) string {
 	return "dependencies__workflow_referenced_variable_must_exists_in_attached_file"
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r WorkflowReferencedVariableExistsInFile) FileType() int {
 	return rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r WorkflowReferencedVariableExistsInFile) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
@@ -33,6 +36,8 @@ func (r WorkflowReferencedVariableExistsInFile) Validate(conf interface{}) error
 	return nil
 }
 
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
 func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {

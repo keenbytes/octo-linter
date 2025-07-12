@@ -35,7 +35,7 @@ func TestFilenameExtensionsAllowedNotCompliant(t *testing.T) {
 	conf := []interface{}{"yaml"}
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("FilenameExtensionsAllowed.Lint should return false when filename extension is not in config")
@@ -61,7 +61,7 @@ func TestFilenameExtensionsAllowedCompliant(t *testing.T) {
 	conf := []interface{}{"yml"}
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("FilenameExtensionsAllowed.Lint should return true when filename extension is in config")

@@ -19,15 +19,23 @@ type Workflow struct {
 
 const (
 	_ = iota
+	// WorkflowFieldEnv specifies that the rule targets the top-level 'env' section.
 	WorkflowFieldEnv
+	// WorkflowFieldJobEnv specifies that the rule targets the 'env' section in jobs.
 	WorkflowFieldJobEnv
+	// WorkflowFieldJobStepEnv specifies that the rule targets the 'env' section in steps of each job.
 	WorkflowFieldJobStepEnv
+	// WorkflowFieldReferencedVariable specifies that the rule targets all the variables referenced in the workflow.
 	WorkflowFieldReferencedVariable
+	// WorkflowFieldDispatchInputName specifies that the rule targets the input names of the 'workflow_dispatch' trigger.
 	WorkflowFieldDispatchInputName
+	// WorkflowFieldCallInputName specifies that the rule targets the input names of the 'workflow_call' trigger.
 	WorkflowFieldCallInputName
+	// WorkflowFieldJobName specifies that the rule targets names of the jobs.
 	WorkflowFieldJobName
 )
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r Workflow) ConfigName(int) string {
 	switch r.Field {
 	case WorkflowFieldEnv:
@@ -49,10 +57,12 @@ func (r Workflow) ConfigName(int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r Workflow) FileType() int {
 	return rule.DotGithubFileTypeWorkflow
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r Workflow) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
@@ -66,7 +76,9 @@ func (r Workflow) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r Workflow) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r Workflow) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

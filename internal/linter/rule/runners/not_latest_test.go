@@ -35,7 +35,7 @@ func TestNotLatestNotCompliant(t *testing.T) {
 	conf := true
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
 			t.Errorf("NotLatest.Lint should return false when 'latest' is found in at least one job")
@@ -60,7 +60,7 @@ func TestNotLatestCompliant(t *testing.T) {
 	conf := true
 	d := DotGithub
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
 			t.Errorf("NotLatest.Lint should return true when 'latest' is not in any job")

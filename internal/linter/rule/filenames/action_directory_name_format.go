@@ -15,14 +15,17 @@ import (
 type ActionDirectoryNameFormat struct {
 }
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r ActionDirectoryNameFormat) ConfigName(int) string {
 	return "filenames__action_directory_name_format"
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r ActionDirectoryNameFormat) FileType() int {
 	return rule.DotGithubFileTypeAction
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
@@ -36,7 +39,9 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 	return nil
 }
 
-func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

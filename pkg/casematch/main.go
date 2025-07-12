@@ -1,7 +1,9 @@
+// Package casematch provides helper functions for enforcing naming conventions.
 package casematch
 
 import "regexp"
 
+// Match checks whether a string follows a specific case convention.
 func Match(str string, cas string) bool {
 	var re *regexp.Regexp
 

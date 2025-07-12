@@ -1,3 +1,4 @@
+// Package main contains utils.
 package main
 
 import (
@@ -9,6 +10,7 @@ import (
 	"text/template"
 )
 
+// S represents a struct that is about to be generated.
 type S struct {
 	N string
 	F map[string]string

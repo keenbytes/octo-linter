@@ -1,3 +1,4 @@
+// Package linter contains code related to octo-linter configuration.
 package linter
 
 import (
@@ -12,6 +13,7 @@ import (
 //go:embed dotgithub.yml
 var defaultConfig []byte
 
+// Config represents the configuration file.
 type Config struct {
 	Version     string                            `yaml:"version"`
 	RulesConfig map[string]map[string]interface{} `yaml:"rules"`
@@ -20,10 +22,12 @@ type Config struct {
 	WarningOnly map[string]struct{}               `yaml:"-"`
 }
 
+// GetDefaultConfig returns a default configuration file.
 func GetDefaultConfig() []byte {
 	return defaultConfig
 }
 
+// ReadFile parses configuration from a specified file.
 func (cfg *Config) ReadFile(p string) error {
 	b, err := os.ReadFile(p)
 	if err != nil {
@@ -38,6 +42,7 @@ func (cfg *Config) ReadFile(p string) error {
 	return nil
 }
 
+// ReadDefaultFile sets the Config from a default configuration file.
 func (cfg *Config) ReadDefaultFile() error {
 	err := cfg.readBytesAndValidate(defaultConfig)
 	if err != nil {
@@ -47,6 +52,7 @@ func (cfg *Config) ReadDefaultFile() error {
 	return nil
 }
 
+// IsError checks if rule has been set to have a status of error.
 func (cfg *Config) IsError(rule string) bool {
 	_, isWarn := cfg.WarningOnly[rule]
 	return !isWarn
