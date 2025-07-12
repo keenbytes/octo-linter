@@ -14,8 +14,7 @@ import (
 
 // ActionReferencedStepOutputExists checks whether references to step outputs correspond to outputs defined in preceding steps.
 // During execution, referencing a non-existent step output results in an empty string.
-type ActionReferencedStepOutputExists struct {
-}
+type ActionReferencedStepOutputExists struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r ActionReferencedStepOutputExists) ConfigName(int) string {
@@ -39,7 +38,12 @@ func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r ActionReferencedStepOutputExists) Lint(
+	conf interface{},
+	f dotgithub.File,
+	d *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
@@ -52,9 +56,13 @@ func (r ActionReferencedStepOutputExists) Lint(conf interface{}, f dotgithub.Fil
 	a := f.(*action.Action)
 
 	re := regexp.MustCompile(`\${{[ ]*steps\.([a-zA-Z0-9\-_]+)\.outputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
-	reAppendToGithubOutput := regexp.MustCompile(`echo[ ]+["']([a-zA-Z0-9\-_]+)=.*["'][ ]+.*>>[ ]+\$GITHUB_OUTPUT`)
+	reAppendToGithubOutput := regexp.MustCompile(
+		`echo[ ]+["']([a-zA-Z0-9\-_]+)=.*["'][ ]+.*>>[ ]+\$GITHUB_OUTPUT`,
+	)
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
-	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
+	reExternal := regexp.MustCompile(
+		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
+	)
 
 	compliant := true
 

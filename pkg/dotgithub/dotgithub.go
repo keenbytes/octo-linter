@@ -2,6 +2,7 @@
 package dotgithub
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -25,34 +26,36 @@ type DotGithub struct {
 }
 
 // ReadDir scans the given directory and parses all GitHub Actions workflow and action YAML files into the struct.
-func (d *DotGithub) ReadDir(p string) error {
+func (d *DotGithub) ReadDir(path string) error {
 	d.Actions = make(map[string]*action.Action)
 	d.Workflows = make(map[string]*workflow.Workflow)
 
-	err := d.getActionsFromDir(p)
+	err := d.getActionsFromDir(path)
 	if err != nil {
-		return fmt.Errorf("error getting actions from dir %s: %w", p, err)
+		return fmt.Errorf("error getting actions from dir %s: %w", path, err)
 	}
 
-	err = d.getWorkflowsFromDir(p)
+	err = d.getWorkflowsFromDir(path)
 	if err != nil {
-		return fmt.Errorf("error getting workflows from dir %s: %w", p, err)
+		return fmt.Errorf("error getting workflows from dir %s: %w", path, err)
 	}
 
 	// download all external actions used in actions' steps
-	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
+	reExternal := regexp.MustCompile(
+		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
+	)
 
-	for _, a := range d.Actions {
-		err := a.Unmarshal(false)
+	for _, action := range d.Actions {
+		err := action.Unmarshal(false)
 		if err != nil {
 			return fmt.Errorf("error unmarshaling action: %w", err)
 		}
 
-		if a.Runs == nil || len(a.Runs.Steps) == 0 {
+		if action.Runs == nil || len(action.Runs.Steps) == 0 {
 			continue
 		}
 
-		for i, step := range a.Runs.Steps {
+		for stepIdx, step := range action.Runs.Steps {
 			if !reExternal.MatchString(step.Uses) {
 				continue
 			}
@@ -61,8 +64,8 @@ func (d *DotGithub) ReadDir(p string) error {
 			if err != nil {
 				slog.Error(
 					"error downloading external action",
-					slog.String("action", a.DirName),
-					slog.Int("step", i),
+					slog.String("action", action.DirName),
+					slog.Int("step", stepIdx),
 					slog.String("uses", step.Uses),
 					slog.String("err", err.Error()),
 				)
@@ -70,42 +73,35 @@ func (d *DotGithub) ReadDir(p string) error {
 		}
 	}
 
-	for _, w := range d.Workflows {
-		err := w.Unmarshal(false)
+	for _, workflow := range d.Workflows {
+		err := workflow.Unmarshal(false)
 		if err != nil {
 			return fmt.Errorf("error unmarshaling workflow: %w", err)
 		}
 
-		for _, w := range d.Workflows {
-			err := w.Unmarshal(false)
-			if err != nil {
-				return fmt.Errorf("error unmarshaling workflow: %w", err)
-			}
+		if len(workflow.Jobs) == 0 {
+			continue
+		}
 
-			if len(w.Jobs) == 0 {
+		for _, job := range workflow.Jobs {
+			if len(job.Steps) == 0 {
 				continue
 			}
 
-			for _, job := range w.Jobs {
-				if len(job.Steps) == 0 {
+			for stepIdx, step := range job.Steps {
+				if !reExternal.MatchString(step.Uses) {
 					continue
 				}
 
-				for i, step := range job.Steps {
-					if !reExternal.MatchString(step.Uses) {
-						continue
-					}
-
-					err := d.DownloadExternalAction(step.Uses)
-					if err != nil {
-						slog.Error(
-							"error downloading external action",
-							slog.String("workflow", w.FileName),
-							slog.Int("step", i),
-							slog.String("uses", step.Uses),
-							slog.String("err", err.Error()),
-						)
-					}
+				err := d.DownloadExternalAction(step.Uses)
+				if err != nil {
+					slog.Error(
+						"error downloading external action",
+						slog.String("workflow", workflow.FileName),
+						slog.Int("step", stepIdx),
+						slog.String("uses", step.Uses),
+						slog.String("err", err.Error()),
+					)
 				}
 			}
 		}
@@ -127,14 +123,14 @@ func (d *DotGithub) ReadVars(path string) error {
 		slog.String("path", path),
 	)
 
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return fmt.Errorf("error reading vars file %s: %w", path, err)
 	}
 
-	l := strings.Fields(string(b))
-	for _, v := range l {
-		d.Vars[v] = true
+	lines := strings.Fields(string(b))
+	for _, variable := range lines {
+		d.Vars[variable] = true
 	}
 
 	return nil
@@ -153,31 +149,31 @@ func (d *DotGithub) ReadSecrets(path string) error {
 		slog.String("path", path),
 	)
 
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return fmt.Errorf("error reading secrets file %s: %w", path, err)
 	}
 
-	l := strings.Fields(string(b))
-	for _, s := range l {
-		d.Secrets[s] = true
+	lines := strings.Fields(string(b))
+	for _, secret := range lines {
+		d.Secrets[secret] = true
 	}
 
 	return nil
 }
 
 // GetAction returns an Action by its name.
-func (d *DotGithub) GetAction(n string) *action.Action {
-	return d.Actions[n]
+func (d *DotGithub) GetAction(name string) *action.Action {
+	return d.Actions[name]
 }
 
 // GetExternalAction returns an Action that is defined outside the current repository, by name.
-func (d *DotGithub) GetExternalAction(n string) *action.Action {
+func (d *DotGithub) GetExternalAction(name string) *action.Action {
 	if d.ExternalActions == nil {
 		d.ExternalActions = map[string]*action.Action{}
 	}
 
-	return d.ExternalActions[n]
+	return d.ExternalActions[name]
 }
 
 // DownloadExternalAction downloads a GitHub Action from its “uses” path (e.g., "actions/checkout@v4").
@@ -198,7 +194,12 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 		directory = "/" + ownerRepoDir[2]
 	}
 
-	actionURLPrefix := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s", ownerRepoDir[0], ownerRepoDir[1], repoVersion[1])
+	actionURLPrefix := fmt.Sprintf(
+		"https://raw.githubusercontent.com/%s/%s/%s",
+		ownerRepoDir[0],
+		ownerRepoDir[1],
+		repoVersion[1],
+	)
 
 	urlYML := actionURLPrefix + directory + "/action.yml"
 	slog.Debug(
@@ -206,14 +207,19 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 		slog.String("url", urlYML),
 	)
 
-	req, err := http.NewRequest("GET", urlYML, strings.NewReader(""))
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		http.MethodGet,
+		urlYML,
+		strings.NewReader(""),
+	)
 	if err != nil {
 		return fmt.Errorf("error creating http request for action yml: %w", err)
 	}
 
-	c := &http.Client{}
+	httpClient := &http.Client{}
 
-	resp, err := c.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error doing http request for action yml: %w", err)
 	}
@@ -225,12 +231,17 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 			slog.String("url", urlYAML),
 		)
 
-		req, err = http.NewRequest("GET", urlYAML, strings.NewReader(""))
+		req, err = http.NewRequestWithContext(
+			context.Background(),
+			http.MethodGet,
+			urlYAML,
+			strings.NewReader(""),
+		)
 		if err != nil {
 			return fmt.Errorf("error creating http request for action yaml: %w", err)
 		}
 
-		resp, err = c.Do(req)
+		resp, err = httpClient.Do(req)
 		if err != nil {
 			return fmt.Errorf("error doing http request for action yaml: %w", err)
 		}
@@ -257,8 +268,22 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 	return nil
 }
 
-func (d *DotGithub) getActionsFromDir(p string) error {
-	dirActions := filepath.Join(p, "actions")
+// IsVarExist checks whether the variable has been loaded from the variables file.
+func (d *DotGithub) IsVarExist(name string) bool {
+	_, ok := d.Vars[name]
+
+	return ok
+}
+
+// IsSecretExist checks whether the secret has been loaded from the secrets file.
+func (d *DotGithub) IsSecretExist(name string) bool {
+	_, ok := d.Secrets[name]
+
+	return ok
+}
+
+func (d *DotGithub) getActionsFromDir(path string) error {
+	dirActions := filepath.Join(path, "actions")
 
 	entries, err := os.ReadDir(dirActions)
 	if err != nil {
@@ -267,8 +292,8 @@ func (d *DotGithub) getActionsFromDir(p string) error {
 		}
 	}
 
-	for _, e := range entries {
-		dirAction := filepath.Join(dirActions, e.Name())
+	for _, entry := range entries {
+		dirAction := filepath.Join(dirActions, entry.Name())
 
 		// only directories
 		fileInfo, err := os.Stat(dirAction)
@@ -305,17 +330,17 @@ func (d *DotGithub) getActionsFromDir(p string) error {
 			}
 		}
 
-		d.Actions[e.Name()] = &action.Action{
+		d.Actions[entry.Name()] = &action.Action{
 			Path:    ymlAction,
-			DirName: e.Name(),
+			DirName: entry.Name(),
 		}
 	}
 
 	return nil
 }
 
-func (d *DotGithub) getWorkflowsFromDir(p string) error {
-	dirWorkflows := filepath.Join(p, "workflows")
+func (d *DotGithub) getWorkflowsFromDir(path string) error {
+	dirWorkflows := filepath.Join(path, "workflows")
 
 	entries, err := os.ReadDir(dirWorkflows)
 	if err != nil {
@@ -323,13 +348,13 @@ func (d *DotGithub) getWorkflowsFromDir(p string) error {
 	}
 
 	nameRegex := regexp.MustCompile(`\.y[a]{0,1}ml$`)
-	for _, e := range entries {
-		m := nameRegex.MatchString(e.Name())
+	for _, entry := range entries {
+		m := nameRegex.MatchString(entry.Name())
 		if !m {
 			continue
 		}
 
-		ymlWorkflow := filepath.Join(dirWorkflows, e.Name())
+		ymlWorkflow := filepath.Join(dirWorkflows, entry.Name())
 
 		fileInfo, err := os.Stat(ymlWorkflow)
 		if err != nil {
@@ -340,22 +365,10 @@ func (d *DotGithub) getWorkflowsFromDir(p string) error {
 			continue
 		}
 
-		d.Workflows[e.Name()] = &workflow.Workflow{
+		d.Workflows[entry.Name()] = &workflow.Workflow{
 			Path: ymlWorkflow,
 		}
 	}
 
 	return nil
-}
-
-// IsVarExist checks whether the variable has been loaded from the variables file.
-func (d *DotGithub) IsVarExist(n string) bool {
-	_, ok := d.Vars[n]
-	return ok
-}
-
-// IsSecretExist checks whether the secret has been loaded from the secrets file.
-func (d *DotGithub) IsSecretExist(n string) bool {
-	_, ok := d.Secrets[n]
-	return ok
 }

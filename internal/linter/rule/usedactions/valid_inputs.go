@@ -15,8 +15,7 @@ import (
 )
 
 // ValidInputs verifies that all required inputs are provided when referencing an action in a step, and that no undefined inputs are used.
-type ValidInputs struct {
-}
+type ValidInputs struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r ValidInputs) ConfigName(t int) string {
@@ -47,13 +46,19 @@ func (r ValidInputs) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r ValidInputs) Lint(
+	conf interface{},
+	file dotgithub.File,
+	dotGithub *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeAction &&
+		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -62,7 +67,9 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 	}
 
 	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
-	reExternal := regexp.MustCompile(`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`)
+	reExternal := regexp.MustCompile(
+		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
+	)
 
 	steps := []*step.Step{}
 	msgPrefix := map[int]string{}
@@ -73,8 +80,8 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 		fileName string
 	)
 
-	if f.GetType() == rule.DotGithubFileTypeAction {
-		a := f.(*action.Action)
+	if file.GetType() == rule.DotGithubFileTypeAction {
+		a := file.(*action.Action)
 		if len(a.Runs.Steps) == 0 {
 			return true, nil
 		}
@@ -87,8 +94,8 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 		fileName = a.DirName
 	}
 
-	if f.GetType() == rule.DotGithubFileTypeWorkflow {
-		w := f.(*workflow.Workflow)
+	if file.GetType() == rule.DotGithubFileTypeWorkflow {
+		w := file.(*workflow.Workflow)
 		if len(w.Jobs) == 0 {
 			return true, nil
 		}
@@ -109,34 +116,34 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 	}
 
 	var errPrefix string
-	if f.GetType() == rule.DotGithubFileTypeAction {
+	if file.GetType() == rule.DotGithubFileTypeAction {
 		errPrefix = msgPrefix[0]
 	}
 
 	compliant := true
 
-	for i, st := range steps {
-		newErrPrefix, ok := msgPrefix[i]
+	for stepIdx, step := range steps {
+		newErrPrefix, ok := msgPrefix[stepIdx]
 		if ok {
 			errPrefix = newErrPrefix
 		}
 
-		if st.Uses == "" {
+		if step.Uses == "" {
 			continue
 		}
 
-		isLocal := reLocal.MatchString(st.Uses)
-		isExternal := reExternal.MatchString(st.Uses)
+		isLocal := reLocal.MatchString(step.Uses)
+		isExternal := reExternal.MatchString(step.Uses)
 
 		var action *action.Action
 
 		if isLocal {
-			actionName := strings.ReplaceAll(st.Uses, "./.github/actions/", "")
-			action = d.GetAction(actionName)
+			actionName := strings.ReplaceAll(step.Uses, "./.github/actions/", "")
+			action = dotGithub.GetAction(actionName)
 		}
 
 		if isExternal {
-			action = d.GetExternalAction(st.Uses)
+			action = dotGithub.GetExternalAction(step.Uses)
 		}
 
 		if action == nil {
@@ -146,12 +153,12 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 		if action.Inputs != nil {
 			for daInputName, daInput := range action.Inputs {
 				if daInput.Required {
-					if st.With == nil || st.With[daInputName] == "" {
+					if step.With == nil || step.With[daInputName] == "" {
 						chErrors <- glitch.Glitch{
 							Path:     filePath,
 							Name:     fileName,
 							Type:     fileType,
-							ErrText:  fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, i+1, daInputName),
+							ErrText:  fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, stepIdx+1, daInputName),
 							RuleName: r.ConfigName(fileType),
 						}
 
@@ -161,14 +168,14 @@ func (r ValidInputs) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGi
 			}
 		}
 
-		if st.With != nil {
-			for usedInput := range st.With {
+		if step.With != nil {
+			for usedInput := range step.With {
 				if action.Inputs == nil || action.Inputs[usedInput] == nil {
 					chErrors <- glitch.Glitch{
 						Path:     filePath,
 						Name:     fileName,
 						Type:     fileType,
-						ErrText:  fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, i+1, usedInput),
+						ErrText:  fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, stepIdx+1, usedInput),
 						RuleName: r.ConfigName(fileType),
 					}
 

@@ -11,8 +11,7 @@ import (
 )
 
 // WorkflowNeedsWithExistingJobs checks if `needs` field references existing jobs.
-type WorkflowNeedsWithExistingJobs struct {
-}
+type WorkflowNeedsWithExistingJobs struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r WorkflowNeedsWithExistingJobs) ConfigName(int) string {
@@ -36,7 +35,12 @@ func (r WorkflowNeedsWithExistingJobs) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r WorkflowNeedsWithExistingJobs) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r WorkflowNeedsWithExistingJobs) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

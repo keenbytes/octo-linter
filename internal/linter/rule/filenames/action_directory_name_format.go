@@ -2,7 +2,6 @@ package filenames
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
@@ -12,8 +11,7 @@ import (
 )
 
 // ActionDirectoryNameFormat checks if directory containing action adheres to the selected naming convention.
-type ActionDirectoryNameFormat struct {
-}
+type ActionDirectoryNameFormat struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r ActionDirectoryNameFormat) ConfigName(int) string {
@@ -33,7 +31,7 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 	}
 
 	if val != "dash-case" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
-		return fmt.Errorf("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
+		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
 	}
 
 	return nil
@@ -41,7 +39,12 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r ActionDirectoryNameFormat) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
@@ -59,7 +62,7 @@ func (r ActionDirectoryNameFormat) Lint(conf interface{}, f dotgithub.File, _ *d
 			Path:     a.Path,
 			Name:     a.DirName,
 			Type:     rule.DotGithubFileTypeAction,
-			ErrText:  fmt.Sprintf("directory name must be %s", conf.(string)),
+			ErrText:  "directory name must be " + conf.(string),
 			RuleName: r.ConfigName(0),
 		}
 

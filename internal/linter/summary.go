@@ -35,16 +35,16 @@ func (s *summary) addGlitch(g *glitch.Glitch) {
 	s.glitches = append(s.glitches, g)
 }
 
-func (s *summary) markdown(title string, limit int) (md string) {
-	md = fmt.Sprintf("# %s\n", title)
+func (s *summary) markdown(title string, limit int) string {
+	markdown := fmt.Sprintf("# %s\n", title)
 
 	if len(s.glitches) > 0 {
 		glitchesMd := glitch.ListToMarkdown(s.glitches, limit)
-		md += "Found non-compliant files:\n\n"
-		md += glitchesMd
+		markdown += "Found non-compliant files:\n\n"
+		markdown += glitchesMd
 	} else {
-		md += "No errors or warning were found\n\n"
+		markdown += "No errors or warning were found\n\n"
 	}
 
-	return
+	return markdown
 }

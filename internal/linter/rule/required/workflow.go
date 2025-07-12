@@ -10,7 +10,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
-// Workflow checks if required fields within workflow are defined
+// Workflow checks if required fields within workflow are defined.
 type Workflow struct {
 	Field int
 }
@@ -60,11 +60,11 @@ func (r Workflow) Validate(conf interface{}) error {
 		switch r.Field {
 		case WorkflowFieldWorkflow:
 			if field != "name" {
-				return fmt.Errorf("value can contain only 'name'")
+				return errors.New("value can contain only 'name'")
 			}
 		case WorkflowFieldDispatchInput, WorkflowFieldCallInput:
 			if field != "description" {
-				return fmt.Errorf("value can contain only 'description'")
+				return errors.New("value can contain only 'description'")
 			}
 		}
 	}
@@ -74,7 +74,12 @@ func (r Workflow) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r Workflow) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r Workflow) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
@@ -98,7 +103,7 @@ func (r Workflow) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithu
 					Path:     w.Path,
 					Name:     w.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("does not have a required %s", field.(string)),
+					ErrText:  "does not have a required " + field.(string),
 					RuleName: r.ConfigName(0),
 				}
 

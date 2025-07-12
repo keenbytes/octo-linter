@@ -13,8 +13,7 @@ import (
 
 // WorkflowReferencedVariableExistsInFile checks if called variables and secrets exist.
 // This rule requires a list of variables and secrets to be checked against.
-type WorkflowReferencedVariableExistsInFile struct {
-}
+type WorkflowReferencedVariableExistsInFile struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r WorkflowReferencedVariableExistsInFile) ConfigName(int) string {
@@ -38,7 +37,12 @@ func (r WorkflowReferencedVariableExistsInFile) Validate(conf interface{}) error
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r WorkflowReferencedVariableExistsInFile) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r WorkflowReferencedVariableExistsInFile) Lint(
+	conf interface{},
+	f dotgithub.File,
+	d *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

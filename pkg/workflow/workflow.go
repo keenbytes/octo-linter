@@ -21,16 +21,15 @@ type Workflow struct {
 	Raw         []byte
 	FileName    string
 	DisplayName string
-	Name        string                  `yaml:"name"`
-	Description string                  `yaml:"description"`
-	Env         map[string]string       `yaml:"env"`
-	Jobs        map[string]*Job `yaml:"jobs"`
-	On          *On             `yaml:"on"`
+	Name        string            `yaml:"name"`
+	Description string            `yaml:"description"`
+	Env         map[string]string `yaml:"env"`
+	Jobs        map[string]*Job   `yaml:"jobs"`
+	On          *On               `yaml:"on"`
 }
 
 // Unmarshal parses YAML from a file in struct's Path or from struct's Raw field.
 func (w *Workflow) Unmarshal(_ bool) error {
-	// TODO: fromRaw is not implemented
 	pathSplit := strings.Split(w.Path, "/")
 	w.FileName = pathSplit[len(pathSplit)-1]
 	workflowName := strings.ReplaceAll(w.FileName, ".yaml", "")

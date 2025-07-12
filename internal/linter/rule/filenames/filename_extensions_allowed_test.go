@@ -24,7 +24,11 @@ func TestFilenameExtensionsAllowedValidate(t *testing.T) {
 
 	err = rule.Validate(confGood)
 	if err != nil {
-		t.Errorf("FilenameExtensionsAllowed.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
+		t.Errorf(
+			"FilenameExtensionsAllowed.Validate should not return error (%s) when conf is %v",
+			err.Error(),
+			confGood,
+		)
 	}
 }
 
@@ -38,7 +42,9 @@ func TestFilenameExtensionsAllowedNotCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("FilenameExtensionsAllowed.Lint should return false when filename extension is not in config")
+			t.Errorf(
+				"FilenameExtensionsAllowed.Lint should return false when filename extension is not in config",
+			)
 		}
 
 		if err != nil {
@@ -64,7 +70,9 @@ func TestFilenameExtensionsAllowedCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("FilenameExtensionsAllowed.Lint should return true when filename extension is in config")
+			t.Errorf(
+				"FilenameExtensionsAllowed.Lint should return true when filename extension is in config",
+			)
 		}
 
 		if err != nil {
@@ -72,7 +80,10 @@ func TestFilenameExtensionsAllowedCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) > 0 {
-			t.Errorf("FilenameExtensionsAllowed.Lint should not send any error over the channel, sent %s", strings.Join(ruleErrors, "|"))
+			t.Errorf(
+				"FilenameExtensionsAllowed.Lint should not send any error over the channel, sent %s",
+				strings.Join(ruleErrors, "|"),
+			)
 		}
 	}
 

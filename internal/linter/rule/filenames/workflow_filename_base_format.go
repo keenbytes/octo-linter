@@ -2,7 +2,6 @@ package filenames
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -13,8 +12,7 @@ import (
 )
 
 // WorkflowFilenameBaseFormat checks if workflow file basename (without extension) adheres to the selected naming convention.
-type WorkflowFilenameBaseFormat struct {
-}
+type WorkflowFilenameBaseFormat struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r WorkflowFilenameBaseFormat) ConfigName(int) string {
@@ -33,8 +31,12 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != "dash-case" && val != "dash-case;underscore-prefix-allowed" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
-		return fmt.Errorf("value can be one of: dash-case, dash-case;underscore-prefix-allowed, camelCase, PascalCase, ALL_CAPS")
+	if val != "dash-case" && val != "dash-case;underscore-prefix-allowed" && val != "camelCase" &&
+		val != "PascalCase" &&
+		val != "ALL_CAPS" {
+		return errors.New(
+			"value can be one of: dash-case, dash-case;underscore-prefix-allowed, camelCase, PascalCase, ALL_CAPS",
+		)
 	}
 
 	return nil
@@ -42,7 +44,12 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r WorkflowFilenameBaseFormat) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
@@ -63,7 +70,7 @@ func (r WorkflowFilenameBaseFormat) Lint(conf interface{}, f dotgithub.File, _ *
 			Path:     w.Path,
 			Name:     w.DisplayName,
 			Type:     rule.DotGithubFileTypeWorkflow,
-			ErrText:  fmt.Sprintf("filename base must be %s", conf.(string)),
+			ErrText:  "filename base must be " + conf.(string),
 			RuleName: r.ConfigName(0),
 		}
 

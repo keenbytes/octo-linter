@@ -62,7 +62,9 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("Action.Lint should return false when action does not have a 'name' and/or 'description' field")
+			t.Errorf(
+				"Action.Lint should return false when action does not have a 'name' and/or 'description' field",
+			)
 		}
 
 		if err != nil {
@@ -70,7 +72,10 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("Action.Lint should send 2 errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Action.Lint should send 2 errors over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -90,7 +95,10 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if compliant {
-				t.Errorf("Action.Lint should return false when action field %d does not have a 'description' field", field)
+				t.Errorf(
+					"Action.Lint should return false when action field %d does not have a 'description' field",
+					field,
+				)
 			}
 
 			if err != nil {
@@ -98,7 +106,10 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) != 2 {
-				t.Errorf("Action.Lint should send 2 errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+				t.Errorf(
+					"Action.Lint should send 2 errors over the channel, got [%s]",
+					strings.Join(ruleErrors, "\n"),
+				)
 			}
 		}
 
@@ -118,7 +129,9 @@ func TestActionFieldActionCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("Action.Lint should return true when action has both 'name' and 'description' field")
+			t.Errorf(
+				"Action.Lint should return true when action has both 'name' and 'description' field",
+			)
 		}
 
 		if err != nil {
@@ -126,7 +139,10 @@ func TestActionFieldActionCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 0 {
-			t.Errorf("Action.Lint should not send any error over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Action.Lint should not send any error over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -146,7 +162,10 @@ func TestActionFieldInputOutputCompliant(t *testing.T) {
 		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 			if !compliant {
-				t.Errorf("Action.Lint should return true when action field %d has a 'description' field", field)
+				t.Errorf(
+					"Action.Lint should return true when action field %d has a 'description' field",
+					field,
+				)
 			}
 
 			if err != nil {
@@ -154,7 +173,10 @@ func TestActionFieldInputOutputCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) != 0 {
-				t.Errorf("Action.Lint should not send any errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+				t.Errorf(
+					"Action.Lint should not send any errors over the channel, got [%s]",
+					strings.Join(ruleErrors, "\n"),
+				)
 			}
 		}
 

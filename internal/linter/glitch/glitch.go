@@ -7,7 +7,7 @@ import (
 
 const (
 	// DotGithubFileTypeAction represents the action file type. Used in a bitmask and must be a power of 2.
-	DotGithubFileTypeAction   = 1
+	DotGithubFileTypeAction = 1
 	// DotGithubFileTypeWorkflow represents the workflow file type. Used in a bitmask and must be a power of 2.
 	DotGithubFileTypeWorkflow = 2
 )
@@ -23,8 +23,8 @@ type Glitch struct {
 }
 
 // ListToMarkdown takes a list of Glitch instances and generates a Markdown table from it.
-func ListToMarkdown(glitches []*Glitch, limit int) (s string) {
-	s = `|Item|Error|
+func ListToMarkdown(glitches []*Glitch, limit int) string {
+	s := `|Item|Error|
 |---|---|
 `
 
@@ -33,9 +33,9 @@ func ListToMarkdown(glitches []*Glitch, limit int) (s string) {
 			break
 		}
 
-		name := fmt.Sprintf(`a/%s`, g.Name)
+		name := "a/" + g.Name
 		if g.Type == DotGithubFileTypeWorkflow {
-			name = fmt.Sprintf(`w/%s`, g.Name)
+			name = "w/" + g.Name
 		}
 
 		level := `🟠`
@@ -50,5 +50,5 @@ func ListToMarkdown(glitches []*Glitch, limit int) (s string) {
 		s += fmt.Sprintf("\n...and many more (%d in total).", len(glitches))
 	}
 
-	return
+	return s
 }

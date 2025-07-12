@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"gopkg.in/yaml.v2"
@@ -28,15 +29,15 @@ func GetDefaultConfig() []byte {
 }
 
 // ReadFile parses configuration from a specified file.
-func (cfg *Config) ReadFile(p string) error {
-	b, err := os.ReadFile(p)
+func (cfg *Config) ReadFile(path string) error {
+	b, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
-		return fmt.Errorf("error reading file %s: %w", p, err)
+		return fmt.Errorf("error reading file %s: %w", path, err)
 	}
 
 	err = cfg.readBytesAndValidate(b)
 	if err != nil {
-		return fmt.Errorf("error reading and/or validating config file %s: %w", p, err)
+		return fmt.Errorf("error reading and/or validating config file %s: %w", path, err)
 	}
 
 	return nil
@@ -55,6 +56,7 @@ func (cfg *Config) ReadDefaultFile() error {
 // IsError checks if rule has been set to have a status of error.
 func (cfg *Config) IsError(rule string) bool {
 	_, isWarn := cfg.WarningOnly[rule]
+
 	return !isWarn
 }
 

@@ -38,7 +38,9 @@ func TestNotInDoubleQuotesNotCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("NotInDoubleQuotes.Lint should return false when there is a variable in double quotes")
+			t.Errorf(
+				"NotInDoubleQuotes.Lint should return false when there is a variable in double quotes",
+			)
 		}
 
 		if err != nil {
@@ -64,7 +66,9 @@ func TestNotInDoubleQuotesCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("NotInDoubleQuotes.Lint should return true when there are not any vars that are in double quotes")
+			t.Errorf(
+				"NotInDoubleQuotes.Lint should return true when there are not any vars that are in double quotes",
+			)
 		}
 
 		if err != nil {
@@ -72,7 +76,10 @@ func TestNotInDoubleQuotesCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) > 0 {
-			t.Errorf("NotInDoubleQuotes.Lint should not send any error over the channel, sent %s", strings.Join(ruleErrors, "|"))
+			t.Errorf(
+				"NotInDoubleQuotes.Lint should not send any error over the channel, sent %s",
+				strings.Join(ruleErrors, "|"),
+			)
 		}
 	}
 

@@ -38,7 +38,9 @@ func TestNotOneWordNotCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("NotOneWord.Lint should return false when there is a reference to a 'one-word' variable")
+			t.Errorf(
+				"NotOneWord.Lint should return false when there is a reference to a 'one-word' variable",
+			)
 		}
 
 		if err != nil {
@@ -64,7 +66,9 @@ func TestNotOneWordCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("NotOneWord.Lint should return true when there are not any vars that are one word")
+			t.Errorf(
+				"NotOneWord.Lint should return true when there are not any vars that are one word",
+			)
 		}
 
 		if err != nil {
@@ -72,7 +76,10 @@ func TestNotOneWordCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) > 0 {
-			t.Errorf("NotOneWord.Lint should not send any error over the channel, sent %s", strings.Join(ruleErrors, "|"))
+			t.Errorf(
+				"NotOneWord.Lint should not send any error over the channel, sent %s",
+				strings.Join(ruleErrors, "|"),
+			)
 		}
 	}
 

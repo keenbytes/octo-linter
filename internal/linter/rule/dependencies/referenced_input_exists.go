@@ -14,8 +14,7 @@ import (
 
 // ReferencedInputExists scans the code for all input references and verifies that each has been previously defined.
 // During action or workflow execution, if a reference to an undefined input is found, it is replaced with an empty string.
-type ReferencedInputExists struct {
-}
+type ReferencedInputExists struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r ReferencedInputExists) ConfigName(t int) string {
@@ -46,13 +45,19 @@ func (r ReferencedInputExists) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r ReferencedInputExists) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction && f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if f.GetType() != rule.DotGithubFileTypeAction &&
+		f.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -92,11 +97,13 @@ func (r ReferencedInputExists) Lint(conf interface{}, f dotgithub.File, _ *dotgi
 			notInInputs := true
 
 			if w.On != nil {
-				if w.On.WorkflowCall != nil && w.On.WorkflowCall.Inputs != nil && w.On.WorkflowCall.Inputs[string(f[1])] != nil {
+				if w.On.WorkflowCall != nil && w.On.WorkflowCall.Inputs != nil &&
+					w.On.WorkflowCall.Inputs[string(f[1])] != nil {
 					notInInputs = false
 				}
 
-				if w.On.WorkflowDispatch != nil && w.On.WorkflowDispatch.Inputs != nil && w.On.WorkflowDispatch.Inputs[string(f[1])] != nil {
+				if w.On.WorkflowDispatch != nil && w.On.WorkflowDispatch.Inputs != nil &&
+					w.On.WorkflowDispatch.Inputs[string(f[1])] != nil {
 					notInInputs = false
 				}
 			}

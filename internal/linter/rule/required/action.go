@@ -10,7 +10,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
-// Action checks if required fields within actions are defined
+// Action checks if required fields within actions are defined.
 type Action struct {
 	Field int
 }
@@ -60,11 +60,11 @@ func (r Action) Validate(conf interface{}) error {
 		switch r.Field {
 		case ActionFieldAction:
 			if field != "name" && field != "description" {
-				return fmt.Errorf("value can contain only 'name' and/or 'description'")
+				return errors.New("value can contain only 'name' and/or 'description'")
 			}
 		case ActionFieldInput, ActionFieldOutput:
 			if field != "description" {
-				return fmt.Errorf("value can contain only 'description'")
+				return errors.New("value can contain only 'description'")
 			}
 		}
 	}
@@ -74,7 +74,12 @@ func (r Action) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r Action) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r Action) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err
@@ -93,12 +98,13 @@ func (r Action) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub,
 	switch r.Field {
 	case ActionFieldAction:
 		for _, field := range confInterfaces {
-			if (field.(string) == "name" && a.Name == "") || (field.(string) == "description" && a.Description == "") {
+			if (field.(string) == "name" && a.Name == "") ||
+				(field.(string) == "description" && a.Description == "") {
 				chErrors <- glitch.Glitch{
 					Path:     a.Path,
 					Name:     a.DirName,
 					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  fmt.Sprintf("does not have a required %s", field.(string)),
+					ErrText:  "does not have a required " + field.(string),
 					RuleName: r.ConfigName(0),
 				}
 

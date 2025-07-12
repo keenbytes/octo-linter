@@ -24,7 +24,11 @@ func TestExistsValidate(t *testing.T) {
 
 	err = rule.Validate(confGood)
 	if err != nil {
-		t.Errorf("Exists.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
+		t.Errorf(
+			"Exists.Validate should not return error (%s) when conf is %v",
+			err.Error(),
+			confGood,
+		)
 	}
 }
 
@@ -46,7 +50,11 @@ func TestLocal(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Exists.Lint on %s should send 2 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -72,7 +80,11 @@ func TestExternal(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("Exists.Lint on %s should send 2 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Exists.Lint on %s should send 2 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -98,7 +110,11 @@ func TestLocalExternal(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 4 {
-			t.Errorf("Exists.Lint on %s should send 4 errors over the channel not [%s]", n, strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"Exists.Lint on %s should send 4 errors over the channel not [%s]",
+				n,
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 

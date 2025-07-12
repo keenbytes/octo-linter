@@ -19,8 +19,8 @@ type Action struct {
 	Path        string
 	Raw         []byte
 	DirName     string
-	Name        string                   `yaml:"name"`
-	Description string                   `yaml:"description"`
+	Name        string             `yaml:"name"`
+	Description string             `yaml:"description"`
 	Inputs      map[string]*Input  `yaml:"inputs"`
 	Outputs     map[string]*Output `yaml:"outputs"`
 	Runs        *Runs              `yaml:"runs"`

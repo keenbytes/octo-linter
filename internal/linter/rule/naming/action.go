@@ -58,7 +58,7 @@ func (r Action) Validate(conf interface{}) error {
 	}
 
 	if val != "dash-case" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
-		return fmt.Errorf("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
+		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
 	}
 
 	return nil
@@ -66,7 +66,12 @@ func (r Action) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
-func (r Action) Lint(conf interface{}, f dotgithub.File, _ *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+func (r Action) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

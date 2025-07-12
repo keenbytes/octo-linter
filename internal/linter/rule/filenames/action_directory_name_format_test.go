@@ -24,7 +24,11 @@ func TestActionDirectoryNameFormatValidate(t *testing.T) {
 
 	err = rule.Validate(confGood)
 	if err != nil {
-		t.Errorf("ActionDirectoryNameFormat.Validate should not return error (%s) when conf is %v", err.Error(), confGood)
+		t.Errorf(
+			"ActionDirectoryNameFormat.Validate should not return error (%s) when conf is %v",
+			err.Error(),
+			confGood,
+		)
 	}
 }
 
@@ -38,7 +42,10 @@ func TestActionDirectoryNameFormatNotCompliant(t *testing.T) {
 		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, nameFormat, f, d)
 			if compliant {
-				t.Errorf("ActionDirectoryNameFormat.Lint should return false when filename is not %s", nameFormat)
+				t.Errorf(
+					"ActionDirectoryNameFormat.Lint should return false when filename is not %s",
+					nameFormat,
+				)
 			}
 
 			if err != nil {
@@ -46,7 +53,10 @@ func TestActionDirectoryNameFormatNotCompliant(t *testing.T) {
 			}
 
 			if len(ruleErrors) == 0 {
-				t.Errorf("ActionDirectoryNameFormat.Lint should send an error over the channel when filename is not %s", nameFormat)
+				t.Errorf(
+					"ActionDirectoryNameFormat.Lint should send an error over the channel when filename is not %s",
+					nameFormat,
+				)
 			}
 		}
 
@@ -72,7 +82,10 @@ func TestActionDirectoryNameFormatCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) > 0 {
-			t.Errorf("ActionDirectoryNameFormat.Lint should not send any error over the channel, sent %s", strings.Join(ruleErrors, "|"))
+			t.Errorf(
+				"ActionDirectoryNameFormat.Lint should not send any error over the channel, sent %s",
+				strings.Join(ruleErrors, "|"),
+			)
 		}
 	}
 

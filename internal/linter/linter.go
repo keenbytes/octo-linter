@@ -169,6 +169,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				case <-ticker.C:
 					if chWarningsClosed && chErrorsClosed {
 						wg.Done()
+
 						return
 					}
 				}
@@ -182,10 +183,8 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 
 	if summary.numError.Load() > 0 {
 		finalStatus = HasErrors
-	} else {
-		if summary.numWarning.Load() > 0 {
-			finalStatus = HasOnlyWarnings
-		}
+	} else if summary.numWarning.Load() > 0 {
+		finalStatus = HasOnlyWarnings
 	}
 
 	slog.Debug(
@@ -210,7 +209,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 
 		md := summary.markdown("octo-linter summary", outputLimit)
 
-		err := os.WriteFile(outputMd, []byte(md), 0644)
+		err := os.WriteFile(outputMd, []byte(md), 0o600)
 		if err != nil {
 			return finalStatus, fmt.Errorf("error writing markdown output: %w", err)
 		}

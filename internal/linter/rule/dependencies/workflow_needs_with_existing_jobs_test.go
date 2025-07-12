@@ -38,7 +38,10 @@ func TestWorkflowNeedsWithExistingJobsNotCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should return false when invalid dependencies between jobs and conf is %v", conf)
+			t.Errorf(
+				"WorkflowNeedsWithExistingJobs.Lint should return false when invalid dependencies between jobs and conf is %v",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -46,7 +49,10 @@ func TestWorkflowNeedsWithExistingJobsNotCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should send 2 errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"WorkflowNeedsWithExistingJobs.Lint should send 2 errors over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -63,7 +69,10 @@ func TestWorkflowNeedsWithExistingJobsCompliant(t *testing.T) {
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should return true dependencies between jobs are valid and conf is %v", conf)
+			t.Errorf(
+				"WorkflowNeedsWithExistingJobs.Lint should return true dependencies between jobs are valid and conf is %v",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -71,7 +80,10 @@ func TestWorkflowNeedsWithExistingJobsCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 0 {
-			t.Errorf("WorkflowNeedsWithExistingJobs.Lint should not send any errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"WorkflowNeedsWithExistingJobs.Lint should not send any errors over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
