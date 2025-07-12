@@ -4,7 +4,8 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/step"
 )
 
-type WorkflowJob struct {
+// Job represents a job in a GitHub Actions workflow parsed from YAML.
+type Job struct {
 	Name   string            `yaml:"name"`
 	Uses   string            `yaml:"uses"`
 	RunsOn interface{}       `yaml:"runs-on"`
@@ -13,7 +14,8 @@ type WorkflowJob struct {
 	Needs  interface{}       `yaml:"needs,omitempty"`
 }
 
-func (wj *WorkflowJob) SetParentType(t string) {
+// SetParentType sets parent type for all the steps.
+func (wj *Job) SetParentType(t string) {
 	for _, s := range wj.Steps {
 		s.ParentType = t
 	}

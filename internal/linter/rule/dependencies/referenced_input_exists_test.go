@@ -35,10 +35,13 @@ func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("ReferencedInputExists.Lint should return false when there are referenced to non-existing inputs and conf is %v", conf)
+			t.Errorf(
+				"ReferencedInputExists.Lint should return false when there are referenced to non-existing inputs and conf is %v",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -46,7 +49,10 @@ func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("ReferencedInputExists.Lint should send 2 errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"ReferencedInputExists.Lint should send 2 errors over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -60,10 +66,13 @@ func TestReferencedInputExistsActionCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("ReferencedInputExists.Lint should return true when there are no referenced to non-existing inputs and conf is %v", conf)
+			t.Errorf(
+				"ReferencedInputExists.Lint should return true when there are no referenced to non-existing inputs and conf is %v",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -71,7 +80,10 @@ func TestReferencedInputExistsActionCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 0 {
-			t.Errorf("ReferencedInputExists.Lint should not send any errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"ReferencedInputExists.Lint should not send any errors over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -85,10 +97,13 @@ func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if compliant {
-			t.Errorf("ReferencedInputExists.Lint should return false when there are referenced to non-existing inputs and conf is %v", conf)
+			t.Errorf(
+				"ReferencedInputExists.Lint should return false when there are referenced to non-existing inputs and conf is %v",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -96,7 +111,10 @@ func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 2 {
-			t.Errorf("ReferencedInputExists.Lint should send 2 errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"ReferencedInputExists.Lint should send 2 errors over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 
@@ -110,10 +128,13 @@ func TestReferencedInputExistsWorkflowCompliant(t *testing.T) {
 	d := DotGithub
 	conf := true
 
-	fn := func(f dotgithub.File, n string) {
+	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
 		if !compliant {
-			t.Errorf("ReferencedInputExists.Lint should return true when there are no referenced to non-existing inputs and conf is %v", conf)
+			t.Errorf(
+				"ReferencedInputExists.Lint should return true when there are no referenced to non-existing inputs and conf is %v",
+				conf,
+			)
 		}
 
 		if err != nil {
@@ -121,7 +142,10 @@ func TestReferencedInputExistsWorkflowCompliant(t *testing.T) {
 		}
 
 		if len(ruleErrors) != 0 {
-			t.Errorf("ReferencedInputExists.Lint should not send any errors over the channel, got [%s]", strings.Join(ruleErrors, "\n"))
+			t.Errorf(
+				"ReferencedInputExists.Lint should not send any errors over the channel, got [%s]",
+				strings.Join(ruleErrors, "\n"),
+			)
 		}
 	}
 

@@ -15,15 +15,23 @@ import (
 )
 
 const (
+	// HasNoErrorsOrWarnings indicates that linting completed with no errors or warnings.
 	HasNoErrorsOrWarnings = iota
+
+	// HasErrors indicates that one or more rules failed and were classified as errors.
 	HasErrors
+
+	// HasOnlyWarnings indicates that some rules failed, but they were configured as warnings only.
 	HasOnlyWarnings
 )
 
+// Linter represents a linter with specific configuration.
 type Linter struct {
 	Config *Config
 }
 
+// Lint runs rules on the given DotGithub and returns the result.
+// Optionally writes a markdown summary to an output file.
 func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (int, error) {
 	if l.Config == nil {
 		panic("Config cannot be nil")
@@ -161,6 +169,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				case <-ticker.C:
 					if chWarningsClosed && chErrorsClosed {
 						wg.Done()
+
 						return
 					}
 				}
@@ -174,10 +183,8 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 
 	if summary.numError.Load() > 0 {
 		finalStatus = HasErrors
-	} else {
-		if summary.numWarning.Load() > 0 {
-			finalStatus = HasOnlyWarnings
-		}
+	} else if summary.numWarning.Load() > 0 {
+		finalStatus = HasOnlyWarnings
 	}
 
 	slog.Debug(
@@ -202,7 +209,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 
 		md := summary.markdown("octo-linter summary", outputLimit)
 
-		err := os.WriteFile(outputMd, []byte(md), 0644)
+		err := os.WriteFile(outputMd, []byte(md), 0o600)
 		if err != nil {
 			return finalStatus, fmt.Errorf("error writing markdown output: %w", err)
 		}

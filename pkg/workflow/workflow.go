@@ -1,3 +1,4 @@
+// Package workflow contains code related to GitHub Actions workflow.
 package workflow
 
 import (
@@ -10,23 +11,25 @@ import (
 )
 
 const (
+	// DotGithubFileTypeWorkflow represents the workflow file type. Used in a bitmask and must be a power of 2.
 	DotGithubFileTypeWorkflow = 2
 )
 
+// Workflow represents a GitHub Actions' workflow parsed from a YAML file.
 type Workflow struct {
 	Path        string
 	Raw         []byte
 	FileName    string
 	DisplayName string
-	Name        string                  `yaml:"name"`
-	Description string                  `yaml:"description"`
-	Env         map[string]string       `yaml:"env"`
-	Jobs        map[string]*WorkflowJob `yaml:"jobs"`
-	On          *WorkflowOn             `yaml:"on"`
+	Name        string            `yaml:"name"`
+	Description string            `yaml:"description"`
+	Env         map[string]string `yaml:"env"`
+	Jobs        map[string]*Job   `yaml:"jobs"`
+	On          *On               `yaml:"on"`
 }
 
-func (w *Workflow) Unmarshal(fromRaw bool) error {
-	// TODO: fromRaw is not implemented
+// Unmarshal parses YAML from a file in struct's Path or from struct's Raw field.
+func (w *Workflow) Unmarshal(_ bool) error {
 	pathSplit := strings.Split(w.Path, "/")
 	w.FileName = pathSplit[len(pathSplit)-1]
 	workflowName := strings.ReplaceAll(w.FileName, ".yaml", "")
@@ -58,6 +61,7 @@ func (w *Workflow) Unmarshal(fromRaw bool) error {
 	return nil
 }
 
+// GetType returns the int value representing the workflow file type. See dotgithub.File interface.
 func (w *Workflow) GetType() int {
 	return DotGithubFileTypeWorkflow
 }

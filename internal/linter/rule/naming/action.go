@@ -19,12 +19,17 @@ type Action struct {
 
 const (
 	_ = iota
+	// ActionFieldInputName specifies that the rule targets the action's input name.
 	ActionFieldInputName
+	// ActionFieldOutputName specifies that the rule targets the action's output name.
 	ActionFieldOutputName
+	// ActionFieldReferencedVariable specifies that the rule targets all the variables referenced in the action.
 	ActionFieldReferencedVariable
+	// ActionFieldStepEnv specifies that the rule targets the 'env' section in the action steps.
 	ActionFieldStepEnv
 )
 
+// ConfigName returns the name of the rule as defined in the configuration file.
 func (r Action) ConfigName(int) string {
 	switch r.Field {
 	case ActionFieldInputName:
@@ -40,10 +45,12 @@ func (r Action) ConfigName(int) string {
 	}
 }
 
+// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r Action) FileType() int {
 	return rule.DotGithubFileTypeAction
 }
 
+// Validate checks whether the given value is valid for this rule's configuration.
 func (r Action) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
@@ -51,13 +58,20 @@ func (r Action) Validate(conf interface{}) error {
 	}
 
 	if val != "dash-case" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
-		return fmt.Errorf("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
+		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
 	}
 
 	return nil
 }
 
-func (r Action) Lint(conf interface{}, f dotgithub.File, d *dotgithub.DotGithub, chErrors chan<- glitch.Glitch) (bool, error) {
+// Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
+// reports any errors via the given channel, and returns whether the file is compliant.
+func (r Action) Lint(
+	conf interface{},
+	f dotgithub.File,
+	_ *dotgithub.DotGithub,
+	chErrors chan<- glitch.Glitch,
+) (bool, error) {
 	err := r.Validate(conf)
 	if err != nil {
 		return false, err

@@ -1,9 +1,11 @@
+// Package linter contains code related to octo-linter configuration.
 package linter
 
 import (
 	_ "embed"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"gopkg.in/yaml.v2"
@@ -12,6 +14,7 @@ import (
 //go:embed dotgithub.yml
 var defaultConfig []byte
 
+// Config represents the configuration file.
 type Config struct {
 	Version     string                            `yaml:"version"`
 	RulesConfig map[string]map[string]interface{} `yaml:"rules"`
@@ -20,24 +23,27 @@ type Config struct {
 	WarningOnly map[string]struct{}               `yaml:"-"`
 }
 
+// GetDefaultConfig returns a default configuration file.
 func GetDefaultConfig() []byte {
 	return defaultConfig
 }
 
-func (cfg *Config) ReadFile(p string) error {
-	b, err := os.ReadFile(p)
+// ReadFile parses configuration from a specified file.
+func (cfg *Config) ReadFile(path string) error {
+	b, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
-		return fmt.Errorf("error reading file %s: %w", p, err)
+		return fmt.Errorf("error reading file %s: %w", path, err)
 	}
 
 	err = cfg.readBytesAndValidate(b)
 	if err != nil {
-		return fmt.Errorf("error reading and/or validating config file %s: %w", p, err)
+		return fmt.Errorf("error reading and/or validating config file %s: %w", path, err)
 	}
 
 	return nil
 }
 
+// ReadDefaultFile sets the Config from a default configuration file.
 func (cfg *Config) ReadDefaultFile() error {
 	err := cfg.readBytesAndValidate(defaultConfig)
 	if err != nil {
@@ -47,8 +53,10 @@ func (cfg *Config) ReadDefaultFile() error {
 	return nil
 }
 
+// IsError checks if rule has been set to have a status of error.
 func (cfg *Config) IsError(rule string) bool {
 	_, isWarn := cfg.WarningOnly[rule]
+
 	return !isWarn
 }
 

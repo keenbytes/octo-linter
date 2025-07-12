@@ -1,5 +1,7 @@
+// Package step contains code related to steps in GitHub Actions workflows and actions.
 package step
 
+// Step represents a GitHub Actions step parsed from a workflow or action file.
 type Step struct {
 	ParentType string
 	Name       string            `yaml:"name"`
