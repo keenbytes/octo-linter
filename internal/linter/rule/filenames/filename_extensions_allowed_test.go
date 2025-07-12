@@ -37,7 +37,7 @@ func TestFilenameExtensionsAllowedNotCompliant(t *testing.T) {
 
 	rule := FilenameExtensionsAllowed{}
 	conf := []interface{}{"yaml"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
@@ -65,7 +65,7 @@ func TestFilenameExtensionsAllowedCompliant(t *testing.T) {
 
 	rule := FilenameExtensionsAllowed{}
 	conf := []interface{}{"yml"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)

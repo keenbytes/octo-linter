@@ -37,7 +37,7 @@ func TestLocal(t *testing.T) {
 
 	rule := Exists{}
 	conf := []interface{}{"local"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
@@ -67,7 +67,7 @@ func TestExternal(t *testing.T) {
 
 	rule := Exists{}
 	conf := []interface{}{"external"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
@@ -97,7 +97,7 @@ func TestLocalExternal(t *testing.T) {
 
 	rule := Exists{}
 	conf := []interface{}{"local", "external"}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)

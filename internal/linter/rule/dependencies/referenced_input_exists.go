@@ -13,7 +13,8 @@ import (
 )
 
 // ReferencedInputExists scans the code for all input references and verifies that each has been previously defined.
-// During action or workflow execution, if a reference to an undefined input is found, it is replaced with an empty string.
+// During action or workflow execution, if a reference to an undefined input is found, it is replaced with an empty
+// string.
 type ReferencedInputExists struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.

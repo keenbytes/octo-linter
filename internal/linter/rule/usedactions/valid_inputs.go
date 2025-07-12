@@ -14,7 +14,8 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
-// ValidInputs verifies that all required inputs are provided when referencing an action in a step, and that no undefined inputs are used.
+// ValidInputs verifies that all required inputs are provided when referencing an action in a step, and that no
+// undefined inputs are used.
 type ValidInputs struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.

@@ -26,7 +26,7 @@ type DotGithub struct {
 }
 
 // ReadDir scans the given directory and parses all GitHub Actions workflow and action YAML files into the struct.
-func (d *DotGithub) ReadDir(path string) error {
+func (d *DotGithub) ReadDir(ctx context.Context, path string) error {
 	d.Actions = make(map[string]*action.Action)
 	d.Workflows = make(map[string]*workflow.Workflow)
 
@@ -60,7 +60,7 @@ func (d *DotGithub) ReadDir(path string) error {
 				continue
 			}
 
-			err := d.DownloadExternalAction(step.Uses)
+			err := d.DownloadExternalAction(ctx, step.Uses)
 			if err != nil {
 				slog.Error(
 					"error downloading external action",
@@ -93,7 +93,7 @@ func (d *DotGithub) ReadDir(path string) error {
 					continue
 				}
 
-				err := d.DownloadExternalAction(step.Uses)
+				err := d.DownloadExternalAction(ctx, step.Uses)
 				if err != nil {
 					slog.Error(
 						"error downloading external action",
@@ -177,7 +177,7 @@ func (d *DotGithub) GetExternalAction(name string) *action.Action {
 }
 
 // DownloadExternalAction downloads a GitHub Action from its “uses” path (e.g., "actions/checkout@v4").
-func (d *DotGithub) DownloadExternalAction(path string) error {
+func (d *DotGithub) DownloadExternalAction(ctx context.Context, path string) error {
 	if d.ExternalActions == nil {
 		d.ExternalActions = map[string]*action.Action{}
 	}
@@ -208,7 +208,7 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		ctx,
 		http.MethodGet,
 		urlYML,
 		strings.NewReader(""),
@@ -232,7 +232,7 @@ func (d *DotGithub) DownloadExternalAction(path string) error {
 		)
 
 		req, err = http.NewRequestWithContext(
-			context.Background(),
+			ctx,
 			http.MethodGet,
 			urlYAML,
 			strings.NewReader(""),

@@ -32,7 +32,7 @@ func TestWorkflowNeedsWithExistingJobsNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ReferencedInputExists{}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 	conf := true
 
 	fn := func(f dotgithub.File, _ string) {
@@ -63,7 +63,7 @@ func TestWorkflowNeedsWithExistingJobsCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ReferencedInputExists{}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 	conf := true
 
 	fn := func(f dotgithub.File, _ string) {

@@ -140,7 +140,8 @@ func initHandler(_ context.Context, c *broccli.Broccli) int {
 		} else {
 			if fileInfo.IsDir() {
 				slog.Error(
-					"destination file already exists and it is a directory, remove it first or use --destination flag to change the destination",
+					"destination file already exists and it is a directory, remove it first or use --destination flag to change"+
+						" the destination",
 					slog.String("destination", configFileName),
 				)
 
@@ -163,14 +164,15 @@ func initHandler(_ context.Context, c *broccli.Broccli) int {
 	}
 
 	slog.Info(
-		"Sample configuration file has been created. Run 'lint' command with '-c' flag or put the file in the .github directory.",
+		"Sample configuration file has been created. Run 'lint' command with '-c' flag or put the file in the .github"+
+			" directory.",
 		slog.String("path", path),
 	)
 
 	return ExitOK
 }
 
-func lintHandler(_ context.Context, c *broccli.Broccli) int {
+func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 	logLevel := loglevel.GetLogLevelFromString(c.Flag("loglevel"))
 	varsFile := c.Flag("vars-file")
 	secretsFile := c.Flag("secrets-file")
@@ -184,7 +186,7 @@ func lintHandler(_ context.Context, c *broccli.Broccli) int {
 	lint := linter.Linter{}
 	dotGithub := dotgithub.DotGithub{}
 
-	err := dotGithub.ReadDir(c.Flag("path"))
+	err := dotGithub.ReadDir(ctx, c.Flag("path"))
 	if err != nil {
 		slog.Error(
 			"error initializing",

@@ -32,7 +32,7 @@ func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ReferencedInputExists{}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 	conf := true
 
 	fn := func(f dotgithub.File, _ string) {
@@ -63,7 +63,7 @@ func TestReferencedInputExistsActionCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ReferencedInputExists{}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 	conf := true
 
 	fn := func(f dotgithub.File, _ string) {
@@ -94,7 +94,7 @@ func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ReferencedInputExists{}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 	conf := true
 
 	fn := func(f dotgithub.File, _ string) {
@@ -125,7 +125,7 @@ func TestReferencedInputExistsWorkflowCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ReferencedInputExists{}
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 	conf := true
 
 	fn := func(f dotgithub.File, _ string) {

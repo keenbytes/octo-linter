@@ -2,9 +2,11 @@
 package ruletest
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -12,7 +14,22 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
-// Lint runs a rule with specific configuration on a specified file and returns all lint errors and a boolean indicating whether it is compliant or not.
+var (
+	testDotGithub *dotgithub.DotGithub
+	testDotGithubOnce sync.Once
+)
+
+// GetDotGithub returns DitGithub with test rules.
+func GetDotGithub() *dotgithub.DotGithub {
+	testDotGithubOnce.Do(func() {
+		testDotGithub = &dotgithub.DotGithub{}
+		_ = testDotGithub.ReadDir(context.Background(), "../../../../tests/rules")
+	})
+	return testDotGithub
+}
+
+// Lint runs a rule with specific configuration on a specified file and returns all lint errors and a boolean
+// indicating whether it is compliant or not.
 func Lint(
 	timeout int,
 	rule rule.Rule,

@@ -33,7 +33,7 @@ func TestWorkflowUsesOrRunsOnNotCompliant(t *testing.T) {
 
 	rule := WorkflowUsesOrRunsOn{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
@@ -60,7 +60,7 @@ func TestWorkflowUsesOrRunsOnCompliant(t *testing.T) {
 
 	rule := WorkflowUsesOrRunsOn{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)

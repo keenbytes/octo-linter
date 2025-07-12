@@ -33,7 +33,7 @@ func TestNotOneWordNotCompliant(t *testing.T) {
 
 	rule := NotOneWord{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
@@ -61,7 +61,7 @@ func TestNotOneWordCompliant(t *testing.T) {
 
 	rule := NotOneWord{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)

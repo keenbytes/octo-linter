@@ -33,7 +33,7 @@ func TestLocalOnly(t *testing.T) {
 
 	rule := Source{}
 	conf := "local-only"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
@@ -67,7 +67,7 @@ func TestExternalOnlyOnAction(t *testing.T) {
 
 	rule := Source{}
 	conf := "external-only"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
@@ -101,13 +101,14 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 
 	rule := Source{}
 	conf := "local-or-external"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
 		compliant, ruleErrors, err := ruletest.Lint(3, rule, conf, f, d)
 		if compliant {
 			t.Errorf(
-				"Source.Lint on %s should return false when there are invalid actions that are nor local nor external, and conf is %v",
+				"Source.Lint on %s should return false when there are invalid actions that are nor local nor external, and"+
+					" conf is %v",
 				n,
 				conf,
 			)

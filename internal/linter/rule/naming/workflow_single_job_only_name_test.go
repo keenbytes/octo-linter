@@ -33,7 +33,7 @@ func TestWorkflowSingleJobOnlyNameNotCompliant(t *testing.T) {
 
 	rule := WorkflowSingleJobOnlyName{}
 	conf := "main"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
@@ -61,7 +61,7 @@ func TestWorkflowSingleJobOnlyNameCompliant(t *testing.T) {
 
 	rule := WorkflowSingleJobOnlyName{}
 	conf := "main"
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)

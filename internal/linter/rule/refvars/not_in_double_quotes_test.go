@@ -33,7 +33,7 @@ func TestNotInDoubleQuotesNotCompliant(t *testing.T) {
 
 	rule := NotInDoubleQuotes{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
@@ -61,7 +61,7 @@ func TestNotInDoubleQuotesCompliant(t *testing.T) {
 
 	rule := NotInDoubleQuotes{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)

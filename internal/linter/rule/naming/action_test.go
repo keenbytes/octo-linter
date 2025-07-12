@@ -44,7 +44,7 @@ func TestActionNotCompliant(t *testing.T) {
 		rule := Action{
 			Field: field,
 		}
-		d := DotGithub
+		d := ruletest.GetDotGithub()
 
 		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
@@ -84,7 +84,7 @@ func TestActionCompliant(t *testing.T) {
 		rule := Action{
 			Field: field,
 		}
-		d := DotGithub
+		d := ruletest.GetDotGithub()
 
 		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)

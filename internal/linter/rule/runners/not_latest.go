@@ -11,7 +11,8 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/workflow"
 )
 
-// NotLatest checks whether 'runs-on' does not contain the 'latest' string. In some case, runner version (image) should be frozen, instead of using the latest.
+// NotLatest checks whether 'runs-on' does not contain the 'latest' string. In some case, runner version (image)
+// should be frozen, instead of using the latest.
 type NotLatest struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.

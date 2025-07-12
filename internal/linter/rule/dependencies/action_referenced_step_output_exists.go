@@ -12,8 +12,8 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
-// ActionReferencedStepOutputExists checks whether references to step outputs correspond to outputs defined in preceding steps.
-// During execution, referencing a non-existent step output results in an empty string.
+// ActionReferencedStepOutputExists checks whether references to step outputs correspond to outputs defined in
+// preceding steps. During execution, referencing a non-existent step output results in an empty string.
 type ActionReferencedStepOutputExists struct{}
 
 // ConfigName returns the name of the rule as defined in the configuration file.

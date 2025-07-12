@@ -37,7 +37,7 @@ func TestValidInputsNotCompliant(t *testing.T) {
 
 	rule := ValidInputs{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
@@ -64,7 +64,7 @@ func TestValidInputsCompliant(t *testing.T) {
 
 	rule := ValidInputs{}
 	conf := true
-	d := DotGithub
+	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
 		compliant, ruleErrors, err := ruletest.Lint(2, rule, conf, f, d)
