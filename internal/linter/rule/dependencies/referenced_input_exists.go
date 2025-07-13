@@ -1,7 +1,6 @@
 package dependencies
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -38,7 +37,7 @@ func (r ReferencedInputExists) FileType() int {
 func (r ReferencedInputExists) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil
@@ -52,9 +51,9 @@ func (r ReferencedInputExists) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsBool := conf.(bool)
+	if !confIsBool {
+		return false, errValueNotBool
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeAction &&
@@ -62,14 +61,17 @@ func (r ReferencedInputExists) Lint(
 		return true, nil
 	}
 
-	if !conf.(bool) {
+	if !confValue {
 		return true, nil
 	}
 
 	compliant := true
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
-		actionInstance := file.(*action.Action)
+		actionInstance, ok := file.(*action.Action)
+		if !ok {
+			return false, errFileInvalidType
+		}
 
 		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 
@@ -96,7 +98,11 @@ func (r ReferencedInputExists) Lint(
 	}
 
 	// check workflow
-	workflowInstance := file.(*workflow.Workflow)
+	workflowInstance, ok := file.(*workflow.Workflow)
+	if !ok {
+		return false, errFileInvalidType
+	}
+
 	re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 
 	found := re.FindAllSubmatch(workflowInstance.Raw, -1)

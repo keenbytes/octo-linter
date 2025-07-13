@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -14,8 +15,14 @@ const (
 	SecondsJobTimeout = 10
 )
 
-func errRuleTimeout(name string) error {
-	return fmt.Errorf("rule %s timed out", name)
+var errTimeout = errors.New("rule timed out")
+
+func errRuleLintTimeout(name string) error {
+	return fmt.Errorf("%w: %s", errTimeout, name)
+}
+
+func errRuleLintError(err error) error {
+	return fmt.Errorf("rule lint error: %w", err)
 }
 
 // Job represents a single run of a rule against a .github file (action or workflow).
@@ -48,8 +55,8 @@ func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch
 
 	select {
 	case <-timer.C:
-		return false, errRuleTimeout(j.rule.ConfigName(j.file.GetType()))
+		return false, errRuleLintTimeout(j.rule.ConfigName(j.file.GetType()))
 	case <-done:
-		return compliant, fmt.Errorf("rule lint error: %w", err)
+		return compliant, errRuleLintError(err)
 	}
 }

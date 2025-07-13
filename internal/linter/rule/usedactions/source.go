@@ -1,7 +1,6 @@
 package usedactions
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -38,18 +37,12 @@ func (r Source) FileType() int {
 func (r Source) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
-		return errors.New("value should be string")
+		return errValueNotString
 	}
 
 	if val != ValueLocalOnly && val != ValueLocalOrExternal && val != ValueExternalOnly &&
 		val != "" {
-		return fmt.Errorf(
-			"%s supports '%s', '%s', '%s' or empty value only",
-			r.ConfigName(0),
-			ValueLocalOnly,
-			ValueLocalOrExternal,
-			ValueExternalOnly,
-		)
+		return errValueNotEmptyOrLocalOrExternalOrBoth
 	}
 
 	return nil
@@ -63,9 +56,9 @@ func (r Source) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsString := conf.(string)
+	if !confIsString {
+		return false, errValueNotString
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeAction &&
@@ -73,8 +66,7 @@ func (r Source) Lint(
 		return true, nil
 	}
 
-	confVal := conf.(string)
-	if confVal == "" {
+	if confValue == "" {
 		return true, nil
 	}
 
@@ -95,7 +87,11 @@ func (r Source) Lint(
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
-		actionInstance := file.(*action.Action)
+		actionInstance, ok := file.(*action.Action)
+		if !ok {
+			return false, errFileInvalidType
+		}
+
 		if len(actionInstance.Runs.Steps) == 0 {
 			return true, nil
 		}
@@ -109,7 +105,11 @@ func (r Source) Lint(
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		workflowInstance := file.(*workflow.Workflow)
+		workflowInstance, ok := file.(*workflow.Workflow)
+		if !ok {
+			return false, errFileInvalidType
+		}
+
 		if len(workflowInstance.Jobs) == 0 {
 			return true, nil
 		}
@@ -149,7 +149,7 @@ func (r Source) Lint(
 		isLocal := reLocal.MatchString(step.Uses)
 		isExternal := reExternal.MatchString(step.Uses)
 
-		if confVal == ValueLocalOnly && !isLocal {
+		if confValue == ValueLocalOnly && !isLocal {
 			chErrors <- glitch.Glitch{
 				Path: filePath,
 				Name: fileName,
@@ -166,7 +166,7 @@ func (r Source) Lint(
 			compliant = false
 		}
 
-		if confVal == ValueExternalOnly && !isExternal {
+		if confValue == ValueExternalOnly && !isExternal {
 			chErrors <- glitch.Glitch{
 				Path: filePath,
 				Name: fileName,
@@ -183,7 +183,7 @@ func (r Source) Lint(
 			compliant = false
 		}
 
-		if confVal == ValueLocalOrExternal && !isLocal && !isExternal {
+		if confValue == ValueLocalOrExternal && !isLocal && !isExternal {
 			chErrors <- glitch.Glitch{
 				Path: filePath,
 				Name: fileName,

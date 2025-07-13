@@ -1,7 +1,6 @@
 package naming
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -66,12 +65,12 @@ func (r Workflow) FileType() int {
 func (r Workflow) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
-		return errors.New("value should be string")
+		return errValueNotString
 	}
 
 	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase &&
 		val != ValueAllCaps {
-		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
+		return errValueNotValid
 	}
 
 	return nil
@@ -85,16 +84,19 @@ func (r Workflow) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsString := conf.(string)
+	if !confIsString {
+		return false, errValueNotString
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	workflowInstance := file.(*workflow.Workflow)
+	workflowInstance, ok := file.(*workflow.Workflow)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
 	compliant := true
 
@@ -105,13 +107,13 @@ func (r Workflow) Lint(
 		}
 
 		for envName := range workflowInstance.Env {
-			m := casematch.Match(envName, conf.(string))
+			m := casematch.Match(envName, confValue)
 			if !m {
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
 					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("env '%s' must be %s", envName, conf.(string)),
+					ErrText:  fmt.Sprintf("env '%s' must be %s", envName, confValue),
 					RuleName: r.ConfigName(0),
 				}
 			}
@@ -127,13 +129,13 @@ func (r Workflow) Lint(
 			}
 
 			for envName := range job.Env {
-				m := casematch.Match(envName, conf.(string))
+				m := casematch.Match(envName, confValue)
 				if !m {
 					chErrors <- glitch.Glitch{
 						Path:     workflowInstance.Path,
 						Name:     workflowInstance.DisplayName,
 						Type:     rule.DotGithubFileTypeWorkflow,
-						ErrText:  fmt.Sprintf("job '%s' env '%s' must be %s", jobName, envName, conf.(string)),
+						ErrText:  fmt.Sprintf("job '%s' env '%s' must be %s", jobName, envName, confValue),
 						RuleName: r.ConfigName(0),
 					}
 				}
@@ -147,13 +149,13 @@ func (r Workflow) Lint(
 				}
 
 				for envName := range step.Env {
-					m := casematch.Match(envName, conf.(string))
+					m := casematch.Match(envName, confValue)
 					if !m {
 						chErrors <- glitch.Glitch{
 							Path:     workflowInstance.Path,
 							Name:     workflowInstance.DisplayName,
 							Type:     rule.DotGithubFileTypeWorkflow,
-							ErrText:  fmt.Sprintf("job '%s' step %d env '%s' must be %s", jobName, stepIdx, envName, conf.(string)),
+							ErrText:  fmt.Sprintf("job '%s' step %d env '%s' must be %s", jobName, stepIdx, envName, confValue),
 							RuleName: r.ConfigName(0),
 						}
 
@@ -169,13 +171,13 @@ func (r Workflow) Lint(
 
 			found := re.FindAllSubmatch(workflowInstance.Raw, -1)
 			for _, refVar := range found {
-				m := casematch.Match(string(refVar[1]), conf.(string))
+				m := casematch.Match(string(refVar[1]), confValue)
 				if !m {
 					chErrors <- glitch.Glitch{
 						Path:     workflowInstance.Path,
 						Name:     workflowInstance.DisplayName,
 						Type:     rule.DotGithubFileTypeWorkflow,
-						ErrText:  fmt.Sprintf("calls a variable '%s' that must be %s", string(refVar[1]), conf.(string)),
+						ErrText:  fmt.Sprintf("calls a variable '%s' that must be %s", string(refVar[1]), confValue),
 						RuleName: r.ConfigName(0),
 					}
 
@@ -191,13 +193,13 @@ func (r Workflow) Lint(
 		}
 
 		for inputName := range workflowInstance.On.WorkflowDispatch.Inputs {
-			m := casematch.Match(inputName, conf.(string))
+			m := casematch.Match(inputName, confValue)
 			if !m {
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
 					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("call input '%s' name must be %s", inputName, conf.(string)),
+					ErrText:  fmt.Sprintf("call input '%s' name must be %s", inputName, confValue),
 					RuleName: r.ConfigName(0),
 				}
 
@@ -212,13 +214,13 @@ func (r Workflow) Lint(
 		}
 
 		for inputName := range workflowInstance.On.WorkflowCall.Inputs {
-			m := casematch.Match(inputName, conf.(string))
+			m := casematch.Match(inputName, confValue)
 			if !m {
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
 					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("dispatch input '%s' name must be %s", inputName, conf.(string)),
+					ErrText:  fmt.Sprintf("dispatch input '%s' name must be %s", inputName, confValue),
 					RuleName: r.ConfigName(0),
 				}
 
@@ -231,13 +233,13 @@ func (r Workflow) Lint(
 		}
 
 		for jobName := range workflowInstance.Jobs {
-			m := casematch.Match(jobName, conf.(string))
+			m := casematch.Match(jobName, confValue)
 			if !m {
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
 					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("job '%s' name must be %s", jobName, conf.(string)),
+					ErrText:  fmt.Sprintf("job '%s' name must be %s", jobName, confValue),
 					RuleName: r.ConfigName(0),
 				}
 

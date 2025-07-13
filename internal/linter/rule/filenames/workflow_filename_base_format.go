@@ -1,8 +1,6 @@
 package filenames
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -30,16 +28,13 @@ func (r WorkflowFilenameBaseFormat) FileType() int {
 func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
-		return errors.New("value should be string")
+		return errValueNotString
 	}
 
 	if val != ValueDashCase && val != ValueDashCaseUnderscore && val != ValueCamelCase &&
 		val != ValuePascalCase &&
 		val != ValueAllCaps {
-		return fmt.Errorf(
-			"value can be one of: %s, %s, %s, %s, %s",
-			ValueDashCase, ValueDashCaseUnderscore, ValueCamelCase, ValuePascalCase, ValueAllCaps,
-		)
+		return errValueNotValidIncludingDashCaseUnderscore
 	}
 
 	return nil
@@ -53,27 +48,30 @@ func (r WorkflowFilenameBaseFormat) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsString := conf.(string)
+	if !confIsString {
+		return false, errValueNotString
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	workflowInstance := file.(*workflow.Workflow)
+	workflowInstance, ok := file.(*workflow.Workflow)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
 	fileParts := strings.Split(workflowInstance.FileName, ".")
 	basename := fileParts[0]
 
-	m := casematch.Match(basename, conf.(string))
+	m := casematch.Match(basename, confValue)
 	if !m {
 		chErrors <- glitch.Glitch{
 			Path:     workflowInstance.Path,
 			Name:     workflowInstance.DisplayName,
 			Type:     rule.DotGithubFileTypeWorkflow,
-			ErrText:  "filename base must be " + conf.(string),
+			ErrText:  "filename base must be " + confValue,
 			RuleName: r.ConfigName(0),
 		}
 

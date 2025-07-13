@@ -1,7 +1,6 @@
 package usedactions
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -38,17 +37,17 @@ func (r Exists) FileType() int {
 func (r Exists) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
-		return errors.New("value should be []string")
+		return errValueNotStringArray
 	}
 
 	for _, v := range vals {
 		source, ok := v.(string)
 		if !ok {
-			return errors.New("value should be []string")
+			return errValueNotStringArray
 		}
 
 		if source != "local" && source != "external" {
-			return errors.New("value can contain only 'local' and/or 'external'")
+			return errValueNotLocalAndOrExternal
 		}
 	}
 
@@ -63,11 +62,6 @@ func (r Exists) Lint(
 	dotGithub *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
-	}
-
 	if file.GetType() != rule.DotGithubFileTypeAction &&
 		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
@@ -78,13 +72,22 @@ func (r Exists) Lint(
 		checkExternal bool
 	)
 
-	valInterfaces := conf.([]interface{})
+	valInterfaces, confIsInterfaceArray := conf.([]interface{})
+	if !confIsInterfaceArray {
+		return false, errValueNotStringArray
+	}
+
 	for _, valInterface := range valInterfaces {
-		if valInterface == "local" {
+		val, ok := valInterface.(string)
+		if !ok {
+			return false, errValueNotStringArray
+		}
+
+		if val == "local" {
 			checkLocal = true
 		}
 
-		if valInterface == "external" {
+		if val == "external" {
 			checkExternal = true
 		}
 	}
@@ -108,7 +111,11 @@ func (r Exists) Lint(
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
-		actionInstance := file.(*action.Action)
+		actionInstance, ok := file.(*action.Action)
+		if !ok {
+			return false, errFileInvalidType
+		}
+
 		if len(actionInstance.Runs.Steps) == 0 {
 			return true, nil
 		}
@@ -122,7 +129,11 @@ func (r Exists) Lint(
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		workflowInstance := file.(*workflow.Workflow)
+		workflowInstance, ok := file.(*workflow.Workflow)
+		if !ok {
+			return false, errFileInvalidType
+		}
+
 		if len(workflowInstance.Jobs) == 0 {
 			return true, nil
 		}

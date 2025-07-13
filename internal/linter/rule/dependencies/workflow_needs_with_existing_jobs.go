@@ -1,7 +1,6 @@
 package dependencies
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -27,7 +26,7 @@ func (r WorkflowNeedsWithExistingJobs) FileType() int {
 func (r WorkflowNeedsWithExistingJobs) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil
@@ -41,16 +40,19 @@ func (r WorkflowNeedsWithExistingJobs) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsBool := conf.(bool)
+	if !confIsBool {
+		return false, errValueNotBool
 	}
 
-	if file.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow || confValue {
 		return true, nil
 	}
 
-	workflowInstance := file.(*workflow.Workflow)
+	workflowInstance, ok := file.(*workflow.Workflow)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
 	if len(workflowInstance.Jobs) == 0 {
 		return true, nil
@@ -87,8 +89,13 @@ func (r WorkflowNeedsWithExistingJobs) Lint(
 			continue
 		}
 
-		for _, neededJob := range needsList {
-			if workflowInstance.Jobs[neededJob.(string)] != nil {
+		for _, neededJobInterface := range needsList {
+			neededJob, ok := neededJobInterface.(string)
+			if !ok {
+				continue
+			}
+
+			if workflowInstance.Jobs[neededJob] != nil {
 				continue
 			}
 
@@ -98,7 +105,7 @@ func (r WorkflowNeedsWithExistingJobs) Lint(
 				Path:     workflowInstance.Path,
 				Name:     workflowInstance.DisplayName,
 				Type:     rule.DotGithubFileTypeWorkflow,
-				ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob.(string)),
+				ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob),
 				RuleName: r.ConfigName(0),
 			}
 		}
