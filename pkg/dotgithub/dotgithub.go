@@ -25,6 +25,13 @@ type DotGithub struct {
 	Secrets         map[string]bool
 }
 
+const (
+	// NumExternalActionPathParts defines the number of segments in a 'uses' path split by '/'.
+	NumExternalActionPathParts = 3
+	// NumExternalActionPathPartsNoSubdir defines the number of segments in a 'uses' path split by '/' when the action is not in a subdirectory.
+	NumExternalActionPathPartsNoSubdir = 2
+)
+
 // ReadDir scans the given directory and parses all GitHub Actions workflow and action YAML files into the struct.
 func (d *DotGithub) ReadDir(ctx context.Context, path string) error {
 	d.Actions = make(map[string]*action.Action)
@@ -187,10 +194,10 @@ func (d *DotGithub) DownloadExternalAction(ctx context.Context, path string) err
 	}
 
 	repoVersion := strings.Split(path, "@")
-	ownerRepoDir := strings.SplitN(repoVersion[0], "/", 3)
+	ownerRepoDir := strings.SplitN(repoVersion[0], "/", NumExternalActionPathParts)
 
 	directory := ""
-	if len(ownerRepoDir) > 2 {
+	if len(ownerRepoDir) > NumExternalActionPathPartsNoSubdir {
 		directory = "/" + ownerRepoDir[2]
 	}
 

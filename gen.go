@@ -15,6 +15,11 @@ type S struct {
 	F map[string]string
 }
 
+const (
+	// FileModeConfigRules defines mode for the config rules generated file.
+	FileModeConfigRules = 0o600
+)
+
 func main() {
 	genPath, err := os.Getwd()
 	if err != nil {
@@ -176,7 +181,7 @@ func main() {
 	fileRules, err := os.OpenFile(
 		filepath.Join(filepath.Clean(genPath), "internal", "linter", "generated_config_rules.go"),
 		os.O_RDWR|os.O_CREATE,
-		0o600,
+		FileModeConfigRules,
 	)
 	if err != nil {
 		panic("error opening file to write to: " + err.Error())

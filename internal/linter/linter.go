@@ -25,6 +25,14 @@ const (
 	HasOnlyWarnings
 )
 
+const (
+	// MillisecondsTickerCheckingChannelsClosed is the ticker interval (ms) for checking channel closure.
+	MillisecondsTickerCheckingChannelsClosed = 500
+
+	// FileModeOutputMarkdown sets the mode for the generated markdown summary file.
+	FileModeOutputMarkdown = 0o600
+)
+
 // Linter represents a linter with specific configuration.
 type Linter struct {
 	Config *Config
@@ -134,7 +142,7 @@ func (l *Linter) Lint(dotGithub *dotgithub.DotGithub, output string, outputLimit
 			chWarningsClosed := false
 			chErrorsClosed := false
 
-			ticker := time.NewTicker(500 * time.Millisecond)
+			ticker := time.NewTicker(MillisecondsTickerCheckingChannelsClosed * time.Millisecond)
 
 			for {
 				select {
@@ -207,7 +215,7 @@ func (l *Linter) Lint(dotGithub *dotgithub.DotGithub, output string, outputLimit
 
 		md := summary.markdown("octo-linter summary", outputLimit)
 
-		err := os.WriteFile(outputMd, []byte(md), 0o600)
+		err := os.WriteFile(outputMd, []byte(md), FileModeOutputMarkdown)
 		if err != nil {
 			return finalStatus, fmt.Errorf("error writing markdown output: %w", err)
 		}

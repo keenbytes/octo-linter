@@ -4,6 +4,7 @@ linters:
   disable:
     - cyclop
     - tagliatelle
+    - testpackage
   settings:
     depguard:
       rules:
