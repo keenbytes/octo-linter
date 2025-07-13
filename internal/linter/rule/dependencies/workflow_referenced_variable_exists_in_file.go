@@ -39,8 +39,8 @@ func (r WorkflowReferencedVariableExistsInFile) Validate(conf interface{}) error
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r WorkflowReferencedVariableExistsInFile) Lint(
 	conf interface{},
-	f dotgithub.File,
-	d *dotgithub.DotGithub,
+	file dotgithub.File,
+	dotGithub *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
 	err := r.Validate(conf)
@@ -48,38 +48,38 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
 		return true, nil
 	}
 
-	w := f.(*workflow.Workflow)
+	workflowInstance := file.(*workflow.Workflow)
 
 	compliant := true
 
 	varTypes := []string{"vars", "secrets"}
-	for _, v := range varTypes {
-		re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
+	for _, varType := range varTypes {
+		re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", varType))
 
-		found := re.FindAllSubmatch(w.Raw, -1)
-		for _, f := range found {
-			if v == "vars" && len(d.Vars) > 0 && !d.IsVarExist(string(f[1])) {
+		found := re.FindAllSubmatch(workflowInstance.Raw, -1)
+		for _, refVar := range found {
+			if varType == "vars" && len(dotGithub.Vars) > 0 && !dotGithub.IsVarExist(string(refVar[1])) {
 				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
+					Path:     workflowInstance.Path,
+					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("calls a variable '%s' that does not exist in the vars file", string(f[1])),
+					ErrText:  fmt.Sprintf("calls a variable '%s' that does not exist in the vars file", string(refVar[1])),
 					RuleName: r.ConfigName(0),
 				}
 
 				compliant = false
 			}
 
-			if v == "secrets" && len(d.Secrets) > 0 && !d.IsSecretExist(string(f[1])) {
+			if varType == "secrets" && len(dotGithub.Secrets) > 0 && !dotGithub.IsSecretExist(string(refVar[1])) {
 				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
+					Path:     workflowInstance.Path,
+					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("calls a secret '%s' that does not exist in the secrets file", string(f[1])),
+					ErrText:  fmt.Sprintf("calls a secret '%s' that does not exist in the secrets file", string(refVar[1])),
 					RuleName: r.ConfigName(0),
 				}
 

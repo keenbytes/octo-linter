@@ -82,26 +82,26 @@ func (r ValidInputs) Lint(
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
-		a := file.(*action.Action)
-		if len(a.Runs.Steps) == 0 {
+		actionInstance := file.(*action.Action)
+		if len(actionInstance.Runs.Steps) == 0 {
 			return true, nil
 		}
 
-		steps = a.Runs.Steps
+		steps = actionInstance.Runs.Steps
 		msgPrefix[0] = ""
 
 		fileType = rule.DotGithubFileTypeAction
-		filePath = a.Path
-		fileName = a.DirName
+		filePath = actionInstance.Path
+		fileName = actionInstance.DirName
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		w := file.(*workflow.Workflow)
-		if len(w.Jobs) == 0 {
+		workflowInstance := file.(*workflow.Workflow)
+		if len(workflowInstance.Jobs) == 0 {
 			return true, nil
 		}
 
-		for jobName, job := range w.Jobs {
+		for jobName, job := range workflowInstance.Jobs {
 			if len(job.Steps) == 0 {
 				continue
 			}
@@ -112,8 +112,8 @@ func (r ValidInputs) Lint(
 		}
 
 		fileType = rule.DotGithubFileTypeWorkflow
-		filePath = w.Path
-		fileName = w.DisplayName
+		filePath = workflowInstance.Path
+		fileName = workflowInstance.DisplayName
 	}
 
 	var errPrefix string

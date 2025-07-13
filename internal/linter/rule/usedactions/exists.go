@@ -59,8 +59,8 @@ func (r Exists) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r Exists) Lint(
 	conf interface{},
-	f dotgithub.File,
-	d *dotgithub.DotGithub,
+	file dotgithub.File,
+	dotGithub *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
 	err := r.Validate(conf)
@@ -68,8 +68,8 @@ func (r Exists) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction &&
-		f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeAction &&
+		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -79,12 +79,12 @@ func (r Exists) Lint(
 	)
 
 	valInterfaces := conf.([]interface{})
-	for _, v := range valInterfaces {
-		if v == "local" {
+	for _, valInterface := range valInterfaces {
+		if valInterface == "local" {
 			checkLocal = true
 		}
 
-		if v == "external" {
+		if valInterface == "external" {
 			checkExternal = true
 		}
 	}
@@ -107,27 +107,27 @@ func (r Exists) Lint(
 		fileName string
 	)
 
-	if f.GetType() == rule.DotGithubFileTypeAction {
-		a := f.(*action.Action)
-		if len(a.Runs.Steps) == 0 {
+	if file.GetType() == rule.DotGithubFileTypeAction {
+		actionInstance := file.(*action.Action)
+		if len(actionInstance.Runs.Steps) == 0 {
 			return true, nil
 		}
 
-		steps = a.Runs.Steps
+		steps = actionInstance.Runs.Steps
 		msgPrefix[0] = ""
 
 		fileType = rule.DotGithubFileTypeAction
-		filePath = a.Path
-		fileName = a.DirName
+		filePath = actionInstance.Path
+		fileName = actionInstance.DirName
 	}
 
-	if f.GetType() == rule.DotGithubFileTypeWorkflow {
-		w := f.(*workflow.Workflow)
-		if len(w.Jobs) == 0 {
+	if file.GetType() == rule.DotGithubFileTypeWorkflow {
+		workflowInstance := file.(*workflow.Workflow)
+		if len(workflowInstance.Jobs) == 0 {
 			return true, nil
 		}
 
-		for jobName, job := range w.Jobs {
+		for jobName, job := range workflowInstance.Jobs {
 			if len(job.Steps) == 0 {
 				continue
 			}
@@ -138,34 +138,34 @@ func (r Exists) Lint(
 		}
 
 		fileType = rule.DotGithubFileTypeWorkflow
-		filePath = w.Path
-		fileName = w.DisplayName
+		filePath = workflowInstance.Path
+		fileName = workflowInstance.DisplayName
 	}
 
 	var errPrefix string
-	if f.GetType() == rule.DotGithubFileTypeAction {
+	if file.GetType() == rule.DotGithubFileTypeAction {
 		errPrefix = msgPrefix[0]
 	}
 
 	compliant := true
 
-	for i, st := range steps {
-		newErrPrefix, ok := msgPrefix[i]
+	for stepIdx, step := range steps {
+		newErrPrefix, ok := msgPrefix[stepIdx]
 		if ok {
 			errPrefix = newErrPrefix
 		}
 
-		if st.Uses == "" {
+		if step.Uses == "" {
 			continue
 		}
 
-		isLocal := reLocal.MatchString(st.Uses)
-		isExternal := reExternal.MatchString(st.Uses)
+		isLocal := reLocal.MatchString(step.Uses)
+		isExternal := reExternal.MatchString(step.Uses)
 
 		if checkLocal && isLocal {
-			actionName := strings.ReplaceAll(st.Uses, "./.github/actions/", "")
+			actionName := strings.ReplaceAll(step.Uses, "./.github/actions/", "")
 
-			action := d.GetAction(actionName)
+			action := dotGithub.GetAction(actionName)
 			if action == nil {
 				compliant = false
 
@@ -173,14 +173,14 @@ func (r Exists) Lint(
 					Path:     filePath,
 					Name:     fileName,
 					Type:     fileType,
-					ErrText:  fmt.Sprintf("%sstep %d calls non-existing local action '%s'", errPrefix, i+1, actionName),
+					ErrText:  fmt.Sprintf("%sstep %d calls non-existing local action '%s'", errPrefix, stepIdx+1, actionName),
 					RuleName: r.ConfigName(fileType),
 				}
 			}
 		}
 
 		if checkExternal && isExternal {
-			action := d.GetExternalAction(st.Uses)
+			action := dotGithub.GetExternalAction(step.Uses)
 			if action == nil {
 				compliant = false
 
@@ -188,7 +188,7 @@ func (r Exists) Lint(
 					Path:     filePath,
 					Name:     fileName,
 					Type:     fileType,
-					ErrText:  fmt.Sprintf("%sstep %d calls non-existing external action '%s'", errPrefix, i+1, st.Uses),
+					ErrText:  fmt.Sprintf("%sstep %d calls non-existing external action '%s'", errPrefix, stepIdx+1, step.Uses),
 					RuleName: r.ConfigName(fileType),
 				}
 			}

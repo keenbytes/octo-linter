@@ -18,14 +18,12 @@ type summary struct {
 }
 
 func newSummary() *summary {
-	s := &summary{
+	return &summary{
 		numError:     atomic.Int32{},
 		numWarning:   atomic.Int32{},
 		numJob:       atomic.Int32{},
 		numProcessed: atomic.Int32{},
 	}
-
-	return s
 }
 
 func (s *summary) addGlitch(g *glitch.Glitch) {

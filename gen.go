@@ -173,7 +173,7 @@ func main() {
 		panic("error opening template file: " + err.Error())
 	}
 
-	f, err := os.OpenFile(
+	fileRules, err := os.OpenFile(
 		filepath.Join(filepath.Clean(genPath), "internal", "linter", "generated_config_rules.go"),
 		os.O_RDWR|os.O_CREATE,
 		0o600,
@@ -181,7 +181,7 @@ func main() {
 	if err != nil {
 		panic("error opening file to write to: " + err.Error())
 	}
-	defer f.Close()
+	defer fileRules.Close()
 
 	buf := &bytes.Buffer{}
 	t := template.Must(template.New("gend_tpl").Parse(string(tpl)))
@@ -191,7 +191,7 @@ func main() {
 		panic("error executing template: " + err.Error())
 	}
 
-	_, err = f.Write(buf.Bytes())
+	_, err = fileRules.Write(buf.Bytes())
 	if err != nil {
 		panic("error writing generated template: " + err.Error())
 	}

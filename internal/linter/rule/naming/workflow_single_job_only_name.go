@@ -37,7 +37,7 @@ func (r WorkflowSingleJobOnlyName) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r WorkflowSingleJobOnlyName) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -46,33 +46,33 @@ func (r WorkflowSingleJobOnlyName) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	w := f.(*workflow.Workflow)
+	workflowInstance := file.(*workflow.Workflow)
 
-	if conf.(string) == "" || w.Jobs == nil {
+	if conf.(string) == "" || workflowInstance.Jobs == nil {
 		return true, nil
 	}
 
-	compliant := true
+	if len(workflowInstance.Jobs) != 1 {
+		return true, nil
+	}
 
-	if len(w.Jobs) == 1 {
-		for jobName := range w.Jobs {
-			if jobName != conf.(string) {
-				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
-					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("has only one job and it should be called '%s'", conf.(string)),
-					RuleName: r.ConfigName(0),
-				}
-
-				compliant = false
+	for jobName := range workflowInstance.Jobs {
+		if jobName != conf.(string) {
+			chErrors <- glitch.Glitch{
+				Path:     workflowInstance.Path,
+				Name:     workflowInstance.DisplayName,
+				Type:     rule.DotGithubFileTypeWorkflow,
+				ErrText:  fmt.Sprintf("has only one job and it should be called '%s'", conf.(string)),
+				RuleName: r.ConfigName(0),
 			}
+
+			return false, nil
 		}
 	}
 
-	return compliant, nil
+	return true, nil
 }

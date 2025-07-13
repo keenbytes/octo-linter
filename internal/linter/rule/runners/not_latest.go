@@ -39,7 +39,7 @@ func (r NotLatest) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r NotLatest) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -48,31 +48,31 @@ func (r NotLatest) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	w := f.(*workflow.Workflow)
+	workflowInstance := file.(*workflow.Workflow)
 
-	if !conf.(bool) || len(w.Jobs) == 0 {
+	if !conf.(bool) || len(workflowInstance.Jobs) == 0 {
 		return true, nil
 	}
 
 	compliant := true
 
-	for jobName, job := range w.Jobs {
+	for jobName, job := range workflowInstance.Jobs {
 		if job.RunsOn == nil {
 			continue
 		}
 
-		runsOnStr, ok := job.RunsOn.(string)
-		if ok {
+		runsOnStr, runsOnIsString := job.RunsOn.(string)
+		if runsOnIsString {
 			if strings.Contains(runsOnStr, "latest") {
 				compliant = false
 
 				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
+					Path:     workflowInstance.Path,
+					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
 					ErrText:  fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
 					RuleName: r.ConfigName(0),
@@ -80,16 +80,16 @@ func (r NotLatest) Lint(
 			}
 		}
 
-		runsOnList, ok := job.RunsOn.([]interface{})
-		if ok {
+		runsOnList, runsOnIsList := job.RunsOn.([]interface{})
+		if runsOnIsList {
 			for _, runsOn := range runsOnList {
 				runsOnStr, ok2 := runsOn.(string)
 				if ok2 && strings.Contains(runsOnStr, "latest") {
 					compliant = false
 
 					chErrors <- glitch.Glitch{
-						Path:     w.Path,
-						Name:     w.DisplayName,
+						Path:     workflowInstance.Path,
+						Name:     workflowInstance.DisplayName,
 						Type:     rule.DotGithubFileTypeWorkflow,
 						ErrText:  fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
 						RuleName: r.ConfigName(0),

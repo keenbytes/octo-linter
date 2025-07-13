@@ -40,8 +40,8 @@ func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r ActionReferencedStepOutputExists) Lint(
 	conf interface{},
-	f dotgithub.File,
-	d *dotgithub.DotGithub,
+	file dotgithub.File,
+	dotGithub *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
 	err := r.Validate(conf)
@@ -49,13 +49,13 @@ func (r ActionReferencedStepOutputExists) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
+	if file.GetType() != rule.DotGithubFileTypeAction || !conf.(bool) {
 		return true, nil
 	}
 
-	a := f.(*action.Action)
+	actionInstance := file.(*action.Action)
 
-	re := regexp.MustCompile(`\${{[ ]*steps\.([a-zA-Z0-9\-_]+)\.outputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
+	reStepOutput := regexp.MustCompile(`\${{[ ]*steps\.([a-zA-Z0-9\-_]+)\.outputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 	reAppendToGithubOutput := regexp.MustCompile(
 		`echo[ ]+["']([a-zA-Z0-9\-_]+)=.*["'][ ]+.*>>[ ]+\$GITHUB_OUTPUT`,
 	)
@@ -66,15 +66,15 @@ func (r ActionReferencedStepOutputExists) Lint(
 
 	compliant := true
 
-	found := re.FindAllSubmatch(a.Raw, -1)
-	for _, f := range found {
-		stepName := string(f[1])
-		outputName := string(f[2])
+	found := reStepOutput.FindAllSubmatch(actionInstance.Raw, -1)
+	for _, foundStepOutput := range found {
+		stepName := string(foundStepOutput[1])
+		outputName := string(foundStepOutput[2])
 
-		if a.Runs == nil {
+		if actionInstance.Runs == nil {
 			chErrors <- glitch.Glitch{
-				Path:     a.Path,
-				Name:     a.DirName,
+				Path:     actionInstance.Path,
+				Name:     actionInstance.DirName,
 				Type:     rule.DotGithubFileTypeAction,
 				ErrText:  fmt.Sprintf("calls a step output '%s' but 'runs' does not exist", stepName),
 				RuleName: r.ConfigName(0),
@@ -85,11 +85,11 @@ func (r ActionReferencedStepOutputExists) Lint(
 			continue
 		}
 
-		step := a.Runs.GetStep(string(f[1]))
+		step := actionInstance.Runs.GetStep(string(foundStepOutput[1]))
 		if step == nil {
 			chErrors <- glitch.Glitch{
-				Path:     a.Path,
-				Name:     a.DirName,
+				Path:     actionInstance.Path,
+				Name:     actionInstance.DirName,
 				Type:     rule.DotGithubFileTypeAction,
 				ErrText:  fmt.Sprintf("calls a step '%s' output '%s' but step does not exist", stepName, outputName),
 				RuleName: r.ConfigName(0),
@@ -105,16 +105,16 @@ func (r ActionReferencedStepOutputExists) Lint(
 		// search in 'run' when there is no 'uses'
 		if step.Uses == "" && step.Run != "" {
 			foundEchoLines := reAppendToGithubOutput.FindAllSubmatch([]byte(step.Run), -1)
-			for _, f := range foundEchoLines {
-				if outputName == string(f[1]) {
+			for _, foundEchoLine := range foundEchoLines {
+				if outputName == string(foundEchoLine[1]) {
 					foundOutput = true
 				}
 			}
 
 			if !foundOutput {
 				chErrors <- glitch.Glitch{
-					Path:     a.Path,
-					Name:     a.DirName,
+					Path:     actionInstance.Path,
+					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
 					ErrText:  fmt.Sprintf("calls a step '%s' output '%s' that does not exist", stepName, outputName),
 					RuleName: r.ConfigName(0),
@@ -130,21 +130,21 @@ func (r ActionReferencedStepOutputExists) Lint(
 			continue
 		}
 
-		var action *action.Action
+		var foundAction *action.Action
 		// local action
 		if reLocal.MatchString(step.Uses) {
 			actionName := strings.ReplaceAll(step.Uses, "./.github/actions/", "")
-			action = d.GetAction(actionName)
+			foundAction = dotGithub.GetAction(actionName)
 		}
 		// external action
 		if reExternal.MatchString(step.Uses) {
-			action = d.GetExternalAction(step.Uses)
+			foundAction = dotGithub.GetExternalAction(step.Uses)
 		}
 
-		if action == nil {
+		if foundAction == nil {
 			chErrors <- glitch.Glitch{
-				Path:     a.Path,
-				Name:     a.DirName,
+				Path:     actionInstance.Path,
+				Name:     actionInstance.DirName,
 				Type:     rule.DotGithubFileTypeAction,
 				ErrText:  fmt.Sprintf("calls a step '%s' output '%s' on action that does not exist", stepName, outputName),
 				RuleName: r.ConfigName(0),
@@ -155,7 +155,7 @@ func (r ActionReferencedStepOutputExists) Lint(
 			continue
 		}
 
-		for duaOutputName := range action.Outputs {
+		for duaOutputName := range foundAction.Outputs {
 			if duaOutputName == outputName {
 				foundOutput = true
 			}
@@ -163,8 +163,8 @@ func (r ActionReferencedStepOutputExists) Lint(
 
 		if !foundOutput {
 			chErrors <- glitch.Glitch{
-				Path:     a.Path,
-				Name:     a.DirName,
+				Path:     actionInstance.Path,
+				Name:     actionInstance.DirName,
 				Type:     rule.DotGithubFileTypeAction,
 				ErrText:  fmt.Sprintf("calls step '%s' output '%s' on action and that output does not exist", stepName, outputName),
 				RuleName: r.ConfigName(0),

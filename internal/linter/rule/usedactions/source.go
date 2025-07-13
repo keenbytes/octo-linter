@@ -55,7 +55,7 @@ func (r Source) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r Source) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -64,8 +64,8 @@ func (r Source) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction &&
-		f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeAction &&
+		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -90,27 +90,27 @@ func (r Source) Lint(
 		fileName string
 	)
 
-	if f.GetType() == rule.DotGithubFileTypeAction {
-		a := f.(*action.Action)
-		if len(a.Runs.Steps) == 0 {
+	if file.GetType() == rule.DotGithubFileTypeAction {
+		actionInstance := file.(*action.Action)
+		if len(actionInstance.Runs.Steps) == 0 {
 			return true, nil
 		}
 
-		steps = a.Runs.Steps
+		steps = actionInstance.Runs.Steps
 		msgPrefix[0] = ""
 
 		fileType = rule.DotGithubFileTypeAction
-		filePath = a.Path
-		fileName = a.DirName
+		filePath = actionInstance.Path
+		fileName = actionInstance.DirName
 	}
 
-	if f.GetType() == rule.DotGithubFileTypeWorkflow {
-		w := f.(*workflow.Workflow)
-		if len(w.Jobs) == 0 {
+	if file.GetType() == rule.DotGithubFileTypeWorkflow {
+		workflowInstance := file.(*workflow.Workflow)
+		if len(workflowInstance.Jobs) == 0 {
 			return true, nil
 		}
 
-		for jobName, job := range w.Jobs {
+		for jobName, job := range workflowInstance.Jobs {
 			if len(job.Steps) == 0 {
 				continue
 			}
@@ -121,36 +121,36 @@ func (r Source) Lint(
 		}
 
 		fileType = rule.DotGithubFileTypeWorkflow
-		filePath = w.Path
-		fileName = w.DisplayName
+		filePath = workflowInstance.Path
+		fileName = workflowInstance.DisplayName
 	}
 
 	var errPrefix string
-	if f.GetType() == rule.DotGithubFileTypeAction {
+	if file.GetType() == rule.DotGithubFileTypeAction {
 		errPrefix = msgPrefix[0]
 	}
 
 	compliant := true
 
-	for i, st := range steps {
-		newErrPrefix, ok := msgPrefix[i]
+	for stepIdx, step := range steps {
+		newErrPrefix, ok := msgPrefix[stepIdx]
 		if ok {
 			errPrefix = newErrPrefix
 		}
 
-		if st.Uses == "" {
+		if step.Uses == "" {
 			continue
 		}
 
-		isLocal := reLocal.MatchString(st.Uses)
-		isExternal := reExternal.MatchString(st.Uses)
+		isLocal := reLocal.MatchString(step.Uses)
+		isExternal := reExternal.MatchString(step.Uses)
 
 		if confVal == "local-only" && !isLocal {
 			chErrors <- glitch.Glitch{
 				Path:     filePath,
 				Name:     fileName,
 				Type:     fileType,
-				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, i+1, st.Uses),
+				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, stepIdx+1, step.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
 
@@ -162,7 +162,7 @@ func (r Source) Lint(
 				Path:     filePath,
 				Name:     fileName,
 				Type:     fileType,
-				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, i+1, st.Uses),
+				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, stepIdx+1, step.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
 
@@ -174,7 +174,7 @@ func (r Source) Lint(
 				Path:     filePath,
 				Name:     fileName,
 				Type:     fileType,
-				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, i+1, st.Uses),
+				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, stepIdx+1, step.Uses),
 				RuleName: r.ConfigName(fileType),
 			}
 

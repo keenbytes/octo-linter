@@ -41,7 +41,7 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r ActionDirectoryNameFormat) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -50,17 +50,17 @@ func (r ActionDirectoryNameFormat) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction {
+	if file.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
 
-	a := f.(*action.Action)
+	actionInstance := file.(*action.Action)
 
-	m := casematch.Match(a.DirName, conf.(string))
+	m := casematch.Match(actionInstance.DirName, conf.(string))
 	if !m {
 		chErrors <- glitch.Glitch{
-			Path:     a.Path,
-			Name:     a.DirName,
+			Path:     actionInstance.Path,
+			Name:     actionInstance.DirName,
 			Type:     rule.DotGithubFileTypeAction,
 			ErrText:  "directory name must be " + conf.(string),
 			RuleName: r.ConfigName(0),

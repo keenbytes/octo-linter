@@ -48,7 +48,7 @@ func (r NotOneWord) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r NotOneWord) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -57,8 +57,8 @@ func (r NotOneWord) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction &&
-		f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeAction &&
+		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -66,21 +66,21 @@ func (r NotOneWord) Lint(
 		return true, nil
 	}
 
-	re := regexp.MustCompile(`\${{[ ]*([a-zA-Z0-9\-_]+)[ ]*}}`)
+	refVarRegexp := regexp.MustCompile(`\${{[ ]*([a-zA-Z0-9\-_]+)[ ]*}}`)
 
 	compliant := true
 
-	if f.GetType() == rule.DotGithubFileTypeAction {
-		a := f.(*action.Action)
+	if file.GetType() == rule.DotGithubFileTypeAction {
+		actionInstance := file.(*action.Action)
 
-		found := re.FindAllSubmatch(a.Raw, -1)
-		for _, f := range found {
-			if string(f[1]) != "false" && string(f[1]) != "true" {
+		found := refVarRegexp.FindAllSubmatch(actionInstance.Raw, -1)
+		for _, variableReference := range found {
+			if string(variableReference[1]) != "false" && string(variableReference[1]) != "true" {
 				chErrors <- glitch.Glitch{
-					Path:     a.Path,
-					Name:     a.DirName,
+					Path:     actionInstance.Path,
+					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
+					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(variableReference[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 				}
 
@@ -89,17 +89,17 @@ func (r NotOneWord) Lint(
 		}
 	}
 
-	if f.GetType() == rule.DotGithubFileTypeWorkflow {
-		w := f.(*workflow.Workflow)
+	if file.GetType() == rule.DotGithubFileTypeWorkflow {
+		workflowInstance := file.(*workflow.Workflow)
 
-		found := re.FindAllSubmatch(w.Raw, -1)
-		for _, f := range found {
-			if string(f[1]) != "false" && string(f[1]) != "true" {
+		found := refVarRegexp.FindAllSubmatch(workflowInstance.Raw, -1)
+		for _, variableReference := range found {
+			if string(variableReference[1]) != "false" && string(variableReference[1]) != "true" {
 				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
+					Path:     workflowInstance.Path,
+					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(f[1])),
+					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(variableReference[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 				}
 

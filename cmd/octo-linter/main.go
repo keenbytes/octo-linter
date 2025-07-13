@@ -123,8 +123,8 @@ func versionHandler(_ context.Context, _ *broccli.Broccli) int {
 	return ExitOK
 }
 
-func initHandler(_ context.Context, c *broccli.Broccli) int {
-	path := c.Flag("destination")
+func initHandler(_ context.Context, cli *broccli.Broccli) int {
+	path := cli.Flag("destination")
 	if path == "" {
 		fileInfo, err := os.Stat(configFileName)
 		if err != nil {
@@ -172,10 +172,10 @@ func initHandler(_ context.Context, c *broccli.Broccli) int {
 	return ExitOK
 }
 
-func lintHandler(ctx context.Context, c *broccli.Broccli) int {
-	logLevel := loglevel.GetLogLevelFromString(c.Flag("loglevel"))
-	varsFile := c.Flag("vars-file")
-	secretsFile := c.Flag("secrets-file")
+func lintHandler(ctx context.Context, cli *broccli.Broccli) int {
+	logLevel := loglevel.GetLogLevelFromString(cli.Flag("loglevel"))
+	varsFile := cli.Flag("vars-file")
+	secretsFile := cli.Flag("secrets-file")
 
 	opts := &slog.HandlerOptions{
 		Level: logLevel,
@@ -186,11 +186,11 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 	lint := linter.Linter{}
 	dotGithub := dotgithub.DotGithub{}
 
-	err := dotGithub.ReadDir(ctx, c.Flag("path"))
+	err := dotGithub.ReadDir(ctx, cli.Flag("path"))
 	if err != nil {
 		slog.Error(
 			"error initializing",
-			slog.String("path", c.Flag("path")),
+			slog.String("path", cli.Flag("path")),
 			slog.String("err", err.Error()),
 		)
 
@@ -223,7 +223,7 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 		}
 	}
 
-	cfgFile, err := getConfigFilePath(c.Flag("config"), c.Flag("path"))
+	cfgFile, err := getConfigFilePath(cli.Flag("config"), cli.Flag("path"))
 	if err != nil {
 		slog.Error(
 			"error getting config file",
@@ -260,12 +260,12 @@ func lintHandler(ctx context.Context, c *broccli.Broccli) int {
 	lint.Config = &cfg
 
 	outputLimit := 0
-	if c.Flag("output-errors") != "" {
+	if cli.Flag("output-errors") != "" {
 		// flag is already validated by the cli
-		outputLimit, _ = strconv.Atoi(c.Flag("output-errors"))
+		outputLimit, _ = strconv.Atoi(cli.Flag("output-errors"))
 	}
 
-	status, err := lint.Lint(&dotGithub, c.Flag("output"), outputLimit)
+	status, err := lint.Lint(&dotGithub, cli.Flag("output"), outputLimit)
 	if err != nil {
 		slog.Error(
 			"error linting",

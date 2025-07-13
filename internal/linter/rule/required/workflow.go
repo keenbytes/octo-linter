@@ -76,7 +76,7 @@ func (r Workflow) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r Workflow) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -85,11 +85,11 @@ func (r Workflow) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	w := f.(*workflow.Workflow)
+	workflowInstance := file.(*workflow.Workflow)
 
 	compliant := true
 
@@ -98,10 +98,10 @@ func (r Workflow) Lint(
 	switch r.Field {
 	case WorkflowFieldWorkflow:
 		for _, field := range confInterfaces {
-			if field.(string) == "name" && w.Name == "" {
+			if field.(string) == "name" && workflowInstance.Name == "" {
 				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
+					Path:     workflowInstance.Path,
+					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
 					ErrText:  "does not have a required " + field.(string),
 					RuleName: r.ConfigName(0),
@@ -112,16 +112,16 @@ func (r Workflow) Lint(
 		}
 
 	case WorkflowFieldDispatchInput:
-		if w.On == nil || w.On.WorkflowDispatch == nil || len(w.On.WorkflowDispatch.Inputs) == 0 {
+		if workflowInstance.On == nil || workflowInstance.On.WorkflowDispatch == nil || len(workflowInstance.On.WorkflowDispatch.Inputs) == 0 {
 			return true, nil
 		}
 
-		for inputName, input := range w.On.WorkflowDispatch.Inputs {
+		for inputName, input := range workflowInstance.On.WorkflowDispatch.Inputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
 					chErrors <- glitch.Glitch{
-						Path:     w.Path,
-						Name:     w.DisplayName,
+						Path:     workflowInstance.Path,
+						Name:     workflowInstance.DisplayName,
 						Type:     rule.DotGithubFileTypeWorkflow,
 						ErrText:  fmt.Sprintf("dispatch input '%s' does not have a required %s", inputName, field.(string)),
 						RuleName: r.ConfigName(0),
@@ -132,16 +132,16 @@ func (r Workflow) Lint(
 			}
 		}
 	case WorkflowFieldCallInput:
-		if w.On == nil || w.On.WorkflowCall == nil || len(w.On.WorkflowCall.Inputs) == 0 {
+		if workflowInstance.On == nil || workflowInstance.On.WorkflowCall == nil || len(workflowInstance.On.WorkflowCall.Inputs) == 0 {
 			return true, nil
 		}
 
-		for inputName, input := range w.On.WorkflowCall.Inputs {
+		for inputName, input := range workflowInstance.On.WorkflowCall.Inputs {
 			for _, field := range confInterfaces {
 				if field.(string) == "description" && input.Description == "" {
 					chErrors <- glitch.Glitch{
-						Path:     w.Path,
-						Name:     w.DisplayName,
+						Path:     workflowInstance.Path,
+						Name:     workflowInstance.DisplayName,
 						Type:     rule.DotGithubFileTypeWorkflow,
 						ErrText:  fmt.Sprintf("call input '%s' does not have a required %s", inputName, field.(string)),
 						RuleName: r.ConfigName(0),
