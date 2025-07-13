@@ -20,7 +20,7 @@ func TestActionDirectoryNameFormatValidate(t *testing.T) {
 		t.Errorf("ActionDirectoryNameFormat.Validate should return error when conf is %v", confBad)
 	}
 
-	confGood := "camelCase"
+	confGood := ValueCamelCase
 
 	err = rule.Validate(confGood)
 	if err != nil {
@@ -38,7 +38,7 @@ func TestActionDirectoryNameFormatNotCompliant(t *testing.T) {
 	rule := ActionDirectoryNameFormat{}
 	d := ruletest.GetDotGithub()
 
-	for _, nameFormat := range []string{"camelCase", "PascalCase", "ALL_CAPS"} {
+	for _, nameFormat := range []string{ValueCamelCase, ValuePascalCase, ValueAllCaps} {
 		fn := func(f dotgithub.File, _ string) {
 			compliant, ruleErrors, err := ruletest.Lint(2, rule, nameFormat, f, d)
 			if compliant {
@@ -68,7 +68,7 @@ func TestActionDirectoryNameFormatCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := ActionDirectoryNameFormat{}
-	conf := "dash-case"
+	conf := ValueDashCase
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {

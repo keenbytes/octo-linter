@@ -20,7 +20,7 @@ func TestSourceValidate(t *testing.T) {
 		}
 	}
 
-	for _, confGood := range []interface{}{"local-only", "local-or-external", "external-only"} {
+	for _, confGood := range []interface{}{ValueLocalOnly, ValueLocalOrExternal, ValueExternalOnly} {
 		err := rule.Validate(confGood)
 		if err != nil {
 			t.Errorf("Source.Validate should not return error when conf is %v", confGood)
@@ -32,7 +32,7 @@ func TestLocalOnly(t *testing.T) {
 	t.Parallel()
 
 	rule := Source{}
-	conf := "local-only"
+	conf := ValueLocalOnly
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
@@ -66,7 +66,7 @@ func TestExternalOnlyOnAction(t *testing.T) {
 	t.Parallel()
 
 	rule := Source{}
-	conf := "external-only"
+	conf := ValueExternalOnly
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {
@@ -100,7 +100,7 @@ func TestLocalOrExternalOnAction(t *testing.T) {
 	t.Parallel()
 
 	rule := Source{}
-	conf := "local-or-external"
+	conf := ValueLocalOrExternal
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, n string) {

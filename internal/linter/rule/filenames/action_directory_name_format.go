@@ -2,6 +2,7 @@ package filenames
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
@@ -30,8 +31,15 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != "dash-case" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
-		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
+	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase &&
+		val != ValueAllCaps {
+		return fmt.Errorf(
+			"value can be one of: %s, %s, %s, %s",
+			ValueDashCase,
+			ValueCamelCase,
+			ValuePascalCase,
+			ValueAllCaps,
+		)
 	}
 
 	return nil
@@ -41,7 +49,7 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r ActionDirectoryNameFormat) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -50,17 +58,17 @@ func (r ActionDirectoryNameFormat) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction {
+	if file.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
 
-	a := f.(*action.Action)
+	actionInstance := file.(*action.Action)
 
-	m := casematch.Match(a.DirName, conf.(string))
+	m := casematch.Match(actionInstance.DirName, conf.(string))
 	if !m {
 		chErrors <- glitch.Glitch{
-			Path:     a.Path,
-			Name:     a.DirName,
+			Path:     actionInstance.Path,
+			Name:     actionInstance.DirName,
 			Type:     rule.DotGithubFileTypeAction,
 			ErrText:  "directory name must be " + conf.(string),
 			RuleName: r.ConfigName(0),

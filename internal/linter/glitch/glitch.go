@@ -24,31 +24,31 @@ type Glitch struct {
 
 // ListToMarkdown takes a list of Glitch instances and generates a Markdown table from it.
 func ListToMarkdown(glitches []*Glitch, limit int) string {
-	s := `|Item|Error|
+	markdown := `|Item|Error|
 |---|---|
 `
 
-	for i, g := range glitches {
+	for i, glitch := range glitches {
 		if limit > 0 && i == limit {
 			break
 		}
 
-		name := "a/" + g.Name
-		if g.Type == DotGithubFileTypeWorkflow {
-			name = "w/" + g.Name
+		name := "a/" + glitch.Name
+		if glitch.Type == DotGithubFileTypeWorkflow {
+			name = "w/" + glitch.Name
 		}
 
 		level := `🟠`
-		if g.IsError {
+		if glitch.IsError {
 			level = `🔴`
 		}
 
-		s += fmt.Sprintf("|%s|%s %s *(%s)*|\n", name, level, g.ErrText, g.RuleName)
+		markdown += fmt.Sprintf("|%s|%s %s *(%s)*|\n", name, level, glitch.ErrText, glitch.RuleName)
 	}
 
 	if len(glitches) > limit && limit > 0 {
-		s += fmt.Sprintf("\n...and many more (%d in total).", len(glitches))
+		markdown += fmt.Sprintf("\n...and many more (%d in total).", len(glitches))
 	}
 
-	return s
+	return markdown
 }

@@ -56,7 +56,7 @@ func (r FilenameExtensionsAllowed) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r FilenameExtensionsAllowed) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -65,8 +65,8 @@ func (r FilenameExtensionsAllowed) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction &&
-		f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeAction &&
+		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -82,26 +82,26 @@ func (r FilenameExtensionsAllowed) Lint(
 		fileType     int
 	)
 
-	if f.GetType() == rule.DotGithubFileTypeAction {
-		a := f.(*action.Action)
+	if file.GetType() == rule.DotGithubFileTypeAction {
+		actionInstance := file.(*action.Action)
 
-		pathParts := strings.Split(a.Path, "/")
+		pathParts := strings.Split(actionInstance.Path, "/")
 		fileParts := strings.Split(pathParts[len(pathParts)-1], ".")
 		extension = fileParts[len(fileParts)-1]
 
-		filePath = a.Path
-		fileTypeName = a.DirName
+		filePath = actionInstance.Path
+		fileTypeName = actionInstance.DirName
 		fileType = rule.DotGithubFileTypeAction
 	}
 
-	if f.GetType() == rule.DotGithubFileTypeWorkflow {
-		w := f.(*workflow.Workflow)
+	if file.GetType() == rule.DotGithubFileTypeWorkflow {
+		workflowInstance := file.(*workflow.Workflow)
 
-		fileParts := strings.Split(w.FileName, ".")
+		fileParts := strings.Split(workflowInstance.FileName, ".")
 		extension = fileParts[len(fileParts)-1]
 
-		filePath = w.Path
-		fileTypeName = w.DisplayName
+		filePath = workflowInstance.Path
+		fileTypeName = workflowInstance.DisplayName
 		fileType = rule.DotGithubFileTypeWorkflow
 	}
 

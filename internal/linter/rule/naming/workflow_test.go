@@ -20,7 +20,7 @@ func TestWorkflowValidate(t *testing.T) {
 		t.Errorf("Workflow.Validate should return error when conf is %v", confBad)
 	}
 
-	confGood := "camelCase"
+	confGood := ValueCamelCase
 
 	err = rule.Validate(confGood)
 	if err != nil {
@@ -36,13 +36,13 @@ func TestWorkflowNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	for field, conf := range map[int]string{
-		WorkflowFieldEnv:                "ALL_CAPS",
-		WorkflowFieldJobEnv:             "ALL_CAPS",
-		WorkflowFieldJobStepEnv:         "ALL_CAPS",
-		WorkflowFieldReferencedVariable: "ALL_CAPS",
-		WorkflowFieldDispatchInputName:  "dash-case",
-		WorkflowFieldCallInputName:      "dash-case",
-		WorkflowFieldJobName:            "dash-case",
+		WorkflowFieldEnv:                ValueAllCaps,
+		WorkflowFieldJobEnv:             ValueAllCaps,
+		WorkflowFieldJobStepEnv:         ValueAllCaps,
+		WorkflowFieldReferencedVariable: ValueAllCaps,
+		WorkflowFieldDispatchInputName:  ValueDashCase,
+		WorkflowFieldCallInputName:      ValueDashCase,
+		WorkflowFieldJobName:            ValueDashCase,
 	} {
 		rule := Workflow{
 			Field: field,
@@ -79,13 +79,13 @@ func TestWorkflowCompliant(t *testing.T) {
 	t.Parallel()
 
 	for field, conf := range map[int]string{
-		WorkflowFieldEnv:                "ALL_CAPS",
-		WorkflowFieldJobEnv:             "ALL_CAPS",
-		WorkflowFieldJobStepEnv:         "ALL_CAPS",
-		WorkflowFieldReferencedVariable: "ALL_CAPS",
-		WorkflowFieldDispatchInputName:  "dash-case",
-		WorkflowFieldCallInputName:      "dash-case",
-		WorkflowFieldJobName:            "dash-case",
+		WorkflowFieldEnv:                ValueAllCaps,
+		WorkflowFieldJobEnv:             ValueAllCaps,
+		WorkflowFieldJobStepEnv:         ValueAllCaps,
+		WorkflowFieldReferencedVariable: ValueAllCaps,
+		WorkflowFieldDispatchInputName:  ValueDashCase,
+		WorkflowFieldCallInputName:      ValueDashCase,
+		WorkflowFieldJobName:            ValueDashCase,
 	} {
 		rule := Workflow{
 			Field: field,

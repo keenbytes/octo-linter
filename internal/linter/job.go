@@ -9,6 +9,11 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
+const (
+	// SecondsJobTimeout sets the job timeout in seconds.
+	SecondsJobTimeout = 10
+)
+
 func errRuleTimeout(name string) error {
 	return fmt.Errorf("rule %s timed out", name)
 }
@@ -29,7 +34,7 @@ func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch
 	var err error
 
 	done := make(chan struct{})
-	timer := time.NewTimer(10 * time.Second)
+	timer := time.NewTimer(SecondsJobTimeout * time.Second)
 
 	go func() {
 		if j.isError {

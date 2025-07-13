@@ -22,6 +22,6 @@ type Rule interface {
 		d *dotgithub.DotGithub,
 		chErrors chan<- glitch.Glitch,
 	) (bool, error)
-	ConfigName(int) string
+	ConfigName(fileType int) string
 	FileType() int
 }

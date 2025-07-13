@@ -25,6 +25,13 @@ const (
 	ActionFieldOutput
 )
 
+const (
+	// ValueName defines configuration value for 'name' field.
+	ValueName = "name"
+	// ValueDesc defines configuration value for 'desc' field.
+	ValueDesc = "description"
+)
+
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r Action) ConfigName(int) string {
 	switch r.Field {
@@ -59,11 +66,11 @@ func (r Action) Validate(conf interface{}) error {
 
 		switch r.Field {
 		case ActionFieldAction:
-			if field != "name" && field != "description" {
+			if field != ValueName && field != ValueDesc {
 				return errors.New("value can contain only 'name' and/or 'description'")
 			}
 		case ActionFieldInput, ActionFieldOutput:
-			if field != "description" {
+			if field != ValueDesc {
 				return errors.New("value can contain only 'description'")
 			}
 		}
@@ -76,7 +83,7 @@ func (r Action) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r Action) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -85,11 +92,11 @@ func (r Action) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction {
+	if file.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
 
-	a := f.(*action.Action)
+	actionInstance := file.(*action.Action)
 
 	confInterfaces := conf.([]interface{})
 
@@ -98,11 +105,11 @@ func (r Action) Lint(
 	switch r.Field {
 	case ActionFieldAction:
 		for _, field := range confInterfaces {
-			if (field.(string) == "name" && a.Name == "") ||
-				(field.(string) == "description" && a.Description == "") {
+			if (field.(string) == ValueName && actionInstance.Name == "") ||
+				(field.(string) == ValueDesc && actionInstance.Description == "") {
 				chErrors <- glitch.Glitch{
-					Path:     a.Path,
-					Name:     a.DirName,
+					Path:     actionInstance.Path,
+					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
 					ErrText:  "does not have a required " + field.(string),
 					RuleName: r.ConfigName(0),
@@ -112,12 +119,12 @@ func (r Action) Lint(
 			}
 		}
 	case ActionFieldInput:
-		for inputName, input := range a.Inputs {
+		for inputName, input := range actionInstance.Inputs {
 			for _, field := range confInterfaces {
-				if field.(string) == "description" && input.Description == "" {
+				if field.(string) == ValueDesc && input.Description == "" {
 					chErrors <- glitch.Glitch{
-						Path:     a.Path,
-						Name:     a.DirName,
+						Path:     actionInstance.Path,
+						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
 						ErrText:  fmt.Sprintf("input '%s' does not have a required %s", inputName, field.(string)),
 						RuleName: r.ConfigName(0),
@@ -128,12 +135,12 @@ func (r Action) Lint(
 			}
 		}
 	case ActionFieldOutput:
-		for outputName, output := range a.Outputs {
+		for outputName, output := range actionInstance.Outputs {
 			for _, field := range confInterfaces {
-				if field.(string) == "description" && output.Description == "" {
+				if field.(string) == ValueDesc && output.Description == "" {
 					chErrors <- glitch.Glitch{
-						Path:     a.Path,
-						Name:     a.DirName,
+						Path:     actionInstance.Path,
+						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
 						ErrText:  fmt.Sprintf("output '%s' does not have a required %s", outputName, field.(string)),
 						RuleName: r.ConfigName(0),

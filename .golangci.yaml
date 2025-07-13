@@ -4,6 +4,7 @@ linters:
   disable:
     - cyclop
     - tagliatelle
+    - testpackage
   settings:
     depguard:
       rules:
@@ -24,6 +25,7 @@ linters:
           - exhaustruct
           - funlen
           - varnamelen
+          - dupl
         path: _test.go
 formatters:
   enable:

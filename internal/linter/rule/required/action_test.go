@@ -22,7 +22,7 @@ func TestActionValidate(t *testing.T) {
 		t.Errorf("Action.Validate should return error when conf is not []string")
 	}
 
-	confGood := []interface{}{"name", "description"}
+	confGood := []interface{}{ValueName, ValueDesc}
 
 	err = rule.Validate(confGood)
 	if err != nil {
@@ -34,14 +34,14 @@ func TestActionValidate(t *testing.T) {
 			Field: f,
 		}
 
-		confBad2 := []interface{}{"name", "description"}
+		confBad2 := []interface{}{ValueName, ValueDesc}
 
 		err = rule.Validate(confBad2)
 		if err == nil {
 			t.Errorf("Action.Validate should return error when conf contains invalid values")
 		}
 
-		confGood2 := []interface{}{"description"}
+		confGood2 := []interface{}{ValueDesc}
 
 		err = rule.Validate(confGood2)
 		if err != nil {
@@ -56,7 +56,7 @@ func TestActionFieldActionNotCompliant(t *testing.T) {
 	rule := Action{
 		Field: ActionFieldAction,
 	}
-	conf := []interface{}{"name", "description"}
+	conf := []interface{}{ValueName, ValueDesc}
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
@@ -89,7 +89,7 @@ func TestActionFieldInputOutputNotCompliant(t *testing.T) {
 		rule := Action{
 			Field: field,
 		}
-		conf := []interface{}{"description"}
+		conf := []interface{}{ValueDesc}
 		d := ruletest.GetDotGithub()
 
 		fn := func(f dotgithub.File, _ string) {
@@ -123,7 +123,7 @@ func TestActionFieldActionCompliant(t *testing.T) {
 	rule := Action{
 		Field: ActionFieldAction,
 	}
-	conf := []interface{}{"name", "description"}
+	conf := []interface{}{ValueName, ValueDesc}
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
@@ -156,7 +156,7 @@ func TestActionFieldInputOutputCompliant(t *testing.T) {
 		rule := Action{
 			Field: field,
 		}
-		conf := []interface{}{"description"}
+		conf := []interface{}{ValueDesc}
 		d := ruletest.GetDotGithub()
 
 		fn := func(f dotgithub.File, _ string) {

@@ -2,6 +2,7 @@ package filenames
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -32,11 +33,12 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != "dash-case" && val != "dash-case;underscore-prefix-allowed" && val != "camelCase" &&
-		val != "PascalCase" &&
-		val != "ALL_CAPS" {
-		return errors.New(
-			"value can be one of: dash-case, dash-case;underscore-prefix-allowed, camelCase, PascalCase, ALL_CAPS",
+	if val != ValueDashCase && val != ValueDashCaseUnderscore && val != ValueCamelCase &&
+		val != ValuePascalCase &&
+		val != ValueAllCaps {
+		return fmt.Errorf(
+			"value can be one of: %s, %s, %s, %s, %s",
+			ValueDashCase, ValueDashCaseUnderscore, ValueCamelCase, ValuePascalCase, ValueAllCaps,
 		)
 	}
 
@@ -47,7 +49,7 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r WorkflowFilenameBaseFormat) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -56,20 +58,20 @@ func (r WorkflowFilenameBaseFormat) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	w := f.(*workflow.Workflow)
+	workflowInstance := file.(*workflow.Workflow)
 
-	fileParts := strings.Split(w.FileName, ".")
+	fileParts := strings.Split(workflowInstance.FileName, ".")
 	basename := fileParts[0]
 
 	m := casematch.Match(basename, conf.(string))
 	if !m {
 		chErrors <- glitch.Glitch{
-			Path:     w.Path,
-			Name:     w.DisplayName,
+			Path:     workflowInstance.Path,
+			Name:     workflowInstance.DisplayName,
 			Type:     rule.DotGithubFileTypeWorkflow,
 			ErrText:  "filename base must be " + conf.(string),
 			RuleName: r.ConfigName(0),

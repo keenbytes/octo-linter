@@ -48,7 +48,7 @@ func (r ReferencedInputExists) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r ReferencedInputExists) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -57,8 +57,8 @@ func (r ReferencedInputExists) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction &&
-		f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeAction &&
+		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
@@ -68,59 +68,68 @@ func (r ReferencedInputExists) Lint(
 
 	compliant := true
 
-	if f.GetType() == rule.DotGithubFileTypeAction {
-		a := f.(*action.Action)
+	if file.GetType() == rule.DotGithubFileTypeAction {
+		actionInstance := file.(*action.Action)
 
 		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 
-		found := re.FindAllSubmatch(a.Raw, -1)
-		for _, f := range found {
-			if a.Inputs == nil || a.Inputs[string(f[1])] == nil {
+		found := re.FindAllSubmatch(actionInstance.Raw, -1)
+		for _, refInput := range found {
+			if actionInstance.Inputs == nil || actionInstance.Inputs[string(refInput[1])] == nil {
 				chErrors <- glitch.Glitch{
-					Path:     a.Path,
-					Name:     a.DirName,
+					Path:     actionInstance.Path,
+					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(f[1])),
+					ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(refInput[1])),
 					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
 				}
 
 				compliant = false
 			}
 		}
+
+		return compliant, nil
 	}
 
-	if f.GetType() == rule.DotGithubFileTypeWorkflow {
-		w := f.(*workflow.Workflow)
-		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
+	if file.GetType() != rule.DotGithubFileTypeWorkflow {
+		return true, nil
+	}
 
-		found := re.FindAllSubmatch(w.Raw, -1)
-		for _, f := range found {
-			notInInputs := true
+	// check workflow
+	workflowInstance := file.(*workflow.Workflow)
+	re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 
-			if w.On != nil {
-				if w.On.WorkflowCall != nil && w.On.WorkflowCall.Inputs != nil &&
-					w.On.WorkflowCall.Inputs[string(f[1])] != nil {
-					notInInputs = false
-				}
+	found := re.FindAllSubmatch(workflowInstance.Raw, -1)
+	for _, refInput := range found {
+		notInInputs := true
 
-				if w.On.WorkflowDispatch != nil && w.On.WorkflowDispatch.Inputs != nil &&
-					w.On.WorkflowDispatch.Inputs[string(f[1])] != nil {
-					notInInputs = false
-				}
+		if workflowInstance.On != nil {
+			if workflowInstance.On.WorkflowCall != nil &&
+				workflowInstance.On.WorkflowCall.Inputs != nil &&
+				workflowInstance.On.WorkflowCall.Inputs[string(refInput[1])] != nil {
+				notInInputs = false
 			}
 
-			if notInInputs {
-				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
-					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(f[1])),
-					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
-				}
-
-				compliant = false
+			if workflowInstance.On.WorkflowDispatch != nil &&
+				workflowInstance.On.WorkflowDispatch.Inputs != nil &&
+				workflowInstance.On.WorkflowDispatch.Inputs[string(refInput[1])] != nil {
+				notInInputs = false
 			}
 		}
+
+		if !notInInputs {
+			continue
+		}
+
+		chErrors <- glitch.Glitch{
+			Path:     workflowInstance.Path,
+			Name:     workflowInstance.DisplayName,
+			Type:     rule.DotGithubFileTypeWorkflow,
+			ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(refInput[1])),
+			RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
+		}
+
+		compliant = false
 	}
 
 	return compliant, nil

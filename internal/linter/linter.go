@@ -25,6 +25,14 @@ const (
 	HasOnlyWarnings
 )
 
+const (
+	// MillisecondsTickerCheckingChannelsClosed is the ticker interval (ms) for checking channel closure.
+	MillisecondsTickerCheckingChannelsClosed = 500
+
+	// FileModeOutputMarkdown sets the mode for the generated markdown summary file.
+	FileModeOutputMarkdown = 0o600
+)
+
 // Linter represents a linter with specific configuration.
 type Linter struct {
 	Config *Config
@@ -32,12 +40,12 @@ type Linter struct {
 
 // Lint runs rules on the given DotGithub and returns the result.
 // Optionally writes a markdown summary to an output file.
-func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (int, error) {
+func (l *Linter) Lint(dotGithub *dotgithub.DotGithub, output string, outputLimit int) (int, error) {
 	if l.Config == nil {
 		panic("Config cannot be nil")
 	}
 
-	if d == nil {
+	if dotGithub == nil {
 		panic("DotGithub cannot be empty")
 	}
 
@@ -48,11 +56,11 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 	chWarnings := make(chan glitch.Glitch)
 	chErrors := make(chan glitch.Glitch)
 
-	wg := sync.WaitGroup{}
-	wg.Add(numCPU)
+	waitGroup := sync.WaitGroup{}
+	waitGroup.Add(numCPU)
 
 	go func() {
-		for _, action := range d.Actions {
+		for _, action := range dotGithub.Actions {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
 				if ruleEntry.FileType()&rule.DotGithubFileTypeAction == 0 {
 					continue
@@ -62,7 +70,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				chJobs <- Job{
 					rule:      ruleEntry,
 					file:      action,
-					dotGithub: d,
+					dotGithub: dotGithub,
 					isError:   isError,
 					value:     l.Config.Values[ruleIdx],
 				}
@@ -71,7 +79,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 			}
 		}
 
-		for _, workflow := range d.Workflows {
+		for _, workflow := range dotGithub.Workflows {
 			for ruleIdx, ruleEntry := range l.Config.Rules {
 				if ruleEntry.FileType()&rule.DotGithubFileTypeWorkflow == 0 {
 					continue
@@ -81,7 +89,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 				chJobs <- Job{
 					rule:      ruleEntry,
 					file:      workflow,
-					dotGithub: d,
+					dotGithub: dotGithub,
 					isError:   isError,
 					value:     l.Config.Values[ruleIdx],
 				}
@@ -91,43 +99,41 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 		}
 
 		close(chJobs)
-		wg.Done()
+		waitGroup.Done()
 	}()
 
 	go func() {
 		for {
 			job, more := <-chJobs
-			if more {
-				compliant, err := job.Run(chWarnings, chErrors)
-				if err != nil {
-					slog.Error(
-						"error running job",
-						slog.String("err", err.Error()),
-					)
-					summary.numError.Add(1)
+			if !more {
+				close(chWarnings)
+				close(chErrors)
 
-					continue
-				}
+				waitGroup.Done()
 
-				if !compliant {
-					if job.isError {
-						summary.numError.Add(1)
-					} else {
-						summary.numWarning.Add(1)
-					}
-				}
+				return
+			}
 
-				summary.numProcessed.Add(1)
+			compliant, err := job.Run(chWarnings, chErrors)
+			if err != nil {
+				slog.Error(
+					"error running job",
+					slog.String("err", err.Error()),
+				)
+				summary.numError.Add(1)
 
 				continue
 			}
 
-			close(chWarnings)
-			close(chErrors)
+			if !compliant {
+				if job.isError {
+					summary.numError.Add(1)
+				} else {
+					summary.numWarning.Add(1)
+				}
+			}
 
-			wg.Done()
-
-			return
+			summary.numProcessed.Add(1)
 		}
 	}()
 
@@ -136,7 +142,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 			chWarningsClosed := false
 			chErrorsClosed := false
 
-			ticker := time.NewTicker(500 * time.Millisecond)
+			ticker := time.NewTicker(MillisecondsTickerCheckingChannelsClosed * time.Millisecond)
 
 			for {
 				select {
@@ -168,7 +174,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 					}
 				case <-ticker.C:
 					if chWarningsClosed && chErrorsClosed {
-						wg.Done()
+						waitGroup.Done()
 
 						return
 					}
@@ -177,7 +183,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 		}()
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
 
 	finalStatus := HasNoErrorsOrWarnings
 
@@ -209,7 +215,7 @@ func (l *Linter) Lint(d *dotgithub.DotGithub, output string, outputLimit int) (i
 
 		md := summary.markdown("octo-linter summary", outputLimit)
 
-		err := os.WriteFile(outputMd, []byte(md), 0o600)
+		err := os.WriteFile(outputMd, []byte(md), FileModeOutputMarkdown)
 		if err != nil {
 			return finalStatus, fmt.Errorf("error writing markdown output: %w", err)
 		}

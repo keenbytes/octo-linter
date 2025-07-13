@@ -68,7 +68,7 @@ func (r Action) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r Action) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -77,22 +77,22 @@ func (r Action) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeAction {
+	if file.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
 
-	a := f.(*action.Action)
+	actionInstance := file.(*action.Action)
 
 	compliant := true
 
 	switch r.Field {
 	case ActionFieldInputName:
-		for inputName := range a.Inputs {
+		for inputName := range actionInstance.Inputs {
 			m := casematch.Match(inputName, conf.(string))
 			if !m {
 				chErrors <- glitch.Glitch{
-					Path:     a.Path,
-					Name:     a.DirName,
+					Path:     actionInstance.Path,
+					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
 					ErrText:  fmt.Sprintf("input '%s' must be %s", inputName, conf.(string)),
 					RuleName: r.ConfigName(0),
@@ -102,12 +102,12 @@ func (r Action) Lint(
 			}
 		}
 	case ActionFieldOutputName:
-		for outputName := range a.Outputs {
+		for outputName := range actionInstance.Outputs {
 			m := casematch.Match(outputName, conf.(string))
 			if !m {
 				chErrors <- glitch.Glitch{
-					Path:     a.Path,
-					Name:     a.DirName,
+					Path:     actionInstance.Path,
+					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
 					ErrText:  fmt.Sprintf("output '%s' must be %s", outputName, conf.(string)),
 					RuleName: r.ConfigName(0),
@@ -121,15 +121,15 @@ func (r Action) Lint(
 		for _, v := range varTypes {
 			re := regexp.MustCompile(fmt.Sprintf("\\${{[ ]*%s\\.([a-zA-Z0-9\\-_]+)[ ]*}}", v))
 
-			found := re.FindAllSubmatch(a.Raw, -1)
-			for _, f := range found {
-				m := casematch.Match(string(f[1]), conf.(string))
+			found := re.FindAllSubmatch(actionInstance.Raw, -1)
+			for _, refVar := range found {
+				m := casematch.Match(string(refVar[1]), conf.(string))
 				if !m {
 					chErrors <- glitch.Glitch{
-						Path:     a.Path,
-						Name:     a.DirName,
+						Path:     actionInstance.Path,
+						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
-						ErrText:  fmt.Sprintf("references a variable '%s' that must be %s", string(f[1]), conf.(string)),
+						ErrText:  fmt.Sprintf("references a variable '%s' that must be %s", string(refVar[1]), conf.(string)),
 						RuleName: r.ConfigName(0),
 					}
 
@@ -138,11 +138,11 @@ func (r Action) Lint(
 			}
 		}
 	case ActionFieldStepEnv:
-		if len(a.Runs.Steps) == 0 {
+		if len(actionInstance.Runs.Steps) == 0 {
 			return true, nil
 		}
 
-		for i, step := range a.Runs.Steps {
+		for stepIdx, step := range actionInstance.Runs.Steps {
 			if len(step.Env) == 0 {
 				continue
 			}
@@ -151,10 +151,10 @@ func (r Action) Lint(
 				m := casematch.Match(envName, conf.(string))
 				if !m {
 					chErrors <- glitch.Glitch{
-						Path:     a.Path,
-						Name:     a.DirName,
+						Path:     actionInstance.Path,
+						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
-						ErrText:  fmt.Sprintf("step %d env '%s' must be %s", i, envName, conf.(string)),
+						ErrText:  fmt.Sprintf("step %d env '%s' must be %s", stepIdx, envName, conf.(string)),
 						RuleName: r.ConfigName(0),
 					}
 

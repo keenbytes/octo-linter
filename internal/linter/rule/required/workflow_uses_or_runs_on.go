@@ -37,7 +37,7 @@ func (r WorkflowUsesOrRunsOn) Validate(conf interface{}) error {
 // reports any errors via the given channel, and returns whether the file is compliant.
 func (r WorkflowUsesOrRunsOn) Lint(
 	conf interface{},
-	f dotgithub.File,
+	file dotgithub.File,
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
@@ -46,23 +46,23 @@ func (r WorkflowUsesOrRunsOn) Lint(
 		return false, err
 	}
 
-	if f.GetType() != rule.DotGithubFileTypeWorkflow {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	w := f.(*workflow.Workflow)
+	workflowInstance := file.(*workflow.Workflow)
 
-	if !conf.(bool) || len(w.Jobs) == 0 {
+	if !conf.(bool) || len(workflowInstance.Jobs) == 0 {
 		return true, nil
 	}
 
 	compliant := true
 
-	for jobName, job := range w.Jobs {
+	for jobName, job := range workflowInstance.Jobs {
 		if job.RunsOn == nil && job.Uses == "" {
 			chErrors <- glitch.Glitch{
-				Path:     w.Path,
-				Name:     w.DisplayName,
+				Path:     workflowInstance.Path,
+				Name:     workflowInstance.DisplayName,
 				Type:     rule.DotGithubFileTypeWorkflow,
 				ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 				RuleName: r.ConfigName(0),
@@ -75,8 +75,8 @@ func (r WorkflowUsesOrRunsOn) Lint(
 		if ok {
 			if job.Uses == "" && runsOnStr == "" {
 				chErrors <- glitch.Glitch{
-					Path:     w.Path,
-					Name:     w.DisplayName,
+					Path:     workflowInstance.Path,
+					Name:     workflowInstance.DisplayName,
 					Type:     rule.DotGithubFileTypeWorkflow,
 					ErrText:  fmt.Sprintf("job '%s' should have either 'uses' or 'runs-on' field", jobName),
 					RuleName: r.ConfigName(0),

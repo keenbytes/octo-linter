@@ -8,6 +8,11 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
+const (
+	// TestOnlyJobName defines the name of the only existing job's name.
+	TestOnlyJobName = "main"
+)
+
 func TestWorkflowSingleJobOnlyNameValidate(t *testing.T) {
 	t.Parallel()
 
@@ -20,7 +25,7 @@ func TestWorkflowSingleJobOnlyNameValidate(t *testing.T) {
 		t.Errorf("Workflow.Validate should return error when conf is not string")
 	}
 
-	confGood := "main"
+	confGood := TestOnlyJobName
 
 	err = rule.Validate(confGood)
 	if err != nil {
@@ -32,7 +37,7 @@ func TestWorkflowSingleJobOnlyNameNotCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := WorkflowSingleJobOnlyName{}
-	conf := "main"
+	conf := TestOnlyJobName
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {
@@ -60,7 +65,7 @@ func TestWorkflowSingleJobOnlyNameCompliant(t *testing.T) {
 	t.Parallel()
 
 	rule := WorkflowSingleJobOnlyName{}
-	conf := "main"
+	conf := TestOnlyJobName
 	d := ruletest.GetDotGithub()
 
 	fn := func(f dotgithub.File, _ string) {

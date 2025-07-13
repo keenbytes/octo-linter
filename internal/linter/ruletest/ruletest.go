@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	testDotGithub *dotgithub.DotGithub
+	testDotGithub     *dotgithub.DotGithub
 	testDotGithubOnce sync.Once
 )
 
@@ -25,6 +25,7 @@ func GetDotGithub() *dotgithub.DotGithub {
 		testDotGithub = &dotgithub.DotGithub{}
 		_ = testDotGithub.ReadDir(context.Background(), "../../../../tests/rules")
 	})
+
 	return testDotGithub
 }
 
