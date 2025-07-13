@@ -1,7 +1,6 @@
 package required
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -48,23 +47,23 @@ func (r Workflow) FileType() int {
 func (r Workflow) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
-		return errors.New("value should be []string")
+		return errValueNotStringArray
 	}
 
 	for _, v := range vals {
 		field, ok := v.(string)
 		if !ok {
-			return errors.New("value should be []string")
+			return errValueNotStringArray
 		}
 
 		switch r.Field {
 		case WorkflowFieldWorkflow:
 			if field != ValueName {
-				return errors.New("value can contain only 'name'")
+				return errValueNotName
 			}
 		case WorkflowFieldDispatchInput, WorkflowFieldCallInput:
 			if field != ValueDesc {
-				return errors.New("value can contain only 'description'")
+				return errValueNotDescription
 			}
 		}
 	}

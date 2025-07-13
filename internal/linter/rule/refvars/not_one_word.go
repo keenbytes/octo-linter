@@ -1,7 +1,6 @@
 package refvars
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -38,7 +37,7 @@ func (r NotOneWord) FileType() int {
 func (r NotOneWord) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil

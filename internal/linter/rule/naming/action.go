@@ -1,7 +1,6 @@
 package naming
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -54,11 +53,11 @@ func (r Action) FileType() int {
 func (r Action) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
-		return errors.New("value should be string")
+		return errValueNotString
 	}
 
 	if val != "dash-case" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
-		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
+		return errValueNotValid
 	}
 
 	return nil

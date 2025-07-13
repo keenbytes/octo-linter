@@ -19,6 +19,10 @@ var (
 	testDotGithubOnce sync.Once
 )
 
+var (
+	errTimeout = errors.New("timeout")
+)
+
 // GetDotGithub returns DitGithub with test rules.
 func GetDotGithub() *dotgithub.DotGithub {
 	testDotGithubOnce.Do(func() {
@@ -56,7 +60,7 @@ loop:
 	for {
 		select {
 		case <-timer:
-			err = errors.New("timeout")
+			err = errTimeout
 			compliant = false
 
 			break loop

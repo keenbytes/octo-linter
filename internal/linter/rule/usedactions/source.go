@@ -1,7 +1,6 @@
 package usedactions
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -38,18 +37,12 @@ func (r Source) FileType() int {
 func (r Source) Validate(conf interface{}) error {
 	val, ok := conf.(string)
 	if !ok {
-		return errors.New("value should be string")
+		return errValueNotString
 	}
 
 	if val != ValueLocalOnly && val != ValueLocalOrExternal && val != ValueExternalOnly &&
 		val != "" {
-		return fmt.Errorf(
-			"%s supports '%s', '%s', '%s' or empty value only",
-			r.ConfigName(0),
-			ValueLocalOnly,
-			ValueLocalOrExternal,
-			ValueExternalOnly,
-		)
+		return errValueNotEmptyOrLocalOrExternalOrBoth
 	}
 
 	return nil

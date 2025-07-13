@@ -1,7 +1,6 @@
 package dependencies
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -38,7 +37,7 @@ func (r ReferencedInputExists) FileType() int {
 func (r ReferencedInputExists) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil

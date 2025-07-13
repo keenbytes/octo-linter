@@ -1,7 +1,6 @@
 package filenames
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -35,17 +34,17 @@ func (r FilenameExtensionsAllowed) FileType() int {
 func (r FilenameExtensionsAllowed) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
-		return errors.New("value should be []string")
+		return errValueNotStringArray
 	}
 
 	for _, v := range vals {
 		extension, ok := v.(string)
 		if !ok {
-			return errors.New("value should be []string")
+			return errValueNotStringArray
 		}
 
 		if extension != "yml" && extension != "yaml" {
-			return errors.New("value can contain only 'yml' and/or 'yaml'")
+			return errValueNotYmlOrYaml
 		}
 	}
 

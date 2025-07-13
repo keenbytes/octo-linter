@@ -1,7 +1,6 @@
 package required
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -55,23 +54,23 @@ func (r Action) FileType() int {
 func (r Action) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
-		return errors.New("value should be []string")
+		return errValueNotStringArray
 	}
 
 	for _, v := range vals {
 		field, ok := v.(string)
 		if !ok {
-			return errors.New("value should be []string")
+			return errValueNotStringArray
 		}
 
 		switch r.Field {
 		case ActionFieldAction:
 			if field != ValueName && field != ValueDesc {
-				return errors.New("value can contain only 'name' and/or 'description'")
+				return errValueNotNameOrDescription
 			}
 		case ActionFieldInput, ActionFieldOutput:
 			if field != ValueDesc {
-				return errors.New("value can contain only 'description'")
+				return errValueNotDescription
 			}
 		}
 	}

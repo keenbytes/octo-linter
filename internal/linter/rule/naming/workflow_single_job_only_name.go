@@ -1,7 +1,6 @@
 package naming
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -27,7 +26,7 @@ func (r WorkflowSingleJobOnlyName) FileType() int {
 func (r WorkflowSingleJobOnlyName) Validate(conf interface{}) error {
 	_, ok := conf.(string)
 	if !ok {
-		return errors.New("value should be string")
+		return errValueNotString
 	}
 
 	return nil

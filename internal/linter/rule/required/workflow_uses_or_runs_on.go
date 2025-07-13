@@ -1,7 +1,6 @@
 package required
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -27,7 +26,7 @@ func (r WorkflowUsesOrRunsOn) FileType() int {
 func (r WorkflowUsesOrRunsOn) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil

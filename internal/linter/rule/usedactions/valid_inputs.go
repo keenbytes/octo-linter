@@ -1,7 +1,6 @@
 package usedactions
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -39,7 +38,7 @@ func (r ValidInputs) FileType() int {
 func (r ValidInputs) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil

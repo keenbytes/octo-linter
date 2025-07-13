@@ -1,7 +1,6 @@
 package dependencies
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -30,7 +29,7 @@ func (r ActionReferencedStepOutputExists) FileType() int {
 func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil

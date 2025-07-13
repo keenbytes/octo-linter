@@ -1,7 +1,6 @@
 package refvars
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -37,7 +36,7 @@ func (r NotInDoubleQuotes) FileType() int {
 func (r NotInDoubleQuotes) Validate(conf interface{}) error {
 	_, ok := conf.(bool)
 	if !ok {
-		return errors.New("value should be bool")
+		return errValueNotBool
 	}
 
 	return nil

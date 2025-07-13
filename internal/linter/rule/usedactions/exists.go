@@ -1,7 +1,6 @@
 package usedactions
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -38,17 +37,17 @@ func (r Exists) FileType() int {
 func (r Exists) Validate(conf interface{}) error {
 	vals, ok := conf.([]interface{})
 	if !ok {
-		return errors.New("value should be []string")
+		return errValueNotStringArray
 	}
 
 	for _, v := range vals {
 		source, ok := v.(string)
 		if !ok {
-			return errors.New("value should be []string")
+			return errValueNotStringArray
 		}
 
 		if source != "local" && source != "external" {
-			return errors.New("value can contain only 'local' and/or 'external'")
+			return errValueNotLocalAndOrExternal
 		}
 	}
 

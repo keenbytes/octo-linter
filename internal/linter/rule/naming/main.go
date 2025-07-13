@@ -1,6 +1,11 @@
 // Package naming contains rules related to naming convention of action and workflow fields.
 package naming
 
+import (
+	"errors"
+	"fmt"
+)
+
 const (
 	// ValueDashCase is a configuration value indicating that a field should follow the dash-case convention.
 	ValueDashCase = "dash-case"
@@ -13,4 +18,12 @@ const (
 	ValuePascalCase = "PascalCase"
 	// ValueAllCaps is a configuration value indicating that a field should follow the all-caps-case convention.
 	ValueAllCaps = "ALL_CAPS"
+)
+
+var (
+	errValueNotString = errors.New("value should be string")
+	errValueNotValid = fmt.Errorf(
+		"value can be one of: %s, %s, %s, %s",
+		ValueDashCase, ValueCamelCase, ValuePascalCase, ValueAllCaps,
+	)
 )
