@@ -104,12 +104,14 @@ func (r ReferencedInputExists) Lint(
 		notInInputs := true
 
 		if workflowInstance.On != nil {
-			if workflowInstance.On.WorkflowCall != nil && workflowInstance.On.WorkflowCall.Inputs != nil &&
+			if workflowInstance.On.WorkflowCall != nil &&
+				workflowInstance.On.WorkflowCall.Inputs != nil &&
 				workflowInstance.On.WorkflowCall.Inputs[string(refInput[1])] != nil {
 				notInInputs = false
 			}
 
-			if workflowInstance.On.WorkflowDispatch != nil && workflowInstance.On.WorkflowDispatch.Inputs != nil &&
+			if workflowInstance.On.WorkflowDispatch != nil &&
+				workflowInstance.On.WorkflowDispatch.Inputs != nil &&
 				workflowInstance.On.WorkflowDispatch.Inputs[string(refInput[1])] != nil {
 				notInInputs = false
 			}

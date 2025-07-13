@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	testDotGithub *dotgithub.DotGithub
+	testDotGithub     *dotgithub.DotGithub
 	testDotGithubOnce sync.Once
 )
 

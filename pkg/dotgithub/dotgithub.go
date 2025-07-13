@@ -28,7 +28,8 @@ type DotGithub struct {
 const (
 	// NumExternalActionPathParts defines the number of segments in a 'uses' path split by '/'.
 	NumExternalActionPathParts = 3
-	// NumExternalActionPathPartsNoSubdir defines the number of segments in a 'uses' path split by '/' when the action is not in a subdirectory.
+	// NumExternalActionPathPartsNoSubdir defines the number of segments in a 'uses' path split by '/' when the action
+	// is not in a subdirectory.
 	NumExternalActionPathPartsNoSubdir = 2
 )
 

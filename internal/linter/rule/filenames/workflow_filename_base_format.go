@@ -2,6 +2,7 @@ package filenames
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -32,11 +33,12 @@ func (r WorkflowFilenameBaseFormat) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != "dash-case" && val != "dash-case;underscore-prefix-allowed" && val != "camelCase" &&
-		val != "PascalCase" &&
-		val != "ALL_CAPS" {
-		return errors.New(
-			"value can be one of: dash-case, dash-case;underscore-prefix-allowed, camelCase, PascalCase, ALL_CAPS",
+	if val != ValueDashCase && val != ValueDashCaseUnderscore && val != ValueCamelCase &&
+		val != ValuePascalCase &&
+		val != ValueAllCaps {
+		return fmt.Errorf(
+			"value can be one of: %s, %s, %s, %s, %s",
+			ValueDashCase, ValueDashCaseUnderscore, ValueCamelCase, ValuePascalCase, ValueAllCaps,
 		)
 	}
 

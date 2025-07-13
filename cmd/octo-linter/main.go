@@ -140,7 +140,7 @@ func initHandler(_ context.Context, cli *broccli.Broccli) int {
 			)
 
 			return ExitErrCheckingDstPath
-		} 
+		}
 
 		if err == nil && fileInfo.IsDir() {
 			slog.Error(

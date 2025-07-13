@@ -41,10 +41,13 @@ func (r Source) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != "local-only" && val != "local-or-external" && val != "external-only" && val != "" {
+	if val != ValueLocalOnly && val != ValueLocalOrExternal && val != ValueExternalOnly && val != "" {
 		return fmt.Errorf(
-			"%s supports 'local-only', 'external-only', 'local-or-external' or empty value only",
+			"%s supports '%s', '%s', '%s' or empty value only",
 			r.ConfigName(0),
+			ValueLocalOnly,
+			ValueLocalOrExternal,
+			ValueExternalOnly,
 		)
 	}
 
@@ -145,36 +148,51 @@ func (r Source) Lint(
 		isLocal := reLocal.MatchString(step.Uses)
 		isExternal := reExternal.MatchString(step.Uses)
 
-		if confVal == "local-only" && !isLocal {
+		if confVal == ValueLocalOnly && !isLocal {
 			chErrors <- glitch.Glitch{
-				Path:     filePath,
-				Name:     fileName,
-				Type:     fileType,
-				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not a valid local path", errPrefix, stepIdx+1, step.Uses),
+				Path: filePath,
+				Name: fileName,
+				Type: fileType,
+				ErrText: fmt.Sprintf(
+					"%sstep %d calls action '%s' that is not a valid local path",
+					errPrefix,
+					stepIdx+1,
+					step.Uses,
+				),
 				RuleName: r.ConfigName(fileType),
 			}
 
 			compliant = false
 		}
 
-		if confVal == "external-only" && !isExternal {
+		if confVal == ValueExternalOnly && !isExternal {
 			chErrors <- glitch.Glitch{
-				Path:     filePath,
-				Name:     fileName,
-				Type:     fileType,
-				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is not external", errPrefix, stepIdx+1, step.Uses),
+				Path: filePath,
+				Name: fileName,
+				Type: fileType,
+				ErrText: fmt.Sprintf(
+					"%sstep %d calls action '%s' that is not external",
+					errPrefix,
+					stepIdx+1,
+					step.Uses,
+				),
 				RuleName: r.ConfigName(fileType),
 			}
 
 			compliant = false
 		}
 
-		if confVal == "local-or-external" && !isLocal && !isExternal {
+		if confVal == ValueLocalOrExternal && !isLocal && !isExternal {
 			chErrors <- glitch.Glitch{
-				Path:     filePath,
-				Name:     fileName,
-				Type:     fileType,
-				ErrText:  fmt.Sprintf("%sstep %d calls action '%s' that is neither external nor local", errPrefix, stepIdx+1, step.Uses),
+				Path: filePath,
+				Name: fileName,
+				Type: fileType,
+				ErrText: fmt.Sprintf(
+					"%sstep %d calls action '%s' that is neither external nor local",
+					errPrefix,
+					stepIdx+1,
+					step.Uses,
+				),
 				RuleName: r.ConfigName(fileType),
 			}
 

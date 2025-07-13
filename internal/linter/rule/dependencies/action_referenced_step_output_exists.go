@@ -55,11 +55,15 @@ func (r ActionReferencedStepOutputExists) Lint(
 
 	actionInstance := file.(*action.Action)
 
-	reStepOutput := regexp.MustCompile(`\${{[ ]*steps\.([a-zA-Z0-9\-_]+)\.outputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
+	reStepOutput := regexp.MustCompile(
+		`\${{[ ]*steps\.([a-zA-Z0-9\-_]+)\.outputs\.([a-zA-Z0-9\-_]+)[ ]*}}`,
+	)
 	reAppendToGithubOutput := regexp.MustCompile(
 		`echo[ ]+["']([a-zA-Z0-9\-_]+)=.*["'][ ]+.*>>[ ]+\$GITHUB_OUTPUT`,
 	)
-	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
+	reLocal := regexp.MustCompile(
+		`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`,
+	)
 	reExternal := regexp.MustCompile(
 		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
 	)

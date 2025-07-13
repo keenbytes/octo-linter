@@ -59,11 +59,11 @@ func (r Workflow) Validate(conf interface{}) error {
 
 		switch r.Field {
 		case WorkflowFieldWorkflow:
-			if field != "name" {
+			if field != ValueName {
 				return errors.New("value can contain only 'name'")
 			}
 		case WorkflowFieldDispatchInput, WorkflowFieldCallInput:
-			if field != "description" {
+			if field != ValueDesc {
 				return errors.New("value can contain only 'description'")
 			}
 		}
@@ -98,7 +98,7 @@ func (r Workflow) Lint(
 	switch r.Field {
 	case WorkflowFieldWorkflow:
 		for _, field := range confInterfaces {
-			if field.(string) == "name" && workflowInstance.Name == "" {
+			if field.(string) == ValueName && workflowInstance.Name == "" {
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
 					Name:     workflowInstance.DisplayName,
@@ -112,13 +112,15 @@ func (r Workflow) Lint(
 		}
 
 	case WorkflowFieldDispatchInput:
-		if workflowInstance.On == nil || workflowInstance.On.WorkflowDispatch == nil || len(workflowInstance.On.WorkflowDispatch.Inputs) == 0 {
+		if workflowInstance.On == nil ||
+			workflowInstance.On.WorkflowDispatch == nil ||
+			len(workflowInstance.On.WorkflowDispatch.Inputs) == 0 {
 			return true, nil
 		}
 
 		for inputName, input := range workflowInstance.On.WorkflowDispatch.Inputs {
 			for _, field := range confInterfaces {
-				if field.(string) == "description" && input.Description == "" {
+				if field.(string) == ValueDesc && input.Description == "" {
 					chErrors <- glitch.Glitch{
 						Path:     workflowInstance.Path,
 						Name:     workflowInstance.DisplayName,
@@ -132,13 +134,15 @@ func (r Workflow) Lint(
 			}
 		}
 	case WorkflowFieldCallInput:
-		if workflowInstance.On == nil || workflowInstance.On.WorkflowCall == nil || len(workflowInstance.On.WorkflowCall.Inputs) == 0 {
+		if workflowInstance.On == nil ||
+			workflowInstance.On.WorkflowCall == nil ||
+			len(workflowInstance.On.WorkflowCall.Inputs) == 0 {
 			return true, nil
 		}
 
 		for inputName, input := range workflowInstance.On.WorkflowCall.Inputs {
 			for _, field := range confInterfaces {
-				if field.(string) == "description" && input.Description == "" {
+				if field.(string) == ValueDesc && input.Description == "" {
 					chErrors <- glitch.Glitch{
 						Path:     workflowInstance.Path,
 						Name:     workflowInstance.DisplayName,

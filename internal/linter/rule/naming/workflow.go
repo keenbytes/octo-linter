@@ -69,7 +69,7 @@ func (r Workflow) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != "dash-case" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
+	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase && val != ValueAllCaps {
 		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
 	}
 
@@ -183,7 +183,9 @@ func (r Workflow) Lint(
 			}
 		}
 	case WorkflowFieldDispatchInputName:
-		if workflowInstance.On == nil || workflowInstance.On.WorkflowDispatch == nil || len(workflowInstance.On.WorkflowDispatch.Inputs) == 0 {
+		if workflowInstance.On == nil ||
+			workflowInstance.On.WorkflowDispatch == nil ||
+			len(workflowInstance.On.WorkflowDispatch.Inputs) == 0 {
 			return true, nil
 		}
 
@@ -202,7 +204,9 @@ func (r Workflow) Lint(
 			}
 		}
 	case WorkflowFieldCallInputName:
-		if workflowInstance.On == nil || workflowInstance.On.WorkflowCall == nil || len(workflowInstance.On.WorkflowCall.Inputs) == 0 {
+		if workflowInstance.On == nil ||
+			workflowInstance.On.WorkflowCall == nil ||
+			len(workflowInstance.On.WorkflowCall.Inputs) == 0 {
 			return true, nil
 		}
 

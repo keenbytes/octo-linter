@@ -25,6 +25,7 @@ linters:
           - exhaustruct
           - funlen
           - varnamelen
+          - dupl
         path: _test.go
 formatters:
   enable:

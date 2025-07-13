@@ -62,7 +62,8 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(
 
 		found := re.FindAllSubmatch(workflowInstance.Raw, -1)
 		for _, refVar := range found {
-			if varType == "vars" && len(dotGithub.Vars) > 0 && !dotGithub.IsVarExist(string(refVar[1])) {
+			if varType == "vars" && len(dotGithub.Vars) > 0 &&
+				!dotGithub.IsVarExist(string(refVar[1])) {
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
 					Name:     workflowInstance.DisplayName,
@@ -74,7 +75,8 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(
 				compliant = false
 			}
 
-			if varType == "secrets" && len(dotGithub.Secrets) > 0 && !dotGithub.IsSecretExist(string(refVar[1])) {
+			if varType == "secrets" && len(dotGithub.Secrets) > 0 &&
+				!dotGithub.IsSecretExist(string(refVar[1])) {
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
 					Name:     workflowInstance.DisplayName,

@@ -8,6 +8,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
+
 const (
 	// SecondsJobTimeout sets the job timeout in seconds.
 	SecondsJobTimeout = 10

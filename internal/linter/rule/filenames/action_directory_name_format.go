@@ -2,6 +2,7 @@ package filenames
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
@@ -30,8 +31,8 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != "dash-case" && val != "camelCase" && val != "PascalCase" && val != "ALL_CAPS" {
-		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
+	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase && val != ValueAllCaps {
+		return fmt.Errorf("value can be one of: %s, %s, %s, %s", ValueDashCase, ValueCamelCase, ValuePascalCase, ValueAllCaps)
 	}
 
 	return nil
