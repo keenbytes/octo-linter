@@ -59,37 +59,47 @@ func (r WorkflowNeedsWithExistingJobs) Lint(
 	compliant := true
 
 	for jobName, job := range workflowInstance.Jobs {
-		if job.Needs != nil {
-			needsStr, needsIsString := job.Needs.(string)
-			if needsIsString {
-				if workflowInstance.Jobs[needsStr] == nil {
-					compliant = false
+		if job.Needs == nil {
+			continue
+		}
 
-					chErrors <- glitch.Glitch{
-						Path:     workflowInstance.Path,
-						Name:     workflowInstance.DisplayName,
-						Type:     rule.DotGithubFileTypeWorkflow,
-						ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, needsStr),
-						RuleName: r.ConfigName(0),
-					}
-				}
+		needsStr, needsIsString := job.Needs.(string)
+		if needsIsString {
+			if workflowInstance.Jobs[needsStr] != nil {
+				continue
 			}
 
-			needsList, needsIsList := job.Needs.([]interface{})
-			if needsIsList {
-				for _, neededJob := range needsList {
-					if workflowInstance.Jobs[neededJob.(string)] == nil {
-						compliant = false
+			compliant = false
 
-						chErrors <- glitch.Glitch{
-							Path:     workflowInstance.Path,
-							Name:     workflowInstance.DisplayName,
-							Type:     rule.DotGithubFileTypeWorkflow,
-							ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob.(string)),
-							RuleName: r.ConfigName(0),
-						}
-					}
-				}
+			chErrors <- glitch.Glitch{
+				Path:     workflowInstance.Path,
+				Name:     workflowInstance.DisplayName,
+				Type:     rule.DotGithubFileTypeWorkflow,
+				ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, needsStr),
+				RuleName: r.ConfigName(0),
+			}
+
+			continue
+		}
+
+		needsList, needsIsList := job.Needs.([]interface{})
+		if !needsIsList {
+			continue
+		}
+
+		for _, neededJob := range needsList {
+			if workflowInstance.Jobs[neededJob.(string)] != nil {
+				continue
+			}
+
+			compliant = false
+
+			chErrors <- glitch.Glitch{
+				Path:     workflowInstance.Path,
+				Name:     workflowInstance.DisplayName,
+				Type:     rule.DotGithubFileTypeWorkflow,
+				ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob.(string)),
+				RuleName: r.ConfigName(0),
 			}
 		}
 	}

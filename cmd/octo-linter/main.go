@@ -127,26 +127,23 @@ func initHandler(_ context.Context, cli *broccli.Broccli) int {
 	path := cli.Flag("destination")
 	if path == "" {
 		fileInfo, err := os.Stat(configFileName)
-		if err != nil {
-			if !os.IsNotExist(err) {
-				slog.Error(
-					"error checking if destination path exists",
-					slog.String("destination", configFileName),
-					slog.String("err", err.Error()),
-				)
+		if err != nil && !os.IsNotExist(err) {
+			slog.Error(
+				"error checking if destination path exists",
+				slog.String("destination", configFileName),
+				slog.String("err", err.Error()),
+			)
 
-				return ExitErrCheckingDstPath
-			}
-		} else {
-			if fileInfo.IsDir() {
-				slog.Error(
-					"destination file already exists and it is a directory, remove it first or use --destination flag to change"+
-						" the destination",
-					slog.String("destination", configFileName),
-				)
+			return ExitErrCheckingDstPath
+		} 
+		if err == nil && fileInfo.IsDir() {
+			slog.Error(
+				"destination file already exists and it is a directory, remove it first or use --destination flag to change"+
+					" the destination",
+				slog.String("destination", configFileName),
+			)
 
-				return ExitDstFileIsDir
-			}
+			return ExitDstFileIsDir
 		}
 
 		path = configFileName

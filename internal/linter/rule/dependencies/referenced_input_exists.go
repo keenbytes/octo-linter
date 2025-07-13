@@ -87,40 +87,47 @@ func (r ReferencedInputExists) Lint(
 				compliant = false
 			}
 		}
+
+		return compliant, nil
 	}
 
-	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		workflowInstance := file.(*workflow.Workflow)
-		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
+	if file.GetType() != rule.DotGithubFileTypeWorkflow {
+		return true, nil
+	}
 
-		found := re.FindAllSubmatch(workflowInstance.Raw, -1)
-		for _, refInput := range found {
-			notInInputs := true
+	// check workflow
+	workflowInstance := file.(*workflow.Workflow)
+	re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
 
-			if workflowInstance.On != nil {
-				if workflowInstance.On.WorkflowCall != nil && workflowInstance.On.WorkflowCall.Inputs != nil &&
-					workflowInstance.On.WorkflowCall.Inputs[string(refInput[1])] != nil {
-					notInInputs = false
-				}
+	found := re.FindAllSubmatch(workflowInstance.Raw, -1)
+	for _, refInput := range found {
+		notInInputs := true
 
-				if workflowInstance.On.WorkflowDispatch != nil && workflowInstance.On.WorkflowDispatch.Inputs != nil &&
-					workflowInstance.On.WorkflowDispatch.Inputs[string(refInput[1])] != nil {
-					notInInputs = false
-				}
+		if workflowInstance.On != nil {
+			if workflowInstance.On.WorkflowCall != nil && workflowInstance.On.WorkflowCall.Inputs != nil &&
+				workflowInstance.On.WorkflowCall.Inputs[string(refInput[1])] != nil {
+				notInInputs = false
 			}
 
-			if notInInputs {
-				chErrors <- glitch.Glitch{
-					Path:     workflowInstance.Path,
-					Name:     workflowInstance.DisplayName,
-					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(refInput[1])),
-					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
-				}
-
-				compliant = false
+			if workflowInstance.On.WorkflowDispatch != nil && workflowInstance.On.WorkflowDispatch.Inputs != nil &&
+				workflowInstance.On.WorkflowDispatch.Inputs[string(refInput[1])] != nil {
+				notInInputs = false
 			}
 		}
+
+		if !notInInputs {
+			continue
+		}
+
+		chErrors <- glitch.Glitch{
+			Path:     workflowInstance.Path,
+			Name:     workflowInstance.DisplayName,
+			Type:     rule.DotGithubFileTypeWorkflow,
+			ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(refInput[1])),
+			RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
+		}
+
+		compliant = false
 	}
 
 	return compliant, nil

@@ -97,37 +97,35 @@ func (l *Linter) Lint(dotGithub *dotgithub.DotGithub, output string, outputLimit
 	go func() {
 		for {
 			job, more := <-chJobs
-			if more {
-				compliant, err := job.Run(chWarnings, chErrors)
-				if err != nil {
-					slog.Error(
-						"error running job",
-						slog.String("err", err.Error()),
-					)
-					summary.numError.Add(1)
+			if !more {
+				close(chWarnings)
+				close(chErrors)
 
-					continue
-				}
+				waitGroup.Done()
 
-				if !compliant {
-					if job.isError {
-						summary.numError.Add(1)
-					} else {
-						summary.numWarning.Add(1)
-					}
-				}
+				return
+			}
 
-				summary.numProcessed.Add(1)
+			compliant, err := job.Run(chWarnings, chErrors)
+			if err != nil {
+				slog.Error(
+					"error running job",
+					slog.String("err", err.Error()),
+				)
+				summary.numError.Add(1)
 
 				continue
 			}
 
-			close(chWarnings)
-			close(chErrors)
+			if !compliant {
+				if job.isError {
+					summary.numError.Add(1)
+				} else {
+					summary.numWarning.Add(1)
+				}
+			}
 
-			waitGroup.Done()
-
-			return
+			summary.numProcessed.Add(1)
 		}
 	}()
 
