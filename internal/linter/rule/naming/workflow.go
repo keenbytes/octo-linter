@@ -69,7 +69,8 @@ func (r Workflow) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase && val != ValueAllCaps {
+	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase &&
+		val != ValueAllCaps {
 		return errors.New("value can be one of: dash-case, camelCase, PascalCase, ALL_CAPS")
 	}
 

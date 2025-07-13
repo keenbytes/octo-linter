@@ -186,7 +186,13 @@ func main() {
 	if err != nil {
 		panic("error opening file to write to: " + err.Error())
 	}
-	defer fileRules.Close()
+
+	defer func() {
+		err := fileRules.Close()
+		if err != nil {
+			log.Printf("error closing file that was written: %s", err.Error())
+		}
+	}()
 
 	buf := &bytes.Buffer{}
 	t := template.Must(template.New("gend_tpl").Parse(string(tpl)))

@@ -31,8 +31,15 @@ func (r ActionDirectoryNameFormat) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase && val != ValueAllCaps {
-		return fmt.Errorf("value can be one of: %s, %s, %s, %s", ValueDashCase, ValueCamelCase, ValuePascalCase, ValueAllCaps)
+	if val != ValueDashCase && val != ValueCamelCase && val != ValuePascalCase &&
+		val != ValueAllCaps {
+		return fmt.Errorf(
+			"value can be one of: %s, %s, %s, %s",
+			ValueDashCase,
+			ValueCamelCase,
+			ValuePascalCase,
+			ValueAllCaps,
+		)
 	}
 
 	return nil

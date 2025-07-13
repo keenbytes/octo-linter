@@ -123,7 +123,7 @@ func main() {
 }
 
 func versionHandler(_ context.Context, _ *broccli.Broccli) int {
-	fmt.Fprintf(os.Stdout, VERSION+"\n")
+	_, _ = fmt.Fprintf(os.Stdout, VERSION+"\n")
 
 	return ExitOK
 }

@@ -41,7 +41,8 @@ func (r Source) Validate(conf interface{}) error {
 		return errors.New("value should be string")
 	}
 
-	if val != ValueLocalOnly && val != ValueLocalOrExternal && val != ValueExternalOnly && val != "" {
+	if val != ValueLocalOnly && val != ValueLocalOrExternal && val != ValueExternalOnly &&
+		val != "" {
 		return fmt.Errorf(
 			"%s supports '%s', '%s', '%s' or empty value only",
 			r.ConfigName(0),

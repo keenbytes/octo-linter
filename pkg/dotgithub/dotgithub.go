@@ -258,7 +258,16 @@ func (d *DotGithub) DownloadExternalAction(ctx context.Context, path string) err
 			return nil
 		}
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			slog.Error(
+				"error closing response body",
+				slog.String("err", err.Error()),
+			)
+		}
+	}()
 
 	b, _ := io.ReadAll(resp.Body)
 
