@@ -21,9 +21,9 @@ const (
 )
 
 var (
-	errValueNotString = errors.New("value should be string")
+	errValueNotString      = errors.New("value should be string")
 	errValueNotStringArray = errors.New("value should be []string")
-	errValueNotValid = fmt.Errorf(
+	errValueNotValid       = fmt.Errorf(
 		"value can be one of: %s, %s, %s, %s",
 		ValueDashCase, ValueCamelCase, ValuePascalCase, ValueAllCaps,
 	)
@@ -32,4 +32,5 @@ var (
 		ValueDashCase, ValueDashCaseUnderscore, ValueCamelCase, ValuePascalCase, ValueAllCaps,
 	)
 	errValueNotYmlOrYaml = errors.New("value can contain only 'yml' and/or 'yaml'")
+	errFileInvalidType   = errors.New("file is of invalid type")
 )

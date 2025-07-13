@@ -52,9 +52,9 @@ func (r ValidInputs) Lint(
 	dotGithub *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsBool := conf.(bool)
+	if !confIsBool {
+		return false, errValueNotBool
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeAction &&
@@ -62,7 +62,7 @@ func (r ValidInputs) Lint(
 		return true, nil
 	}
 
-	if !conf.(bool) {
+	if !confValue {
 		return true, nil
 	}
 
@@ -81,7 +81,11 @@ func (r ValidInputs) Lint(
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
-		actionInstance := file.(*action.Action)
+		actionInstance, ok := file.(*action.Action)
+		if !ok {
+			return false, errFileInvalidType
+		}
+
 		if len(actionInstance.Runs.Steps) == 0 {
 			return true, nil
 		}
@@ -95,7 +99,11 @@ func (r ValidInputs) Lint(
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		workflowInstance := file.(*workflow.Workflow)
+		workflowInstance, ok := file.(*workflow.Workflow)
+		if !ok {
+			return false, errFileInvalidType
+		}
+
 		if len(workflowInstance.Jobs) == 0 {
 			return true, nil
 		}

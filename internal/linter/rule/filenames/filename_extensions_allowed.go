@@ -59,19 +59,14 @@ func (r FilenameExtensionsAllowed) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
-	}
-
 	if file.GetType() != rule.DotGithubFileTypeAction &&
 		file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	allowedExtensions, ok := conf.([]interface{})
-	if !ok {
-		return true, nil
+	allowedExtensions, confIsInterfaceArray := conf.([]interface{})
+	if !confIsInterfaceArray {
+		return false, errValueNotStringArray
 	}
 
 	var (
@@ -82,7 +77,10 @@ func (r FilenameExtensionsAllowed) Lint(
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
-		actionInstance := file.(*action.Action)
+		actionInstance, ok := file.(*action.Action)
+		if !ok {
+			return false, errFileInvalidType
+		}
 
 		pathParts := strings.Split(actionInstance.Path, "/")
 		fileParts := strings.Split(pathParts[len(pathParts)-1], ".")
@@ -94,7 +92,10 @@ func (r FilenameExtensionsAllowed) Lint(
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		workflowInstance := file.(*workflow.Workflow)
+		workflowInstance, ok := file.(*workflow.Workflow)
+		if !ok {
+			return false, errFileInvalidType
+		}
 
 		fileParts := strings.Split(workflowInstance.FileName, ".")
 		extension = fileParts[len(fileParts)-1]
@@ -106,12 +107,17 @@ func (r FilenameExtensionsAllowed) Lint(
 
 	allowedExtensionsList := make([]string, 0, len(allowedExtensions))
 
-	for _, allowedExtension := range allowedExtensions {
-		if extension == allowedExtension.(string) {
+	for _, allowedExtensionInterface := range allowedExtensions {
+		allowedExtension, ok := allowedExtensionInterface.(string)
+		if !ok {
+			return false, errValueNotStringArray
+		}
+
+		if extension == allowedExtension {
 			return true, nil
 		}
 
-		allowedExtensionsList = append(allowedExtensionsList, allowedExtension.(string))
+		allowedExtensionsList = append(allowedExtensionsList, allowedExtension)
 	}
 
 	chErrors <- glitch.Glitch{

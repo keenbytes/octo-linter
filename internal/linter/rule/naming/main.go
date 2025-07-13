@@ -22,8 +22,9 @@ const (
 
 var (
 	errValueNotString = errors.New("value should be string")
-	errValueNotValid = fmt.Errorf(
+	errValueNotValid  = fmt.Errorf(
 		"value can be one of: %s, %s, %s, %s",
 		ValueDashCase, ValueCamelCase, ValuePascalCase, ValueAllCaps,
 	)
+	errFileInvalidType = errors.New("file is of invalid type")
 )

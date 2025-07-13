@@ -42,16 +42,19 @@ func (r WorkflowReferencedVariableExistsInFile) Lint(
 	dotGithub *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsBool := conf.(bool)
+	if !confIsBool {
+		return false, errValueNotBool
 	}
 
-	if file.GetType() != rule.DotGithubFileTypeWorkflow || !conf.(bool) {
+	if file.GetType() != rule.DotGithubFileTypeWorkflow || confValue {
 		return true, nil
 	}
 
-	workflowInstance := file.(*workflow.Workflow)
+	workflowInstance, ok := file.(*workflow.Workflow)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
 	compliant := true
 

@@ -5,6 +5,7 @@ linters:
     - cyclop
     - tagliatelle
     - testpackage
+    - exhaustruct
   settings:
     depguard:
       rules:

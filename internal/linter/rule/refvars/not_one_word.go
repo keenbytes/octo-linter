@@ -51,9 +51,9 @@ func (r NotOneWord) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsBool := conf.(bool)
+	if !confIsBool {
+		return false, errValueNotBool
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeAction &&
@@ -61,7 +61,7 @@ func (r NotOneWord) Lint(
 		return true, nil
 	}
 
-	if !conf.(bool) {
+	if !confValue {
 		return true, nil
 	}
 
@@ -70,7 +70,10 @@ func (r NotOneWord) Lint(
 	compliant := true
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
-		actionInstance := file.(*action.Action)
+		actionInstance, ok := file.(*action.Action)
+		if !ok {
+			return false, errFileInvalidType
+		}
 
 		found := refVarRegexp.FindAllSubmatch(actionInstance.Raw, -1)
 		for _, variableReference := range found {
@@ -89,7 +92,10 @@ func (r NotOneWord) Lint(
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		workflowInstance := file.(*workflow.Workflow)
+		workflowInstance, ok := file.(*workflow.Workflow)
+		if !ok {
+			return false, errFileInvalidType
+		}
 
 		found := refVarRegexp.FindAllSubmatch(workflowInstance.Raw, -1)
 		for _, variableReference := range found {

@@ -17,14 +17,17 @@ const (
 )
 
 var (
-	errValueNotBool = errors.New("value should be bool")
-	errValueNotString = errors.New("value should be string")
-	errValueNotStringArray = errors.New("value should be []string")
-	errValueNotLocalAndOrExternal = errors.New("value can contain only 'local' and/or 'external'")
+	errValueNotBool               = errors.New("value should be bool")
+	errValueNotString             = errors.New("value should be string")
+	errValueNotStringArray        = errors.New("value should be []string")
+	errValueNotLocalAndOrExternal = errors.New(
+		"value can contain only 'local' and/or 'external'",
+	)
 	errValueNotEmptyOrLocalOrExternalOrBoth = fmt.Errorf(
 		"value can be '%s', '%s', '%s' or empty string",
 		ValueLocalOnly,
 		ValueLocalOrExternal,
 		ValueExternalOnly,
 	)
+	errFileInvalidType = errors.New("file is of invalid type")
 )

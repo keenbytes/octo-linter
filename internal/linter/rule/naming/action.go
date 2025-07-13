@@ -71,29 +71,32 @@ func (r Action) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsString := conf.(string)
+	if !confIsString {
+		return false, errValueNotString
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
 
-	actionInstance := file.(*action.Action)
+	actionInstance, ok := file.(*action.Action)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
 	compliant := true
 
 	switch r.Field {
 	case ActionFieldInputName:
 		for inputName := range actionInstance.Inputs {
-			m := casematch.Match(inputName, conf.(string))
+			m := casematch.Match(inputName, confValue)
 			if !m {
 				chErrors <- glitch.Glitch{
 					Path:     actionInstance.Path,
 					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  fmt.Sprintf("input '%s' must be %s", inputName, conf.(string)),
+					ErrText:  fmt.Sprintf("input '%s' must be %s", inputName, confValue),
 					RuleName: r.ConfigName(0),
 				}
 
@@ -102,13 +105,13 @@ func (r Action) Lint(
 		}
 	case ActionFieldOutputName:
 		for outputName := range actionInstance.Outputs {
-			m := casematch.Match(outputName, conf.(string))
+			m := casematch.Match(outputName, confValue)
 			if !m {
 				chErrors <- glitch.Glitch{
 					Path:     actionInstance.Path,
 					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  fmt.Sprintf("output '%s' must be %s", outputName, conf.(string)),
+					ErrText:  fmt.Sprintf("output '%s' must be %s", outputName, confValue),
 					RuleName: r.ConfigName(0),
 				}
 
@@ -122,13 +125,13 @@ func (r Action) Lint(
 
 			found := re.FindAllSubmatch(actionInstance.Raw, -1)
 			for _, refVar := range found {
-				m := casematch.Match(string(refVar[1]), conf.(string))
+				m := casematch.Match(string(refVar[1]), confValue)
 				if !m {
 					chErrors <- glitch.Glitch{
 						Path:     actionInstance.Path,
 						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
-						ErrText:  fmt.Sprintf("references a variable '%s' that must be %s", string(refVar[1]), conf.(string)),
+						ErrText:  fmt.Sprintf("references a variable '%s' that must be %s", string(refVar[1]), confValue),
 						RuleName: r.ConfigName(0),
 					}
 
@@ -147,13 +150,13 @@ func (r Action) Lint(
 			}
 
 			for envName := range step.Env {
-				m := casematch.Match(envName, conf.(string))
+				m := casematch.Match(envName, confValue)
 				if !m {
 					chErrors <- glitch.Glitch{
 						Path:     actionInstance.Path,
 						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
-						ErrText:  fmt.Sprintf("step %d env '%s' must be %s", stepIdx, envName, conf.(string)),
+						ErrText:  fmt.Sprintf("step %d env '%s' must be %s", stepIdx, envName, confValue),
 						RuleName: r.ConfigName(0),
 					}
 

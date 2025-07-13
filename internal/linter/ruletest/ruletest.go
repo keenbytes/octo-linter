@@ -19,9 +19,7 @@ var (
 	testDotGithubOnce sync.Once
 )
 
-var (
-	errTimeout = errors.New("timeout")
-)
+var errTimeout = errors.New("timeout")
 
 // GetDotGithub returns DitGithub with test rules.
 func GetDotGithub() *dotgithub.DotGithub {

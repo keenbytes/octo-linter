@@ -15,9 +15,7 @@ const (
 	SecondsJobTimeout = 10
 )
 
-var (
-	errTimeout = errors.New("rule timed out")
-)
+var errTimeout = errors.New("rule timed out")
 
 func errRuleLintTimeout(name string) error {
 	return fmt.Errorf("%w: %s", errTimeout, name)

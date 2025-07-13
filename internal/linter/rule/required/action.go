@@ -86,31 +86,37 @@ func (r Action) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
-	}
-
 	if file.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
 
-	actionInstance := file.(*action.Action)
+	actionInstance, ok := file.(*action.Action)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
-	confInterfaces := conf.([]interface{})
+	confInterfaces, confIsInterfaceArray := conf.([]interface{})
+	if !confIsInterfaceArray {
+		return false, errValueNotStringArray
+	}
 
 	compliant := true
 
 	switch r.Field {
 	case ActionFieldAction:
-		for _, field := range confInterfaces {
-			if (field.(string) == ValueName && actionInstance.Name == "") ||
-				(field.(string) == ValueDesc && actionInstance.Description == "") {
+		for _, fieldInterface := range confInterfaces {
+			field, ok := fieldInterface.(string)
+			if !ok {
+				return false, errValueNotStringArray
+			}
+
+			if (field == ValueName && actionInstance.Name == "") ||
+				(field == ValueDesc && actionInstance.Description == "") {
 				chErrors <- glitch.Glitch{
 					Path:     actionInstance.Path,
 					Name:     actionInstance.DirName,
 					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  "does not have a required " + field.(string),
+					ErrText:  "does not have a required " + field,
 					RuleName: r.ConfigName(0),
 				}
 
@@ -119,13 +125,18 @@ func (r Action) Lint(
 		}
 	case ActionFieldInput:
 		for inputName, input := range actionInstance.Inputs {
-			for _, field := range confInterfaces {
-				if field.(string) == ValueDesc && input.Description == "" {
+			for _, fieldInterface := range confInterfaces {
+				field, ok := fieldInterface.(string)
+				if !ok {
+					return false, errValueNotStringArray
+				}
+
+				if field == ValueDesc && input.Description == "" {
 					chErrors <- glitch.Glitch{
 						Path:     actionInstance.Path,
 						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
-						ErrText:  fmt.Sprintf("input '%s' does not have a required %s", inputName, field.(string)),
+						ErrText:  fmt.Sprintf("input '%s' does not have a required %s", inputName, field),
 						RuleName: r.ConfigName(0),
 					}
 
@@ -135,13 +146,18 @@ func (r Action) Lint(
 		}
 	case ActionFieldOutput:
 		for outputName, output := range actionInstance.Outputs {
-			for _, field := range confInterfaces {
-				if field.(string) == ValueDesc && output.Description == "" {
+			for _, fieldInterface := range confInterfaces {
+				field, ok := fieldInterface.(string)
+				if !ok {
+					return false, errValueNotStringArray
+				}
+
+				if field == ValueDesc && output.Description == "" {
 					chErrors <- glitch.Glitch{
 						Path:     actionInstance.Path,
 						Name:     actionInstance.DirName,
 						Type:     rule.DotGithubFileTypeAction,
-						ErrText:  fmt.Sprintf("output '%s' does not have a required %s", outputName, field.(string)),
+						ErrText:  fmt.Sprintf("output '%s' does not have a required %s", outputName, field),
 						RuleName: r.ConfigName(0),
 					}
 

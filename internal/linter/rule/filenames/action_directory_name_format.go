@@ -44,24 +44,27 @@ func (r ActionDirectoryNameFormat) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsString := conf.(string)
+	if !confIsString {
+		return false, errValueNotString
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeAction {
 		return true, nil
 	}
 
-	actionInstance := file.(*action.Action)
+	actionInstance, ok := file.(*action.Action)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
-	m := casematch.Match(actionInstance.DirName, conf.(string))
+	m := casematch.Match(actionInstance.DirName, confValue)
 	if !m {
 		chErrors <- glitch.Glitch{
 			Path:     actionInstance.Path,
 			Name:     actionInstance.DirName,
 			Type:     rule.DotGithubFileTypeAction,
-			ErrText:  "directory name must be " + conf.(string),
+			ErrText:  "directory name must be " + confValue,
 			RuleName: r.ConfigName(0),
 		}
 

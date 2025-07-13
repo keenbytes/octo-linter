@@ -40,18 +40,21 @@ func (r WorkflowSingleJobOnlyName) Lint(
 	_ *dotgithub.DotGithub,
 	chErrors chan<- glitch.Glitch,
 ) (bool, error) {
-	err := r.Validate(conf)
-	if err != nil {
-		return false, err
+	confValue, confIsString := conf.(string)
+	if !confIsString {
+		return false, errValueNotString
 	}
 
 	if file.GetType() != rule.DotGithubFileTypeWorkflow {
 		return true, nil
 	}
 
-	workflowInstance := file.(*workflow.Workflow)
+	workflowInstance, ok := file.(*workflow.Workflow)
+	if !ok {
+		return false, errFileInvalidType
+	}
 
-	if conf.(string) == "" || workflowInstance.Jobs == nil {
+	if confValue == "" || workflowInstance.Jobs == nil {
 		return true, nil
 	}
 
@@ -60,12 +63,12 @@ func (r WorkflowSingleJobOnlyName) Lint(
 	}
 
 	for jobName := range workflowInstance.Jobs {
-		if jobName != conf.(string) {
+		if jobName != confValue {
 			chErrors <- glitch.Glitch{
 				Path:     workflowInstance.Path,
 				Name:     workflowInstance.DisplayName,
 				Type:     rule.DotGithubFileTypeWorkflow,
-				ErrText:  fmt.Sprintf("has only one job and it should be called '%s'", conf.(string)),
+				ErrText:  fmt.Sprintf("has only one job and it should be called '%s'", confValue),
 				RuleName: r.ConfigName(0),
 			}
 
