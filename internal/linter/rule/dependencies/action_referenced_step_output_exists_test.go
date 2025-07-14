@@ -61,7 +61,7 @@ func TestActionReferencedStepOutputExistsNotCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Action(d, "action-referenced-step-output-exists", fn)
+	ruletest.Action(d, "dependencies-action-referenced-step-output-exists", fn)
 }
 
 func TestActionCompliant(t *testing.T) {

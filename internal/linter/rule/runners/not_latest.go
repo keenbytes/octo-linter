@@ -67,10 +67,44 @@ func (r NotLatest) Lint(
 			continue
 		}
 
-		runsOnStr, runsOnIsString := job.RunsOn.(string)
-		if runsOnIsString {
-			if strings.Contains(runsOnStr, "latest") {
-				compliant = false
+		foundNotCompliant := r.processRunsOn(job.RunsOn, jobName, workflowInstance, chErrors)
+		if foundNotCompliant {
+			compliant = false
+		}
+	}
+
+	return compliant, nil
+}
+
+func (r NotLatest) processRunsOn(
+	jobRunsOn interface{},
+	jobName string,
+	workflowInstance *workflow.Workflow,
+	chErrors chan<- glitch.Glitch,
+) bool {
+	foundNotCompliant := false
+
+	runsOnStr, runsOnIsString := jobRunsOn.(string)
+	if runsOnIsString {
+		if strings.Contains(runsOnStr, "latest") {
+			foundNotCompliant = true
+
+			chErrors <- glitch.Glitch{
+				Path:     workflowInstance.Path,
+				Name:     workflowInstance.DisplayName,
+				Type:     rule.DotGithubFileTypeWorkflow,
+				ErrText:  fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
+				RuleName: r.ConfigName(0),
+			}
+		}
+	}
+
+	runsOnList, runsOnIsList := jobRunsOn.([]interface{})
+	if runsOnIsList {
+		for _, runsOn := range runsOnList {
+			runsOnStr, ok2 := runsOn.(string)
+			if ok2 && strings.Contains(runsOnStr, "latest") {
+				foundNotCompliant = true
 
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
@@ -81,25 +115,7 @@ func (r NotLatest) Lint(
 				}
 			}
 		}
-
-		runsOnList, runsOnIsList := job.RunsOn.([]interface{})
-		if runsOnIsList {
-			for _, runsOn := range runsOnList {
-				runsOnStr, ok2 := runsOn.(string)
-				if ok2 && strings.Contains(runsOnStr, "latest") {
-					compliant = false
-
-					chErrors <- glitch.Glitch{
-						Path:     workflowInstance.Path,
-						Name:     workflowInstance.DisplayName,
-						Type:     rule.DotGithubFileTypeWorkflow,
-						ErrText:  fmt.Sprintf("job '%s' should not use 'latest' in 'runs-on' field", jobName),
-						RuleName: r.ConfigName(0),
-					}
-				}
-			}
-		}
 	}
 
-	return compliant, nil
+	return foundNotCompliant
 }

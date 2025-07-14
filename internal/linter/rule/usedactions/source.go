@@ -2,7 +2,6 @@ package usedactions
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
@@ -70,20 +69,12 @@ func (r Source) Lint(
 		return true, nil
 	}
 
-	reLocal := regexp.MustCompile(
-		`^\.\/\.github\/actions\/([a-zA-Z0-9\-_]+|[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-_]+)$`,
-	)
-	reExternal := regexp.MustCompile(
-		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
-	)
-
-	steps := []*step.Step{}
-	msgPrefix := map[int]string{}
-
 	var (
-		fileType int
-		filePath string
-		fileName string
+		steps     []*step.Step
+		msgPrefix map[int]string
+		fileType  int
+		filePath  string
+		fileName  string
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
@@ -96,12 +87,7 @@ func (r Source) Lint(
 			return true, nil
 		}
 
-		steps = actionInstance.Runs.Steps
-		msgPrefix[0] = ""
-
-		fileType = rule.DotGithubFileTypeAction
-		filePath = actionInstance.Path
-		fileName = actionInstance.DirName
+		steps, msgPrefix, fileType, filePath, fileName = getStepsFromAction(actionInstance)
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
@@ -114,23 +100,26 @@ func (r Source) Lint(
 			return true, nil
 		}
 
-		for jobName, job := range workflowInstance.Jobs {
-			if len(job.Steps) == 0 {
-				continue
-			}
-
-			msgPrefix[len(steps)] = fmt.Sprintf("job '%s' ", jobName)
-
-			steps = append(steps, job.Steps...)
-		}
-
-		fileType = rule.DotGithubFileTypeWorkflow
-		filePath = workflowInstance.Path
-		fileName = workflowInstance.DisplayName
+		steps, msgPrefix, fileType, filePath, fileName = getStepsFromWorkflow(workflowInstance)
 	}
 
+	compliant := r.processSteps(steps, msgPrefix, fileType, filePath, fileName, chErrors, confValue)
+
+	return compliant, nil
+}
+
+//nolint:funlen
+func (r Source) processSteps(
+	steps []*step.Step,
+	msgPrefix map[int]string,
+	fileType int,
+	filePath string,
+	fileName string,
+	chErrors chan<- glitch.Glitch,
+	confValue string,
+) bool {
 	var errPrefix string
-	if file.GetType() == rule.DotGithubFileTypeAction {
+	if fileType == rule.DotGithubFileTypeAction {
 		errPrefix = msgPrefix[0]
 	}
 
@@ -146,8 +135,8 @@ func (r Source) Lint(
 			continue
 		}
 
-		isLocal := reLocal.MatchString(step.Uses)
-		isExternal := reExternal.MatchString(step.Uses)
+		isLocal := regexpLocalAction.MatchString(step.Uses)
+		isExternal := regexpExternalAction.MatchString(step.Uses)
 
 		if confValue == ValueLocalOnly && !isLocal {
 			chErrors <- glitch.Glitch{
@@ -201,5 +190,5 @@ func (r Source) Lint(
 		}
 	}
 
-	return compliant, nil
+	return compliant
 }

@@ -15,14 +15,17 @@ const (
 	SecondsJobTimeout = 10
 )
 
-var errTimeout = errors.New("rule timed out")
+var (
+	errLintTimeout = errors.New("lint timeout")
+	errLintError   = errors.New("lint error")
+)
 
 func errRuleLintTimeout(name string) error {
-	return fmt.Errorf("%w: %s", errTimeout, name)
+	return fmt.Errorf("%w: %s", errLintTimeout, name)
 }
 
 func errRuleLintError(err error) error {
-	return fmt.Errorf("rule lint error: %w", err)
+	return fmt.Errorf("%w: %s", errLintError, err.Error())
 }
 
 // Job represents a single run of a rule against a .github file (action or workflow).
@@ -57,6 +60,10 @@ func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch
 	case <-timer.C:
 		return false, errRuleLintTimeout(j.rule.ConfigName(j.file.GetType()))
 	case <-done:
-		return compliant, errRuleLintError(err)
+		if err != nil {
+			return compliant, errRuleLintError(err)
+		}
+
+		return compliant, nil
 	}
 }

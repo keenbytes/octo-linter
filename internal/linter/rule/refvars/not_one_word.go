@@ -1,9 +1,6 @@
 package refvars
 
 import (
-	"fmt"
-	"regexp"
-
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
@@ -65,8 +62,6 @@ func (r NotOneWord) Lint(
 		return true, nil
 	}
 
-	refVarRegexp := regexp.MustCompile(`\${{[ ]*([a-zA-Z0-9\-_]+)[ ]*}}`)
-
 	compliant := true
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
@@ -75,19 +70,15 @@ func (r NotOneWord) Lint(
 			return false, errFileInvalidType
 		}
 
-		found := refVarRegexp.FindAllSubmatch(actionInstance.Raw, -1)
-		for _, variableReference := range found {
-			if string(variableReference[1]) != "false" && string(variableReference[1]) != "true" {
-				chErrors <- glitch.Glitch{
-					Path:     actionInstance.Path,
-					Name:     actionInstance.DirName,
-					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(variableReference[1])),
-					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
-				}
-
-				compliant = false
-			}
+		foundNotCompliant := processActionForRegexp(
+			r.ConfigName(rule.DotGithubFileTypeAction),
+			actionInstance,
+			regexpReference,
+			chErrors,
+			"invalid",
+		)
+		if foundNotCompliant {
+			compliant = false
 		}
 	}
 
@@ -97,19 +88,15 @@ func (r NotOneWord) Lint(
 			return false, errFileInvalidType
 		}
 
-		found := refVarRegexp.FindAllSubmatch(workflowInstance.Raw, -1)
-		for _, variableReference := range found {
-			if string(variableReference[1]) != "false" && string(variableReference[1]) != "true" {
-				chErrors <- glitch.Glitch{
-					Path:     workflowInstance.Path,
-					Name:     workflowInstance.DisplayName,
-					Type:     rule.DotGithubFileTypeWorkflow,
-					ErrText:  fmt.Sprintf("calls a variable '%s' that is invalid", string(variableReference[1])),
-					RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
-				}
-
-				compliant = false
-			}
+		foundNotCompliant := processWorkflowForRegexp(
+			r.ConfigName(rule.DotGithubFileTypeWorkflow),
+			workflowInstance,
+			regexpReference,
+			chErrors,
+			"invalid",
+		)
+		if foundNotCompliant {
+			compliant = false
 		}
 	}
 

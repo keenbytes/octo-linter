@@ -76,33 +76,9 @@ func (r FilenameExtensionsAllowed) Lint(
 		fileType     int
 	)
 
-	if file.GetType() == rule.DotGithubFileTypeAction {
-		actionInstance, ok := file.(*action.Action)
-		if !ok {
-			return false, errFileInvalidType
-		}
-
-		pathParts := strings.Split(actionInstance.Path, "/")
-		fileParts := strings.Split(pathParts[len(pathParts)-1], ".")
-		extension = fileParts[len(fileParts)-1]
-
-		filePath = actionInstance.Path
-		fileTypeName = actionInstance.DirName
-		fileType = rule.DotGithubFileTypeAction
-	}
-
-	if file.GetType() == rule.DotGithubFileTypeWorkflow {
-		workflowInstance, ok := file.(*workflow.Workflow)
-		if !ok {
-			return false, errFileInvalidType
-		}
-
-		fileParts := strings.Split(workflowInstance.FileName, ".")
-		extension = fileParts[len(fileParts)-1]
-
-		filePath = workflowInstance.Path
-		fileTypeName = workflowInstance.DisplayName
-		fileType = rule.DotGithubFileTypeWorkflow
+	extension, filePath, fileTypeName, fileType, err := r.getExtension(file)
+	if err != nil {
+		return false, errGettingExtension(err)
 	}
 
 	allowedExtensionsList := make([]string, 0, len(allowedExtensions))
@@ -129,4 +105,62 @@ func (r FilenameExtensionsAllowed) Lint(
 	}
 
 	return false, nil
+}
+
+func (r FilenameExtensionsAllowed) getExtension(
+	file dotgithub.File,
+) (string, string, string, int, error) {
+	var (
+		extension, filePath, fileTypeName string
+		fileType                          int
+	)
+
+	if file.GetType() == rule.DotGithubFileTypeAction {
+		actionInstance, ok := file.(*action.Action)
+		if !ok {
+			return "", "", "", 0, errFileInvalidType
+		}
+
+		extension, filePath, fileTypeName, fileType = r.getActionExtension(actionInstance)
+	}
+
+	if file.GetType() == rule.DotGithubFileTypeWorkflow {
+		workflowInstance, ok := file.(*workflow.Workflow)
+		if !ok {
+			return "", "", "", 0, errFileInvalidType
+		}
+
+		extension, filePath, fileTypeName, fileType = r.getWorkflowExtension(workflowInstance)
+	}
+
+	return extension, filePath, fileTypeName, fileType, nil
+}
+
+func (r FilenameExtensionsAllowed) getActionExtension(
+	actionInstance *action.Action,
+) (string, string, string, int) {
+	pathParts := strings.Split(actionInstance.Path, "/")
+	fileParts := strings.Split(pathParts[len(pathParts)-1], ".")
+
+	extension := fileParts[len(fileParts)-1]
+
+	filePath := actionInstance.Path
+	fileTypeName := actionInstance.DirName
+	fileType := rule.DotGithubFileTypeAction
+
+	return extension, filePath, fileTypeName, fileType
+}
+
+func (r FilenameExtensionsAllowed) getWorkflowExtension(
+	workflowInstance *workflow.Workflow,
+) (string, string, string, int) {
+	fileParts := strings.Split(workflowInstance.FileName, ".")
+
+	extension := fileParts[len(fileParts)-1]
+
+	filePath := workflowInstance.Path
+	fileTypeName := workflowInstance.DisplayName
+	fileType := rule.DotGithubFileTypeWorkflow
+
+	return extension, filePath, fileTypeName, fileType
 }

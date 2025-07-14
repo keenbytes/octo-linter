@@ -37,6 +37,8 @@ func (r ActionReferencedStepOutputExists) Validate(conf interface{}) error {
 
 // Lint runs a rule with the specified configuration on a dotgithub.File (action or workflow),
 // reports any errors via the given channel, and returns whether the file is compliant.
+//
+//nolint:gocognit,funlen
 func (r ActionReferencedStepOutputExists) Lint(
 	conf interface{},
 	file dotgithub.File,
