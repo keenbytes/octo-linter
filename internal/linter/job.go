@@ -58,6 +58,9 @@ func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch
 	case <-timer.C:
 		return false, errRuleLintTimeout(j.rule.ConfigName(j.file.GetType()))
 	case <-done:
-		return compliant, errRuleLintError(err)
+		if err != nil {
+			return compliant, errRuleLintError(err)
+		}
+		return compliant, nil
 	}
 }
