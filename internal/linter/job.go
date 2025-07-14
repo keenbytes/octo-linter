@@ -15,8 +15,10 @@ const (
 	SecondsJobTimeout = 10
 )
 
-var errLintTimeout = errors.New("lint timeout")
-var errLintError = errors.New("lint error")
+var (
+	errLintTimeout = errors.New("lint timeout")
+	errLintError   = errors.New("lint error")
+)
 
 func errRuleLintTimeout(name string) error {
 	return fmt.Errorf("%w: %s", errLintTimeout, name)
@@ -61,6 +63,7 @@ func (j *Job) Run(chWarnings chan<- glitch.Glitch, chErrors chan<- glitch.Glitch
 		if err != nil {
 			return compliant, errRuleLintError(err)
 		}
+
 		return compliant, nil
 	}
 }
