@@ -82,12 +82,12 @@ func (r NotLatest) processRunsOn(
 	workflowInstance *workflow.Workflow,
 	chErrors chan<- glitch.Glitch,
 ) bool {
-	compliant := true
+	foundNotCompliant := false
 
 	runsOnStr, runsOnIsString := jobRunsOn.(string)
 	if runsOnIsString {
 		if strings.Contains(runsOnStr, "latest") {
-			compliant = false
+			foundNotCompliant = true
 
 			chErrors <- glitch.Glitch{
 				Path:     workflowInstance.Path,
@@ -104,7 +104,7 @@ func (r NotLatest) processRunsOn(
 		for _, runsOn := range runsOnList {
 			runsOnStr, ok2 := runsOn.(string)
 			if ok2 && strings.Contains(runsOnStr, "latest") {
-				compliant = false
+				foundNotCompliant = true
 
 				chErrors <- glitch.Glitch{
 					Path:     workflowInstance.Path,
@@ -117,5 +117,5 @@ func (r NotLatest) processRunsOn(
 		}
 	}
 
-	return compliant
+	return foundNotCompliant
 }
