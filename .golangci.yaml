@@ -21,9 +21,6 @@ linters:
     generated: disable
     rules:
       - linters:
-          - gochecknoglobals
-        path: internal/linter/ruletest/ruletest.go
-      - linters:
           - err113
           - exhaustruct
           - funlen
@@ -36,9 +33,6 @@ linters:
       - linters:
           - dupl
         path: internal/linter/rule/refvars
-      - linters:
-          - funlen
-        path: internal/linter/rule/usedactions/source.go
 formatters:
   enable:
     - gci

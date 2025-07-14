@@ -13,6 +13,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule/runners"
 )
 
+//nolint:gocognit,gocyclo,funlen,maintidx
 func (cfg *Config) addRuleFromConfig(fullRuleName string, ruleConfig interface{}) error {
 	var ruleInstance rule.Rule
 

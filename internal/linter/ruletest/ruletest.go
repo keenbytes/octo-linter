@@ -15,6 +15,7 @@ import (
 	"github.com/keenbytes/octo-linter/v2/pkg/dotgithub"
 )
 
+//nolint:gochecknoglobals
 var (
 	testDotGithub     *dotgithub.DotGithub
 	testDotGithubOnce sync.Once

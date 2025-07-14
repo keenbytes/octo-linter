@@ -40,6 +40,8 @@ type Linter struct {
 
 // Lint runs rules on the given DotGithub and returns the result.
 // Optionally writes a markdown summary to an output file.
+//
+//nolint:gocognit,funlen
 func (l *Linter) Lint(dotGithub *dotgithub.DotGithub, output string, outputLimit int) (int, error) {
 	if l.Config == nil {
 		panic("Config cannot be nil")

@@ -108,6 +108,7 @@ func (r Source) Lint(
 	return compliant, nil
 }
 
+//nolint:funlen
 func (r Source) processSteps(
 	steps []*step.Step,
 	msgPrefix map[int]string,
