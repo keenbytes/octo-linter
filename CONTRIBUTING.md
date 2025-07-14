@@ -8,7 +8,7 @@ Thanks for your interest in improving **octo-linter**! This guide outlines how t
 
 To contribute to the project, ensure you have the following installed:
 
-1. **Go** (v1.22 or newer) – Primary language used throughout the codebase
+1. **Go** (v1.24 or newer) – Primary language used throughout the codebase
 2. **Docker** – Used for container builds and integration testing
 3. **Git** – For source control and collaboration
 
