@@ -1,9 +1,6 @@
 package refvars
 
 import (
-	"fmt"
-	"regexp"
-
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
 	"github.com/keenbytes/octo-linter/v2/internal/linter/rule"
 	"github.com/keenbytes/octo-linter/v2/pkg/action"
@@ -64,8 +61,6 @@ func (r NotInDoubleQuotes) Lint(
 		return true, nil
 	}
 
-	refRegexp := regexp.MustCompile(`\"\${{[ ]*([a-zA-Z0-9\-_.]+)[ ]*}}\"`)
-
 	compliant := true
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
@@ -74,16 +69,14 @@ func (r NotInDoubleQuotes) Lint(
 			return false, errFileInvalidType
 		}
 
-		found := refRegexp.FindAllSubmatch(actionInstance.Raw, -1)
-		for _, ref := range found {
-			chErrors <- glitch.Glitch{
-				Path:     actionInstance.Path,
-				Name:     actionInstance.DirName,
-				Type:     rule.DotGithubFileTypeAction,
-				ErrText:  fmt.Sprintf("calls a variable '%s' that is in double quotes", string(ref[1])),
-				RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
-			}
-
+		foundNotCompliant := processActionForRegexp(
+			r.ConfigName(rule.DotGithubFileTypeAction),
+			actionInstance,
+			regexpReferenceInDoubleQuote,
+			chErrors,
+			"in double quotes",
+		)
+		if foundNotCompliant {
 			compliant = false
 		}
 	}
@@ -94,16 +87,14 @@ func (r NotInDoubleQuotes) Lint(
 			return false, errFileInvalidType
 		}
 
-		found := refRegexp.FindAllSubmatch(workflowInstance.Raw, -1)
-		for _, ref := range found {
-			chErrors <- glitch.Glitch{
-				Path:     workflowInstance.Path,
-				Name:     workflowInstance.DisplayName,
-				Type:     rule.DotGithubFileTypeWorkflow,
-				ErrText:  fmt.Sprintf("calls a variable '%s' that is in double quotes", string(ref[1])),
-				RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
-			}
-
+		foundNotCompliant := processWorkflowForRegexp(
+			r.ConfigName(rule.DotGithubFileTypeWorkflow),
+			workflowInstance,
+			regexpReferenceInDoubleQuote,
+			chErrors,
+			"in double quotes",
+		)
+		if foundNotCompliant {
 			compliant = false
 		}
 	}

@@ -33,4 +33,9 @@ var (
 	)
 	errValueNotYmlOrYaml = errors.New("value can contain only 'yml' and/or 'yaml'")
 	errFileInvalidType   = errors.New("file is of invalid type")
+	errExtensionGet      = errors.New("error getting file extension")
 )
+
+func errGettingExtension(err error) error {
+	return fmt.Errorf("%w: %s", errExtensionGet, err.Error())
+}

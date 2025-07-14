@@ -3,6 +3,7 @@ package dotgithub
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -33,6 +34,24 @@ const (
 	NumExternalActionPathPartsNoSubdir = 2
 )
 
+const (
+	regexpExternalAction = `[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`
+)
+
+var (
+	errExternalActionNotFound  = errors.New("external action was not found")
+	errActionHTTPRequestDo     = errors.New("error doing http request for action yaml")
+	errActionHTTPRequestCreate = errors.New("error creating http request for action yaml")
+)
+
+func errCreatingHTTPRequestForAction(err error) error {
+	return fmt.Errorf("%w: %s", errActionHTTPRequestCreate, err.Error())
+}
+
+func errDoingHTTPRequestForAction(err error) error {
+	return fmt.Errorf("%w: %s", errActionHTTPRequestDo, err.Error())
+}
+
 // ReadDir scans the given directory and parses all GitHub Actions workflow and action YAML files into the struct.
 func (d *DotGithub) ReadDir(ctx context.Context, path string) error {
 	d.Actions = make(map[string]*action.Action)
@@ -48,71 +67,14 @@ func (d *DotGithub) ReadDir(ctx context.Context, path string) error {
 		return fmt.Errorf("error getting workflows from dir %s: %w", path, err)
 	}
 
-	// download all external actions used in actions' steps
-	reExternal := regexp.MustCompile(
-		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
-	)
-
-	for _, action := range d.Actions {
-		err := action.Unmarshal(false)
-		if err != nil {
-			return fmt.Errorf("error unmarshaling action: %w", err)
-		}
-
-		if action.Runs == nil || len(action.Runs.Steps) == 0 {
-			continue
-		}
-
-		for stepIdx, step := range action.Runs.Steps {
-			if !reExternal.MatchString(step.Uses) {
-				continue
-			}
-
-			err := d.DownloadExternalAction(ctx, step.Uses)
-			if err != nil {
-				slog.Error(
-					"error downloading external action",
-					slog.String("action", action.DirName),
-					slog.Int("step", stepIdx),
-					slog.String("uses", step.Uses),
-					slog.String("err", err.Error()),
-				)
-			}
-		}
+	err = d.processActions(ctx)
+	if err != nil {
+		return fmt.Errorf("error processing struct actions: %w", err)
 	}
 
-	for _, workflow := range d.Workflows {
-		err := workflow.Unmarshal(false)
-		if err != nil {
-			return fmt.Errorf("error unmarshaling workflow: %w", err)
-		}
-
-		if len(workflow.Jobs) == 0 {
-			continue
-		}
-
-		for _, job := range workflow.Jobs {
-			if len(job.Steps) == 0 {
-				continue
-			}
-
-			for stepIdx, step := range job.Steps {
-				if !reExternal.MatchString(step.Uses) {
-					continue
-				}
-
-				err := d.DownloadExternalAction(ctx, step.Uses)
-				if err != nil {
-					slog.Error(
-						"error downloading external action",
-						slog.String("workflow", workflow.FileName),
-						slog.Int("step", stepIdx),
-						slog.String("uses", step.Uses),
-						slog.String("err", err.Error()),
-					)
-				}
-			}
-		}
+	err = d.processWorkflows(ctx)
+	if err != nil {
+		return fmt.Errorf("error processing struct workflows: %w", err)
 	}
 
 	return nil
@@ -203,60 +165,16 @@ func (d *DotGithub) DownloadExternalAction(ctx context.Context, path string) err
 	}
 
 	actionURLPrefix := fmt.Sprintf(
-		"https://raw.githubusercontent.com/%s/%s/%s",
+		"https://raw.githubusercontent.com/%s/%s/%s%s",
 		ownerRepoDir[0],
 		ownerRepoDir[1],
 		repoVersion[1],
+		directory,
 	)
 
-	urlYML := actionURLPrefix + directory + "/action.yml"
-	slog.Debug(
-		"downloading external action yaml",
-		slog.String("url", urlYML),
-	)
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		urlYML,
-		strings.NewReader(""),
-	)
+	resp, err := d.getActionHTTPResponse(ctx, actionURLPrefix)
 	if err != nil {
-		return fmt.Errorf("error creating http request for action yml: %w", err)
-	}
-
-	httpClient := &http.Client{}
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("error doing http request for action yml: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		urlYAML := actionURLPrefix + directory + "/action.yaml"
-		slog.Debug(
-			"downloading external action yaml",
-			slog.String("url", urlYAML),
-		)
-
-		req, err = http.NewRequestWithContext(
-			ctx,
-			http.MethodGet,
-			urlYAML,
-			strings.NewReader(""),
-		)
-		if err != nil {
-			return fmt.Errorf("error creating http request for action yaml: %w", err)
-		}
-
-		resp, err = httpClient.Do(req)
-		if err != nil {
-			return fmt.Errorf("error doing http request for action yaml: %w", err)
-		}
-
-		if resp.StatusCode != http.StatusOK {
-			return nil
-		}
+		return fmt.Errorf("error getting response from http request to action: %w", err)
 	}
 
 	defer func() {
@@ -388,4 +306,137 @@ func (d *DotGithub) getWorkflowsFromDir(path string) error {
 	}
 
 	return nil
+}
+
+func (d *DotGithub) processActions(ctx context.Context) error {
+	// download all external actions used in actions' steps
+	reExternal := regexp.MustCompile(regexpExternalAction)
+
+	for _, action := range d.Actions {
+		err := action.Unmarshal(false)
+		if err != nil {
+			return fmt.Errorf("error unmarshaling action: %w", err)
+		}
+
+		if action.Runs == nil || len(action.Runs.Steps) == 0 {
+			continue
+		}
+
+		for stepIdx, step := range action.Runs.Steps {
+			if !reExternal.MatchString(step.Uses) {
+				continue
+			}
+
+			err := d.DownloadExternalAction(ctx, step.Uses)
+			if err != nil {
+				slog.Error(
+					"error downloading external action",
+					slog.String("action", action.DirName),
+					slog.Int("step", stepIdx),
+					slog.String("uses", step.Uses),
+					slog.String("err", err.Error()),
+				)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (d *DotGithub) processWorkflows(ctx context.Context) error {
+	// download all external actions used in actions' steps
+	reExternal := regexp.MustCompile(regexpExternalAction)
+
+	for _, workflow := range d.Workflows {
+		err := workflow.Unmarshal(false)
+		if err != nil {
+			return fmt.Errorf("error unmarshaling workflow: %w", err)
+		}
+
+		if len(workflow.Jobs) == 0 {
+			continue
+		}
+
+		for _, job := range workflow.Jobs {
+			if len(job.Steps) == 0 {
+				continue
+			}
+
+			for stepIdx, step := range job.Steps {
+				if !reExternal.MatchString(step.Uses) {
+					continue
+				}
+
+				err := d.DownloadExternalAction(ctx, step.Uses)
+				if err != nil {
+					slog.Error(
+						"error downloading external action",
+						slog.String("workflow", workflow.FileName),
+						slog.Int("step", stepIdx),
+						slog.String("uses", step.Uses),
+						slog.String("err", err.Error()),
+					)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (d *DotGithub) getActionHTTPResponse(
+	ctx context.Context,
+	urlPrefix string,
+) (*http.Response, error) {
+	urlYML := urlPrefix + "/action.yml"
+	slog.Debug(
+		"downloading external action yaml",
+		slog.String("url", urlYML),
+	)
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		urlYML,
+		strings.NewReader(""),
+	)
+	if err != nil {
+		return nil, errCreatingHTTPRequestForAction(err)
+	}
+
+	httpClient := &http.Client{}
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, errDoingHTTPRequestForAction(err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		urlYAML := urlPrefix + "/action.yaml"
+		slog.Debug(
+			"downloading external action yaml",
+			slog.String("url", urlYAML),
+		)
+
+		req, err = http.NewRequestWithContext(
+			ctx,
+			http.MethodGet,
+			urlYAML,
+			strings.NewReader(""),
+		)
+		if err != nil {
+			return nil, errCreatingHTTPRequestForAction(err)
+		}
+
+		resp, err = httpClient.Do(req)
+		if err != nil {
+			return nil, errDoingHTTPRequestForAction(err)
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, errExternalActionNotFound
+		}
+	}
+
+	return resp, nil
 }

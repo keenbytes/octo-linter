@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -41,6 +42,44 @@ const (
 	FileModeDefaultConfig = 0o600
 )
 
+var (
+	errCfgFileGet               = errors.New("error getting cfg file")
+	errCfgFilePopulate          = errors.New("error populating config from file")
+	errCfgFileRead              = errors.New("error reading cfg file")
+	errDefaultCfgFileRead       = errors.New("error reading default cfg file")
+	errDotGithubDirRead         = errors.New("error reading .github directory")
+	errDotGithubVarsFileRead    = errors.New("error reading vars file")
+	errDotGithubSecretsFileRead = errors.New("error reading secrets file")
+)
+
+func errGettingCfgFile(err error) error {
+	return fmt.Errorf("%w: %s", errCfgFileGet, err.Error())
+}
+
+func errPopulatingCfgFile(err error) error {
+	return fmt.Errorf("%w: %s", errCfgFilePopulate, err.Error())
+}
+
+func errReadingCfgFile(err error) error {
+	return fmt.Errorf("%w: %s", errCfgFileRead, err.Error())
+}
+
+func errReadingDefaultCfgFile(err error) error {
+	return fmt.Errorf("%w: %s", errDefaultCfgFileRead, err.Error())
+}
+
+func errReadingDotGithubDir(err error) error {
+	return fmt.Errorf("%w: %s", errDotGithubDirRead, err.Error())
+}
+
+func errReadingDotGithubVarsFile(err error) error {
+	return fmt.Errorf("%w: %s", errDotGithubVarsFileRead, err.Error())
+}
+
+func errReadingDotGithubSecretsFile(err error) error {
+	return fmt.Errorf("%w: %s", errDotGithubSecretsFileRead, err.Error())
+}
+
 func main() {
 	cli := broccli.NewBroccli(
 		"octo-linter",
@@ -48,6 +87,19 @@ func main() {
 		"m@gasior.dev",
 	)
 
+	createLintCommand(cli)
+	createInitCommand(cli)
+
+	_ = cli.Command("version", "Prints version", versionHandler)
+
+	if len(os.Args) == 2 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
+		os.Args = []string{"App", "version"}
+	}
+
+	os.Exit(cli.Run(context.Background()))
+}
+
+func createLintCommand(cli *broccli.Broccli) {
 	cmdLint := cli.Command(
 		"lint",
 		"Runs the linter on files from a specific directory",
@@ -102,7 +154,9 @@ func main() {
 		broccli.TypeInt,
 		0,
 	)
+}
 
+func createInitCommand(cli *broccli.Broccli) {
 	cmdInit := cli.Command("init", "Create sample dotgithub.yml config file", initHandler)
 	cmdInit.Flag(
 		"destination",
@@ -112,14 +166,6 @@ func main() {
 		broccli.TypePathFile,
 		broccli.IsNotExistent,
 	)
-
-	_ = cli.Command("version", "Prints version", versionHandler)
-
-	if len(os.Args) == 2 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
-		os.Args = []string{"App", "version"}
-	}
-
-	os.Exit(cli.Run(context.Background()))
 }
 
 func versionHandler(_ context.Context, _ *broccli.Broccli) int {
@@ -176,93 +222,38 @@ func initHandler(_ context.Context, cli *broccli.Broccli) int {
 }
 
 func lintHandler(ctx context.Context, cli *broccli.Broccli) int {
-	logLevel := loglevel.GetLogLevelFromString(cli.Flag("loglevel"))
-	varsFile := cli.Flag("vars-file")
-	secretsFile := cli.Flag("secrets-file")
+	setLogger(cli.Flag("loglevel"))
 
-	opts := &slog.HandlerOptions{
-		Level: logLevel,
-	}
-	logger := slog.New(slog.NewTextHandler(os.Stderr, opts))
-	slog.SetDefault(logger)
-
-	cfgFile, err := getConfigFilePath(cli.Flag("config"), cli.Flag("path"))
-	if err != nil {
-		slog.Error(
-			"error getting config file",
-			slog.String("err", err.Error()),
-		)
-
+	lint, err := getLinter(cli.Flag("config"), cli.Flag("path"))
+	if err != nil && errors.Is(err, errCfgFileGet) {
 		return ExitErrGettingCfgFile
 	}
 
-	cfg := linter.Config{}
-	if cfgFile != "" {
-		err := cfg.ReadFile(cfgFile)
-		if err != nil {
-			slog.Error(
-				"error reading config file",
-				slog.String("path", cfgFile),
-				slog.String("err", err.Error()),
-			)
-
-			return ExitErrReadingCfgFile
-		}
-	} else {
-		err := cfg.ReadDefaultFile()
-		if err != nil {
-			slog.Error(
-				"error reading default config file",
-				slog.String("err", err.Error()),
-			)
-
-			return ExitErrReadingDefaultCfgFile
-		}
+	if err != nil && errors.Is(err, errCfgFileRead) {
+		return ExitErrReadingCfgFile
 	}
 
-	lint := linter.Linter{
-		Config: &cfg,
+	if err != nil && errors.Is(err, errDefaultCfgFileRead) {
+		return ExitErrReadingDefaultCfgFile
 	}
-	dotGithub := dotgithub.DotGithub{}
 
-	err = dotGithub.ReadDir(ctx, cli.Flag("path"))
-	if err != nil {
-		slog.Error(
-			"error initializing",
-			slog.String("path", cli.Flag("path")),
-			slog.String("err", err.Error()),
-		)
-
+	dotGithub, err := getDotGithub(
+		ctx,
+		cli.Flag("path"),
+		cli.Flag("vars-file"),
+		cli.Flag("secrets-file"),
+	)
+	if err != nil && errors.Is(err, errDotGithubDirRead) {
 		return ExitErrReadingDotGithubDir
 	}
 
-	if varsFile != "" {
-		err = dotGithub.ReadVars(varsFile)
-		if err != nil {
-			slog.Error(
-				"error reading vars file",
-				slog.String("path", varsFile),
-				slog.String("err", err.Error()),
-			)
-
-			return ExitErrReadingVarsFile
-		}
+	if err != nil && errors.Is(err, errDotGithubVarsFileRead) {
+		return ExitErrReadingVarsFile
 	}
 
-	if secretsFile != "" {
-		err = dotGithub.ReadSecrets(secretsFile)
-		if err != nil {
-			slog.Error(
-				"error reading secrets file",
-				slog.String("path", secretsFile),
-				slog.String("err", err.Error()),
-			)
-
-			return ExitErrReadingSecretsFile
-		}
+	if err != nil && errors.Is(err, errDotGithubSecretsFileRead) {
+		return ExitErrReadingSecretsFile
 	}
-
-	lint.Config = &cfg
 
 	outputLimit := 0
 	if cli.Flag("output-errors") != "" {
@@ -270,7 +261,7 @@ func lintHandler(ctx context.Context, cli *broccli.Broccli) int {
 		outputLimit, _ = strconv.Atoi(cli.Flag("output-errors"))
 	}
 
-	status, err := lint.Lint(&dotGithub, cli.Flag("output"), outputLimit)
+	status, err := lint.Lint(dotGithub, cli.Flag("output"), outputLimit)
 	if err != nil {
 		slog.Error(
 			"error linting",
@@ -301,6 +292,11 @@ func getConfigFilePath(filePath string, dotGitHubPath string) (string, error) {
 
 	notFound := os.IsNotExist(err)
 	if err != nil && !notFound {
+		slog.Error(
+			"error getting config file",
+			slog.String("err", err.Error()),
+		)
+
 		return "", fmt.Errorf(
 			"error getting os.Stat on %s inside .github path: %w",
 			configFileName,
@@ -313,4 +309,109 @@ func getConfigFilePath(filePath string, dotGitHubPath string) (string, error) {
 	}
 
 	return configInDotGithub, nil
+}
+
+func populateConfigFromFile(cfg *linter.Config, cfgFile string) error {
+	if cfgFile != "" {
+		err := cfg.ReadFile(cfgFile)
+		if err != nil {
+			slog.Error(
+				"error reading config file",
+				slog.String("path", cfgFile),
+				slog.String("err", err.Error()),
+			)
+
+			return errReadingCfgFile(err)
+		}
+	} else {
+		err := cfg.ReadDefaultFile()
+		if err != nil {
+			slog.Error(
+				"error reading default config file",
+				slog.String("err", err.Error()),
+			)
+
+			return errReadingDefaultCfgFile(err)
+		}
+	}
+
+	return nil
+}
+
+func getLinter(cfgPath string, dotGithubPath string) (*linter.Linter, error) {
+	cfgFile, err := getConfigFilePath(cfgPath, dotGithubPath)
+	if err != nil {
+		return nil, errGettingCfgFile(err)
+	}
+
+	configInstance := linter.Config{}
+
+	err = populateConfigFromFile(&configInstance, cfgFile)
+	if err != nil {
+		return nil, errPopulatingCfgFile(err)
+	}
+
+	linterInstance := &linter.Linter{
+		Config: &configInstance,
+	}
+
+	return linterInstance, nil
+}
+
+func getDotGithub(
+	ctx context.Context,
+	dotGithubPath string,
+	varsFile string,
+	secretsFile string,
+) (*dotgithub.DotGithub, error) {
+	dotGithub := dotgithub.DotGithub{}
+
+	err := dotGithub.ReadDir(ctx, dotGithubPath)
+	if err != nil {
+		slog.Error(
+			"error initializing",
+			slog.String("path", dotGithubPath),
+			slog.String("err", err.Error()),
+		)
+
+		return nil, errReadingDotGithubDir(err)
+	}
+
+	if varsFile != "" {
+		err = dotGithub.ReadVars(varsFile)
+		if err != nil {
+			slog.Error(
+				"error reading vars file",
+				slog.String("path", varsFile),
+				slog.String("err", err.Error()),
+			)
+
+			return nil, errReadingDotGithubVarsFile(err)
+		}
+	}
+
+	if secretsFile != "" {
+		err = dotGithub.ReadSecrets(secretsFile)
+		if err != nil {
+			slog.Error(
+				"error reading secrets file",
+				slog.String("path", secretsFile),
+				slog.String("err", err.Error()),
+			)
+
+			return nil, errReadingDotGithubSecretsFile(err)
+		}
+	}
+
+	return &dotGithub, nil
+}
+
+func setLogger(loglevelFlag string) {
+	logLevel := loglevel.GetLogLevelFromString(loglevelFlag)
+
+	opts := &slog.HandlerOptions{
+		Level: logLevel,
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, opts))
+	slog.SetDefault(logger)
 }

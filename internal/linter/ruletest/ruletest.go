@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -25,6 +26,9 @@ var errTimeout = errors.New("timeout")
 func GetDotGithub() *dotgithub.DotGithub {
 	testDotGithubOnce.Do(func() {
 		testDotGithub = &dotgithub.DotGithub{}
+		logger := slog.New(slog.DiscardHandler)
+		slog.SetDefault(logger)
+
 		_ = testDotGithub.ReadDir(context.Background(), "../../../../tests/rules")
 	})
 

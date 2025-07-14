@@ -65,51 +65,65 @@ func (r WorkflowNeedsWithExistingJobs) Lint(
 			continue
 		}
 
-		needsStr, needsIsString := job.Needs.(string)
-		if needsIsString {
-			if workflowInstance.Jobs[needsStr] != nil {
-				continue
-			}
-
+		foundNotCompliant := r.processJobNeeds(workflowInstance, jobName, job.Needs, chErrors)
+		if foundNotCompliant {
 			compliant = false
-
-			chErrors <- glitch.Glitch{
-				Path:     workflowInstance.Path,
-				Name:     workflowInstance.DisplayName,
-				Type:     rule.DotGithubFileTypeWorkflow,
-				ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, needsStr),
-				RuleName: r.ConfigName(0),
-			}
-
-			continue
-		}
-
-		needsList, needsIsList := job.Needs.([]interface{})
-		if !needsIsList {
-			continue
-		}
-
-		for _, neededJobInterface := range needsList {
-			neededJob, ok := neededJobInterface.(string)
-			if !ok {
-				continue
-			}
-
-			if workflowInstance.Jobs[neededJob] != nil {
-				continue
-			}
-
-			compliant = false
-
-			chErrors <- glitch.Glitch{
-				Path:     workflowInstance.Path,
-				Name:     workflowInstance.DisplayName,
-				Type:     rule.DotGithubFileTypeWorkflow,
-				ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob),
-				RuleName: r.ConfigName(0),
-			}
 		}
 	}
 
 	return compliant, nil
+}
+
+func (r WorkflowNeedsWithExistingJobs) processJobNeeds(
+	workflowInstance *workflow.Workflow,
+	jobName string,
+	jobNeeds interface{},
+	chErrors chan<- glitch.Glitch,
+) bool {
+	needsStr, needsIsString := jobNeeds.(string)
+	if needsIsString {
+		if workflowInstance.Jobs[needsStr] != nil {
+			return false
+		}
+
+		chErrors <- glitch.Glitch{
+			Path:     workflowInstance.Path,
+			Name:     workflowInstance.DisplayName,
+			Type:     rule.DotGithubFileTypeWorkflow,
+			ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, needsStr),
+			RuleName: r.ConfigName(0),
+		}
+
+		return true
+	}
+
+	needsList, needsIsList := jobNeeds.([]interface{})
+	if !needsIsList {
+		return false
+	}
+
+	foundNotCompliant := false
+
+	for _, neededJobInterface := range needsList {
+		neededJob, ok := neededJobInterface.(string)
+		if !ok {
+			return false
+		}
+
+		if workflowInstance.Jobs[neededJob] != nil {
+			return false
+		}
+
+		chErrors <- glitch.Glitch{
+			Path:     workflowInstance.Path,
+			Name:     workflowInstance.DisplayName,
+			Type:     rule.DotGithubFileTypeWorkflow,
+			ErrText:  fmt.Sprintf("job '%s' has non-existing job '%s' in 'needs' field", jobName, neededJob),
+			RuleName: r.ConfigName(0),
+		}
+
+		foundNotCompliant = true
+	}
+
+	return foundNotCompliant
 }

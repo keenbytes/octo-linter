@@ -56,7 +56,7 @@ func TestReferencedInputExistsActionNotCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Action(d, "referenced-input-exists", fn)
+	ruletest.Action(d, "dependencies-referenced-input-exists", fn)
 }
 
 func TestReferencedInputExistsActionCompliant(t *testing.T) {
@@ -118,7 +118,7 @@ func TestReferencedInputExistsWorkflowNotCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Workflow(d, "referenced-input-exists.yml", fn)
+	ruletest.Workflow(d, "dependencies-referenced-input-exists.yml", fn)
 }
 
 func TestReferencedInputExistsWorkflowCompliant(t *testing.T) {

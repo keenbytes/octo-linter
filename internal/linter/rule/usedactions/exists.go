@@ -1,8 +1,8 @@
 package usedactions
 
 import (
+	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -15,6 +15,12 @@ import (
 
 // Exists verifies that the action referenced in a step actually exists.
 type Exists struct{}
+
+var errConfValue = errors.New("config value is invalid")
+
+func errGettingConfValue(err error) error {
+	return fmt.Errorf("%w: %s", errConfValue, err.Error())
+}
 
 // ConfigName returns the name of the rule as defined in the configuration file.
 func (r Exists) ConfigName(t int) string {
@@ -67,47 +73,21 @@ func (r Exists) Lint(
 		return true, nil
 	}
 
-	var (
-		checkLocal    bool
-		checkExternal bool
-	)
-
-	valInterfaces, confIsInterfaceArray := conf.([]interface{})
-	if !confIsInterfaceArray {
-		return false, errValueNotStringArray
-	}
-
-	for _, valInterface := range valInterfaces {
-		val, ok := valInterface.(string)
-		if !ok {
-			return false, errValueNotStringArray
-		}
-
-		if val == "local" {
-			checkLocal = true
-		}
-
-		if val == "external" {
-			checkExternal = true
-		}
+	checkLocal, checkExternal, err := r.getChecks(conf)
+	if err != nil {
+		return false, errGettingConfValue(err)
 	}
 
 	if !checkLocal && !checkExternal {
 		return true, nil
 	}
 
-	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
-	reExternal := regexp.MustCompile(
-		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]+){0,1}@[a-zA-Z0-9\.\-\_]+`,
-	)
-
-	steps := []*step.Step{}
-	msgPrefix := map[int]string{}
-
 	var (
-		fileType int
-		filePath string
-		fileName string
+		steps     []*step.Step
+		msgPrefix map[int]string
+		fileType  int
+		filePath  string
+		fileName  string
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
@@ -120,12 +100,7 @@ func (r Exists) Lint(
 			return true, nil
 		}
 
-		steps = actionInstance.Runs.Steps
-		msgPrefix[0] = ""
-
-		fileType = rule.DotGithubFileTypeAction
-		filePath = actionInstance.Path
-		fileName = actionInstance.DirName
+		steps, msgPrefix, fileType, filePath, fileName = getStepsFromAction(actionInstance)
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
@@ -138,23 +113,37 @@ func (r Exists) Lint(
 			return true, nil
 		}
 
-		for jobName, job := range workflowInstance.Jobs {
-			if len(job.Steps) == 0 {
-				continue
-			}
-
-			msgPrefix[len(steps)] = fmt.Sprintf("job '%s' ", jobName)
-
-			steps = append(steps, job.Steps...)
-		}
-
-		fileType = rule.DotGithubFileTypeWorkflow
-		filePath = workflowInstance.Path
-		fileName = workflowInstance.DisplayName
+		steps, msgPrefix, fileType, filePath, fileName = getStepsFromWorkflow(workflowInstance)
 	}
 
+	compliant := r.processSteps(
+		steps,
+		msgPrefix,
+		fileType,
+		filePath,
+		fileName,
+		chErrors,
+		checkLocal,
+		checkExternal,
+		dotGithub,
+	)
+
+	return compliant, nil
+}
+
+func (r Exists) processSteps(
+	steps []*step.Step,
+	msgPrefix map[int]string,
+	fileType int,
+	filePath string,
+	fileName string,
+	chErrors chan<- glitch.Glitch,
+	checkLocal bool,
+	checkExternal bool,
+	dotGithub *dotgithub.DotGithub,
+) bool {
 	var errPrefix string
-	if file.GetType() == rule.DotGithubFileTypeAction {
+	if fileType == rule.DotGithubFileTypeAction {
 		errPrefix = msgPrefix[0]
 	}
 
@@ -170,8 +159,8 @@ func (r Exists) Lint(
 			continue
 		}
 
-		isLocal := reLocal.MatchString(step.Uses)
-		isExternal := reExternal.MatchString(step.Uses)
+		isLocal := regexpLocalAction.MatchString(step.Uses)
+		isExternal := regexpExternalAction.MatchString(step.Uses)
 
 		if checkLocal && isLocal {
 			actionName := strings.ReplaceAll(step.Uses, "./.github/actions/", "")
@@ -206,5 +195,34 @@ func (r Exists) Lint(
 		}
 	}
 
-	return compliant, nil
+	return compliant
+}
+
+func (r Exists) getChecks(conf interface{}) (bool, bool, error) {
+	var (
+		checkLocal    bool
+		checkExternal bool
+	)
+
+	valInterfaces, confIsInterfaceArray := conf.([]interface{})
+	if !confIsInterfaceArray {
+		return false, false, errValueNotStringArray
+	}
+
+	for _, valInterface := range valInterfaces {
+		val, ok := valInterface.(string)
+		if !ok {
+			return false, false, errValueNotStringArray
+		}
+
+		if val == "local" {
+			checkLocal = true
+		}
+
+		if val == "external" {
+			checkExternal = true
+		}
+	}
+
+	return checkLocal, checkExternal, nil
 }

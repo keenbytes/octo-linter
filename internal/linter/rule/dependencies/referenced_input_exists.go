@@ -73,21 +73,9 @@ func (r ReferencedInputExists) Lint(
 			return false, errFileInvalidType
 		}
 
-		re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
-
-		found := re.FindAllSubmatch(actionInstance.Raw, -1)
-		for _, refInput := range found {
-			if actionInstance.Inputs == nil || actionInstance.Inputs[string(refInput[1])] == nil {
-				chErrors <- glitch.Glitch{
-					Path:     actionInstance.Path,
-					Name:     actionInstance.DirName,
-					Type:     rule.DotGithubFileTypeAction,
-					ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(refInput[1])),
-					RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
-				}
-
-				compliant = false
-			}
+		foundNotCompliant := r.processAction(actionInstance, chErrors)
+		if foundNotCompliant {
+			compliant = false
 		}
 
 		return compliant, nil
@@ -103,7 +91,47 @@ func (r ReferencedInputExists) Lint(
 		return false, errFileInvalidType
 	}
 
-	re := regexp.MustCompile(`\${{[ ]*inputs\.([a-zA-Z0-9\-_]+)[ ]*}}`)
+	foundNotCompliant := r.processWorkflow(workflowInstance, chErrors)
+	if foundNotCompliant {
+		compliant = false
+	}
+
+	return compliant, nil
+}
+
+func (r ReferencedInputExists) processAction(
+	actionInstance *action.Action,
+	chErrors chan<- glitch.Glitch,
+) bool {
+	foundNotCompliant := false
+
+	re := regexp.MustCompile(regexpRefInput)
+
+	found := re.FindAllSubmatch(actionInstance.Raw, -1)
+	for _, refInput := range found {
+		if actionInstance.Inputs == nil || actionInstance.Inputs[string(refInput[1])] == nil {
+			chErrors <- glitch.Glitch{
+				Path:     actionInstance.Path,
+				Name:     actionInstance.DirName,
+				Type:     rule.DotGithubFileTypeAction,
+				ErrText:  fmt.Sprintf("calls an input '%s' that does not exist", string(refInput[1])),
+				RuleName: r.ConfigName(rule.DotGithubFileTypeAction),
+			}
+
+			foundNotCompliant = true
+		}
+	}
+
+	return foundNotCompliant
+}
+
+func (r ReferencedInputExists) processWorkflow(
+	workflowInstance *workflow.Workflow,
+	chErrors chan<- glitch.Glitch,
+) bool {
+	foundNotCompliant := false
+
+	re := regexp.MustCompile(regexpRefInput)
 
 	found := re.FindAllSubmatch(workflowInstance.Raw, -1)
 	for _, refInput := range found {
@@ -135,8 +163,8 @@ func (r ReferencedInputExists) Lint(
 			RuleName: r.ConfigName(rule.DotGithubFileTypeWorkflow),
 		}
 
-		compliant = false
+		foundNotCompliant = true
 	}
 
-	return compliant, nil
+	return foundNotCompliant
 }

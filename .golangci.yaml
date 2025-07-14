@@ -7,6 +7,8 @@ linters:
     - testpackage
     - exhaustruct
   settings:
+    funlen:
+      lines: 70
     depguard:
       rules:
         main:
@@ -28,6 +30,15 @@ linters:
           - varnamelen
           - dupl
         path: _test.go
+      - linters:
+          - funlen
+        path: gen.go
+      - linters:
+          - dupl
+        path: internal/linter/rule/refvars
+      - linters:
+          - funlen
+        path: internal/linter/rule/usedactions/source.go
 formatters:
   enable:
     - gci

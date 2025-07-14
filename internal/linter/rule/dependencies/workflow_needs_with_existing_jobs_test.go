@@ -56,7 +56,7 @@ func TestWorkflowNeedsWithExistingJobsNotCompliant(t *testing.T) {
 		}
 	}
 
-	ruletest.Action(d, "workflow-needs-with-existing-jobs", fn)
+	ruletest.Action(d, "dependencies-workflow-needs-with-existing-jobs", fn)
 }
 
 func TestWorkflowNeedsWithExistingJobsCompliant(t *testing.T) {

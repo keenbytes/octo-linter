@@ -2,7 +2,6 @@ package usedactions
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/keenbytes/octo-linter/v2/internal/linter/glitch"
@@ -66,18 +65,12 @@ func (r ValidInputs) Lint(
 		return true, nil
 	}
 
-	reLocal := regexp.MustCompile(`^\.\/\.github\/actions\/([a-z0-9\-]+|[a-z0-9\-]+\/[a-z0-9\-]+)$`)
-	reExternal := regexp.MustCompile(
-		`[a-zA-Z0-9\-\_]+\/[a-zA-Z0-9\-\_]+(\/[a-zA-Z0-9\-\_]){0,1}@[a-zA-Z0-9\.\-\_]+`,
-	)
-
-	steps := []*step.Step{}
-	msgPrefix := map[int]string{}
-
 	var (
-		fileType int
-		filePath string
-		fileName string
+		steps     []*step.Step
+		msgPrefix map[int]string
+		fileType  int
+		filePath  string
+		fileName  string
 	)
 
 	if file.GetType() == rule.DotGithubFileTypeAction {
@@ -90,12 +83,7 @@ func (r ValidInputs) Lint(
 			return true, nil
 		}
 
-		steps = actionInstance.Runs.Steps
-		msgPrefix[0] = ""
-
-		fileType = rule.DotGithubFileTypeAction
-		filePath = actionInstance.Path
-		fileName = actionInstance.DirName
+		steps, msgPrefix, fileType, filePath, fileName = getStepsFromAction(actionInstance)
 	}
 
 	if file.GetType() == rule.DotGithubFileTypeWorkflow {
@@ -108,23 +96,99 @@ func (r ValidInputs) Lint(
 			return true, nil
 		}
 
-		for jobName, job := range workflowInstance.Jobs {
-			if len(job.Steps) == 0 {
-				continue
-			}
-
-			msgPrefix[len(steps)] = fmt.Sprintf("job '%s'", jobName)
-
-			steps = append(steps, job.Steps...)
-		}
-
-		fileType = rule.DotGithubFileTypeWorkflow
-		filePath = workflowInstance.Path
-		fileName = workflowInstance.DisplayName
+		steps, msgPrefix, fileType, filePath, fileName = getStepsFromWorkflow(workflowInstance)
 	}
 
+	compliant := r.processSteps(steps, msgPrefix, fileType, filePath, fileName, chErrors, dotGithub)
+
+	return compliant, nil
+}
+
+func (r ValidInputs) processStepActionInputs(
+	stepActionInputs map[string]*action.Input,
+	step *step.Step,
+	stepIdx int,
+	errPrefix string,
+	chErrors chan<- glitch.Glitch,
+	fileType int,
+	filePath string,
+	fileName string,
+) bool {
+	if stepActionInputs == nil {
+		return false
+	}
+
+	foundNotCompliant := false
+
+	for daInputName, daInput := range stepActionInputs {
+		if !daInput.Required {
+			continue
+		}
+
+		if step.With != nil && step.With[daInputName] != "" {
+			continue
+		}
+
+		chErrors <- glitch.Glitch{
+			Path:     filePath,
+			Name:     fileName,
+			Type:     fileType,
+			ErrText:  fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, stepIdx+1, daInputName),
+			RuleName: r.ConfigName(fileType),
+		}
+
+		foundNotCompliant = true
+	}
+
+	return foundNotCompliant
+}
+
+func (r ValidInputs) processStepWith(
+	stepWith map[string]string,
+	stepActionInputs map[string]*action.Input,
+	stepIdx int,
+	errPrefix string,
+	chErrors chan<- glitch.Glitch,
+	fileType int,
+	filePath string,
+	fileName string,
+) bool {
+	if stepWith == nil {
+		return false
+	}
+
+	foundNotCompliant := false
+
+	for usedInput := range stepWith {
+		if stepActionInputs != nil && stepActionInputs[usedInput] != nil {
+			continue
+		}
+
+		chErrors <- glitch.Glitch{
+			Path:     filePath,
+			Name:     fileName,
+			Type:     fileType,
+			ErrText:  fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, stepIdx+1, usedInput),
+			RuleName: r.ConfigName(fileType),
+		}
+
+		foundNotCompliant = true
+	}
+
+	return foundNotCompliant
+}
+
+func (r ValidInputs) processSteps(
+	steps []*step.Step,
+	msgPrefix map[int]string,
+	fileType int,
+	filePath string,
+	fileName string,
+	chErrors chan<- glitch.Glitch,
+	dotGithub *dotgithub.DotGithub,
+) bool {
 	var errPrefix string
-	if file.GetType() == rule.DotGithubFileTypeAction {
+	if fileType == rule.DotGithubFileTypeAction {
 		errPrefix = msgPrefix[0]
 	}
 
@@ -136,62 +200,59 @@ func (r ValidInputs) Lint(
 			errPrefix = newErrPrefix
 		}
 
-		if step.Uses == "" {
+		stepAction := r.getStepFromStepUses(step.Uses, dotGithub)
+		if stepAction == nil {
 			continue
 		}
 
-		isLocal := reLocal.MatchString(step.Uses)
-		isExternal := reExternal.MatchString(step.Uses)
-
-		var action *action.Action
-
-		if isLocal {
-			actionName := strings.ReplaceAll(step.Uses, "./.github/actions/", "")
-			action = dotGithub.GetAction(actionName)
+		if r.processStepActionInputs(
+			stepAction.Inputs,
+			step,
+			stepIdx,
+			errPrefix,
+			chErrors,
+			fileType,
+			filePath,
+			fileName,
+		) {
+			compliant = false
 		}
 
-		if isExternal {
-			action = dotGithub.GetExternalAction(step.Uses)
-		}
-
-		if action == nil {
-			continue
-		}
-
-		if action.Inputs != nil {
-			for daInputName, daInput := range action.Inputs {
-				if daInput.Required {
-					if step.With == nil || step.With[daInputName] == "" {
-						chErrors <- glitch.Glitch{
-							Path:     filePath,
-							Name:     fileName,
-							Type:     fileType,
-							ErrText:  fmt.Sprintf("%sstep %d called action requires input '%s'", errPrefix, stepIdx+1, daInputName),
-							RuleName: r.ConfigName(fileType),
-						}
-
-						compliant = false
-					}
-				}
-			}
-		}
-
-		if step.With != nil {
-			for usedInput := range step.With {
-				if action.Inputs == nil || action.Inputs[usedInput] == nil {
-					chErrors <- glitch.Glitch{
-						Path:     filePath,
-						Name:     fileName,
-						Type:     fileType,
-						ErrText:  fmt.Sprintf("%sstep %d called action non-existing input '%s'", errPrefix, stepIdx+1, usedInput),
-						RuleName: r.ConfigName(fileType),
-					}
-
-					compliant = false
-				}
-			}
+		if r.processStepWith(
+			step.With,
+			stepAction.Inputs,
+			stepIdx,
+			errPrefix,
+			chErrors,
+			fileType,
+			filePath,
+			fileName,
+		) {
+			compliant = false
 		}
 	}
 
-	return compliant, nil
+	return compliant
+}
+
+func (r ValidInputs) getStepFromStepUses(
+	stepUses string,
+	dotGithub *dotgithub.DotGithub,
+) *action.Action {
+	if stepUses == "" {
+		return nil
+	}
+
+	isLocal := regexpLocalAction.MatchString(stepUses)
+	isExternal := regexpLocalAction.MatchString(stepUses)
+
+	if isLocal {
+		actionName := strings.ReplaceAll(stepUses, "./.github/actions/", "")
+
+		return dotGithub.GetAction(actionName)
+	} else if isExternal {
+		return dotGithub.GetExternalAction(stepUses)
+	}
+
+	return nil
 }
