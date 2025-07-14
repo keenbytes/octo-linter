@@ -19,7 +19,7 @@ var errLintTimeout = errors.New("lint timeout")
 var errLintError = errors.New("lint error")
 
 func errRuleLintTimeout(name string) error {
-	return fmt.Errorf("%w: %s", errTimeout, name)
+	return fmt.Errorf("%w: %s", errLintTimeout, name)
 }
 
 func errRuleLintError(err error) error {
