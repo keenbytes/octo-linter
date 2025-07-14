@@ -18,6 +18,8 @@ builds:
     goarch:
       - amd64
       - arm64
+    main: ./cmd/octo-linter
+    binary: octo-linter
 
 checksum:
   name_template: 'checksums.txt'
@@ -26,7 +28,7 @@ snapshot:
   version_template: "{{ incpatch .Version }}-next"
 
 archives:
-  - formats: [ 'tar.gz' ]
+  - formats: [ 'zip' ]
     files:
       - LICENSE
 
