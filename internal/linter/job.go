@@ -15,14 +15,15 @@ const (
 	SecondsJobTimeout = 10
 )
 
-var errTimeout = errors.New("rule timed out")
+var errLintTimeout = errors.New("lint timeout")
+var errLintError = errors.New("lint error")
 
 func errRuleLintTimeout(name string) error {
 	return fmt.Errorf("%w: %s", errTimeout, name)
 }
 
 func errRuleLintError(err error) error {
-	return fmt.Errorf("rule lint error: %w", err)
+	return fmt.Errorf("%w: %s", errLintError, err.Error())
 }
 
 // Job represents a single run of a rule against a .github file (action or workflow).
