@@ -2,34 +2,36 @@
 
 ## Requirements
 
-To add a new rule the following things have to be created:
+To add a new rule, the following items must be implemented:
 
-* rule struct with its functionality which implements the methods as in the `rule.Rule` interface, such as `Validate` and `Lint`
-* rule struct is either created in a new group or existing one, see directories in `internal/linter/rule`
-* configuration for the rule must be added to the default configuration file in `internal/linter/dotgithub.yml`
-* rule must be linked with a specific configuration key, and that is done in the `gen.go` file
-* tests should be written
-* documentation must be updated
+* A rule struct that implements the `rule.Rule` interface, including methods such as `Validate` and `Lint`.
+* The rule struct should be placed in a new or existing rule group. See directories under `internal/linter/rule`.
+* A default configuration entry must be added to `internal/linter/dotgithub.yml`.
+* The rule must be linked to its configuration key in the `gen.go` file.
+* Tests must be written.
+* Documentation must be updated.
 
-See below sections to get more information on the above topics.
+See the sections below for more detailed guidance.
 
-:warning: **Multiple rules in the configuration file can be handled by one rule struct.  Please read the whole docs.**
+:warning: **A single rule struct can serve multiple configuration keys. Please read the full documentation for details.**
 
 ### Rule group
 
-Every rule is placed in a specific group. In configuration these can be find as the second-level keys in the `rules` section,
-and for example such guys are `naming_conventions` or `required_fields`.  These groups correspond to specific directories in 
-the `internal/rules` directory.  For previous examples, these are `naming` and `required`.
+Each rule belongs to a group. In the configuration file, these appear as second-level keys under the `rules` section — for example,
+`naming_conventions` or `required_fields`.
 
-New rule can be put in a new group or an existing one.
+These groups map to directories under `internal/rules`. For example:
+* `naming_conventions` → `internal/rules/naming`
+* `required_fields` → `internal/rules/required`
+
+You can place your new rule in an existing group or create a new one.
 
 ### Rule struct
 
-The easiest is to use an existing rule as a template, copy it and modify it.  Every rule needs to implement methods from the
-interface which is in the `internal/linter/rule` (shown below).
+The simplest way to start is by copying an existing rule and modifying it.
 
+Every rule must implement the `Rule` interface from `internal/linter/rule`, shown below:
 ```go
-// Rule represents a rule.
 type Rule interface {
 	Validate(conf interface{}) error
 	Lint(
@@ -43,43 +45,38 @@ type Rule interface {
 }
 ```
 
-* `Validate` is a method that checks the configuration value.
-* `Lint` is the main method that runs the lint on a specific file (action or workflow) with specific configuration value etc.
-* `ConfigName` returns the name of the key in the configuration. This is used in many places to link the rule with configuration and it's shown in the error (warning) messages. And also, it takes as argument an integer that defines what is the type of the file that is checked (action or workflow).
-* `FileType` returns integer which is a bitmask indicating what file types are linted by this rule.
+* `Validate`: Checks if the configuration value is valid.
+* `Lint`: Runs the lint logic against a given file (workflow or action) using the provided configuration.
+* `ConfigName`: Returns the configuration key associated with the rule. The method receives an integer indicating the file type (action or workflow).
+* `FileType`: Returns an integer bitmask indicating which file types this rule applies to.
 
 #### FileType method
-If rule is just for action file it would look as shown below:
-
+If the rule applies only to action files:
 ```go
-
-// FileType returns an integer that specifies the file types (action and/or workflow) the rule targets.
 func (r ActionReferencedStepOutputExists) FileType() int {
 	return rule.DotGithubFileTypeAction
 }
 ```
 
-However, if it lints both types of files then it would return `rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow`.
-
+If the rule applies to both action and workflow files:
+```go
+func (r ActionReferencedStepOutputExists) FileType() int {
+	return rule.DotGithubFileTypeAction | rule.DotGithubFileTypeWorkflow
+}
+```
 
 #### ConfigName method
-This method might get tricky when a rule struct is used to validate multiple rules (keys) in the configuration file.
+This method can vary depending on whether the rule struct handles:
 
-When rule struct is used just for a single rule then the method is simple, as shown below.
-
+1. A single rule
 ```go
-// ConfigName returns the name of the rule as defined in the configuration file.
 func (r ActionReferencedStepOutputExists) ConfigName(int) string {
 	return "dependencies__action_referenced_step_output_must_exist"
 }
 ```
 
-However, when the rule struct is used to lint both action and workflow files it would return configuration key name dependent on the type of the file that is
-checked, like shown on the example below.
-
+2. Different keys for different file types
 ```go
-
-// ConfigName returns the name of the rule as defined in the configuration file.
 func (r ReferencedInputExists) ConfigName(t int) string {
 	switch t {
 	case rule.DotGithubFileTypeWorkflow:
@@ -92,10 +89,8 @@ func (r ReferencedInputExists) ConfigName(t int) string {
 }
 ```
 
-There is yet another scenario, where a rule has an additional custom field and the name is dependent on it. See below.
-
+3. Keys based on a custom field
 ```go
-// ConfigName returns the name of the rule as defined in the configuration file.
 func (r Action) ConfigName(int) string {
 	switch r.Field {
 	case ActionFieldAction:
@@ -111,28 +106,29 @@ func (r Action) ConfigName(int) string {
 ```
 
 #### Lint method
-To distinguish lint error from other error, it is called a `Glitch`, and instance of `glitch.Glitch` must be send to the `chErrors` channel.
+To distinguish linting issues from internal errors, use `glitch.Glitch` instances and send them to the `chErrors` channel.
 
-To write that method, just use any of the existing ones. Check the default configuration file in `internal/linter/dotgithub.yml` and find one that is similar (again, check the ConfigName section for the three different scenarios).
+Use existing rules as a reference. Locate a similar rule in the configuration file (`internal/linter/dotgithub.yml`) and review its implementation.
 
 #### Validate method
-Depending on the value, use any of the existing code as a template.
+Use existing rules as templates depending on the type and complexity of the configuration value.
 
 ### Configuration file
-New rule must be added to the default configuration file found in the `internal/linter/dotgithub.yml`.
+Your rule must be added to the default configuration file: `internal/linter/dotgithub.yml`. This defines default values and enables the rule by default.
 
 ### Link configuration key with rule struct
-When octo-linter parses configuration file, it needs to create instantiate rule structs from it. Hence, every configuration key must correspond to a specific
-rule. This is done by a loop that is generated with `gen.go` file. 
+When octo-linter parses the configuration file, it must map each configuration key to a rule struct. This is done using the registry generated in `gen.go`.
 
-Going back to the three scenarios (though it can be more) described in the ConfigName method section, here are corresponding snippets of code for that.
+Refer back to the three `ConfigName` method patterns. Below are the corresponding `gen.go` entries:
 
+1. Single Rule
 ```go
 			"dependencies__action_referenced_step_output_must_exist": {
 				N: "dependencies.ActionReferencedStepOutputExists",
 			},
 ```
 
+2. Multiple Keys for File Types
 ```go
 
 			"dependencies__action_referenced_input_must_exists": {
@@ -144,6 +140,7 @@ Going back to the three scenarios (though it can be more) described in the Confi
 			},
 ```
 
+3. Rule Struct with Custom Field
 ```go
 			"required_fields__action_requires": {
 				N: "required.Action",
@@ -160,4 +157,4 @@ Going back to the three scenarios (though it can be more) described in the Confi
 ```
 
 ### Documentation
-Once new rule is working, and covered with tests, it must be properly documented.
+Once your rule is implemented and tested, don’t forget to document it thoroughly. This ensures others understand its purpose and usage.
