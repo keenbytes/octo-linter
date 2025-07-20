@@ -26,6 +26,8 @@ nav:
     - used_actions_*: rules/used_actions.md
     - dependencies: rules/dependencies.md
     - workflow_runners: rules/workflow_runners.md
+  - Development:
+    - New rule: add_rule.md
 
 extra:
   social:
