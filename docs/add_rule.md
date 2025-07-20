@@ -68,14 +68,14 @@ func (r ActionReferencedStepOutputExists) FileType() int {
 #### ConfigName method
 This method can vary depending on whether the rule struct handles:
 
-1. A single rule
+A single rule
 ```go
 func (r ActionReferencedStepOutputExists) ConfigName(int) string {
 	return "dependencies__action_referenced_step_output_must_exist"
 }
 ```
 
-2. Different keys for different file types
+Different keys for different file types
 ```go
 func (r ReferencedInputExists) ConfigName(t int) string {
 	switch t {
@@ -89,7 +89,7 @@ func (r ReferencedInputExists) ConfigName(t int) string {
 }
 ```
 
-3. Keys based on a custom field
+Keys based on a custom field
 ```go
 func (r Action) ConfigName(int) string {
 	switch r.Field {
@@ -121,14 +121,14 @@ When octo-linter parses the configuration file, it must map each configuration k
 
 Refer back to the three `ConfigName` method patterns. Below are the corresponding `gen.go` entries:
 
-1. Single Rule
+Single Rule
 ```go
 			"dependencies__action_referenced_step_output_must_exist": {
 				N: "dependencies.ActionReferencedStepOutputExists",
 			},
 ```
 
-2. Multiple Keys for File Types
+Multiple Keys for File Types
 ```go
 
 			"dependencies__action_referenced_input_must_exists": {
@@ -140,7 +140,7 @@ Refer back to the three `ConfigName` method patterns. Below are the correspondin
 			},
 ```
 
-3. Rule Struct with Custom Field
+Rule Struct with Custom Field
 ```go
 			"required_fields__action_requires": {
 				N: "required.Action",
