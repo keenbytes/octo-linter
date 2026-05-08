@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/ruletest"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/ruletest"
 )
 
 func TestValidInputsValidate(t *testing.T) {

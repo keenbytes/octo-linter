@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
 	"gopkg.in/yaml.v2"
+	"octo-linter/internal/linter/rule"
 )
 
 //go:embed dotgithub.yml

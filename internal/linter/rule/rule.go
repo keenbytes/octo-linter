@@ -2,8 +2,8 @@
 package rule
 
 import (
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/glitch"
 )
 
 const (

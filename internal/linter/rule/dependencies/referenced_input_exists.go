@@ -3,11 +3,11 @@ package dependencies
 import (
 	"fmt"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/action"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/workflow"
+	"octo-linter/internal/action"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/glitch"
+	"octo-linter/internal/linter/rule"
+	"octo-linter/internal/workflow"
 )
 
 // ReferencedInputExists scans the code for all input references and verifies that each has been previously defined.

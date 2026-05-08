@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/glitch"
+	"octo-linter/internal/linter/rule"
 )
 
 const (

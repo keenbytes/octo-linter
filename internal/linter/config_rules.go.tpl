@@ -3,14 +3,14 @@ package linter
 import (
 	"fmt"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule/filenames"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule/naming"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule/required"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule/refvars"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule/usedactions"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule/dependencies"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule/runners"
+	"octo-linter/internal/linter/rule"
+	"octo-linter/internal/linter/rule/filenames"
+	"octo-linter/internal/linter/rule/naming"
+	"octo-linter/internal/linter/rule/required"
+	"octo-linter/internal/linter/rule/refvars"
+	"octo-linter/internal/linter/rule/usedactions"
+	"octo-linter/internal/linter/rule/dependencies"
+	"octo-linter/internal/linter/rule/runners"
 )
 
 //nolint:gocognit,gocyclo,funlen,maintidx

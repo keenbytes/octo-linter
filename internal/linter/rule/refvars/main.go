@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/action"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/workflow"
+	"octo-linter/internal/action"
+	"octo-linter/internal/linter/glitch"
+	"octo-linter/internal/linter/rule"
+	"octo-linter/internal/workflow"
 )
 
 var (

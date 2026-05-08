@@ -9,12 +9,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 
-	"github.com/mikolajgasior/broccli/v3"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/loglevel"
+	"github.com/spf13/cobra"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter"
+	"octo-linter/internal/loglevel"
 )
 
 //go:generate go run ../../gen.go ../../
@@ -82,109 +81,101 @@ func errReadingDotGithubSecretsFile(err error) error {
 }
 
 func main() {
-	cli := broccli.NewBroccli(
-		"octo-linter",
-		"Validates GitHub Actions workflow and action YAML files",
-		"m@gasior.dev",
-	)
-
-	createLintCommand(cli)
-	createInitCommand(cli)
-
-	_ = cli.Command("version", "Prints version", versionHandler)
-
-	if len(os.Args) == 2 && (os.Args[1] == "-v" || os.Args[1] == "--version") {
-		os.Args = []string{"App", "version"}
+	rootCmd := &cobra.Command{
+		Use:   "octo-linter",
+		Short: "Validates GitHub Actions workflow and action YAML files",
 	}
 
-	os.Exit(cli.Run(context.Background()))
+	rootCmd.AddCommand(createInitCommand())
+	rootCmd.AddCommand(createLintCommand())
+	rootCmd.AddCommand(&cobra.Command{
+		Use:   "version",
+		Short: "Prints the current version of the tool",
+		Run: func(cmd *cobra.Command, args []string) {
+			os.Exit(versionHandler(context.Background()))
+		},
+	})
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
-func createLintCommand(cli *broccli.Broccli) {
-	cmdLint := cli.Command(
-		"lint",
-		"Runs the linter on files from a specific directory",
-		lintHandler,
-	)
-	cmdLint.Flag(
-		"path",
-		"p",
-		"DIR",
-		"Path to .github directory",
-		broccli.TypePathFile,
-		broccli.IsDirectory|broccli.IsExistent|broccli.IsRequired,
-	)
-	cmdLint.Flag(
-		"config",
-		"c",
-		"FILE",
-		"Linter config with rules in YAML format",
-		broccli.TypePathFile,
-		broccli.IsRegularFile|broccli.IsExistent,
-	)
-	cmdLint.Flag("loglevel", "l", "", "One of INFO,ERR,WARN,DEBUG", broccli.TypeString, 0)
-	cmdLint.Flag(
-		"logmultiline",
-		"m",
-		"",
-		"Each log entry key in a separate line",
-		broccli.TypeBool,
-		0,
-	)
-	cmdLint.Flag(
-		"vars-file",
-		"z",
-		"",
-		"Check if variable names exist in this file (one per line)",
-		broccli.TypePathFile,
-		broccli.IsExistent,
-	)
-	cmdLint.Flag(
-		"secrets-file",
-		"s",
-		"",
-		"Check if secret names exist in this file (one per line)",
-		broccli.TypePathFile,
-		broccli.IsExistent,
-	)
-	cmdLint.Flag(
-		"output",
-		"o",
-		"DIR",
-		"Path to where summary markdown gets generated",
-		broccli.TypePathFile,
-		broccli.IsDirectory|broccli.IsExistent,
-	)
-	cmdLint.Flag(
-		"output-errors",
-		"u",
-		"INT",
-		"Limit numbers of errors shown in the markdown output file",
-		broccli.TypeInt,
-		0,
-	)
+func createLintCommand() *cobra.Command {
+	var path, config, loglevel, varsFile, secretsFile, output string
+	var logmultiline bool
+	var outputErrors int
+
+	cmd := &cobra.Command{
+		Use:   "lint",
+		Short: "Runs the linter on files from a specific directory",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				return fmt.Errorf("path '%s' does not exist or is not a directory", path)
+			}
+			if config != "" {
+				if _, err := os.Stat(config); os.IsNotExist(err) {
+					return fmt.Errorf("config file '%s' does not exist", config)
+				}
+			}
+			if varsFile != "" {
+				if _, err := os.Stat(varsFile); os.IsNotExist(err) {
+					return fmt.Errorf("vars-file '%s' does not exist", varsFile)
+				}
+			}
+			if secretsFile != "" {
+				if _, err := os.Stat(secretsFile); os.IsNotExist(err) {
+					return fmt.Errorf("secrets-file '%s' does not exist", secretsFile)
+				}
+			}
+			if output != "" {
+				fileInfo, err := os.Stat(output)
+				if os.IsNotExist(err) || !fileInfo.IsDir() {
+					return fmt.Errorf("output '%s' does not exist or is not a directory", output)
+				}
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			os.Exit(lintHandler(cmd.Context(), loglevel, logmultiline, path, config, varsFile, secretsFile, output, outputErrors))
+		},
+	}
+
+	cmd.Flags().StringVarP(&path, "path", "p", "", "Path to .github directory (required)")
+	cmd.MarkFlagRequired("path")
+	cmd.Flags().StringVarP(&config, "config", "c", "", "Linter config with rules in YAML format")
+	cmd.Flags().StringVarP(&loglevel, "loglevel", "l", "", "One of INFO, ERR, WARN, DEBUG")
+	cmd.Flags().BoolVarP(&logmultiline, "logmultiline", "m", false, "Each log entry key in a separate line")
+	cmd.Flags().StringVarP(&varsFile, "vars-file", "z", "", "Check if variable names exist in this file (one per line)")
+	cmd.Flags().StringVarP(&secretsFile, "secrets-file", "s", "", "Check if secret names exist in this file (one per line)")
+	cmd.Flags().StringVarP(&output, "output", "o", "", "Path to where summary markdown gets generated")
+	cmd.Flags().IntVarP(&outputErrors, "output-errors", "u", 0, "Limit numbers of errors shown in the markdown output file")
+
+	return cmd
 }
 
-func createInitCommand(cli *broccli.Broccli) {
-	cmdInit := cli.Command("init", "Create sample dotgithub.yml config file", initHandler)
-	cmdInit.Flag(
-		"destination",
-		"d",
-		"FILE",
-		"Destination filename to write to",
-		broccli.TypePathFile,
-		broccli.IsNotExistent,
-	)
+func createInitCommand() *cobra.Command {
+	var destination string
+	cmd := &cobra.Command{
+		Use:   "init",
+		Short: "Create sample dotgithub.yml config file",
+		Run: func(cmd *cobra.Command, args []string) {
+			os.Exit(initHandler(cmd.Context(), destination))
+		},
+	}
+
+	cmd.Flags().StringVarP(&destination, "destination", "d", "", "Destination filename to write to")
+	return cmd
 }
 
-func versionHandler(_ context.Context, _ *broccli.Broccli) int {
+func versionHandler(_ context.Context) int {
 	_, _ = fmt.Fprintf(os.Stdout, VERSION+"\n")
 
 	return ExitOK
 }
 
-func initHandler(_ context.Context, cli *broccli.Broccli) int {
-	path := cli.Flag("destination")
+func initHandler(_ context.Context, path string) int {
 	if path == "" {
 		fileInfo, err := os.Stat(configFileName)
 		if err != nil && !os.IsNotExist(err) {
@@ -230,10 +221,10 @@ func initHandler(_ context.Context, cli *broccli.Broccli) int {
 	return ExitOK
 }
 
-func lintHandler(ctx context.Context, cli *broccli.Broccli) int {
-	setLogger(cli.Flag("loglevel"), cli.Flag("logmultiline") == "true")
+func lintHandler(ctx context.Context, loglevel string, logmultiline bool, path, config, varsFile, secretsFile, output string, outputErrors int) int {
+	setLogger(loglevel, logmultiline)
 
-	lint, err := getLinter(cli.Flag("config"), cli.Flag("path"))
+	lint, err := getLinter(config, path)
 	if err != nil && errors.Is(err, errCfgFileGet) {
 		return ExitErrGettingCfgFile
 	}
@@ -248,9 +239,9 @@ func lintHandler(ctx context.Context, cli *broccli.Broccli) int {
 
 	dotGithub, err := getDotGithub(
 		ctx,
-		cli.Flag("path"),
-		cli.Flag("vars-file"),
-		cli.Flag("secrets-file"),
+		path,
+		varsFile,
+		secretsFile,
 		lint.Config.Overrides,
 	)
 	if err != nil && errors.Is(err, errDotGithubDirRead) {
@@ -266,12 +257,12 @@ func lintHandler(ctx context.Context, cli *broccli.Broccli) int {
 	}
 
 	outputLimit := 0
-	if cli.Flag("output-errors") != "" {
+	if outputErrors > 0 {
 		// the cli already validates flag
-		outputLimit, _ = strconv.Atoi(cli.Flag("output-errors"))
+		outputLimit = outputErrors
 	}
 
-	status, err := lint.Lint(dotGithub, cli.Flag("output"), outputLimit)
+	status, err := lint.Lint(dotGithub, output, outputLimit)
 	if err != nil {
 		slog.Error(
 			"error linting",

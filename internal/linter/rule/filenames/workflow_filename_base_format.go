@@ -3,11 +3,11 @@ package filenames
 import (
 	"strings"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/casematch"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/workflow"
+	"octo-linter/internal/casematch"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/glitch"
+	"octo-linter/internal/linter/rule"
+	"octo-linter/internal/workflow"
 )
 
 // WorkflowFilenameBaseFormat checks if the workflow file basename (without extension) adheres to the selected naming

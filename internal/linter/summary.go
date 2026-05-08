@@ -5,7 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
+	"octo-linter/internal/linter/glitch"
 )
 
 type summary struct {

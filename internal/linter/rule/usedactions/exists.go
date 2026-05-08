@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/action"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/step"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/workflow"
+	"octo-linter/internal/action"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/glitch"
+	"octo-linter/internal/linter/rule"
+	"octo-linter/internal/step"
+	"octo-linter/internal/workflow"
 )
 
 // Exists verifies that the action referenced in a step actually exists.

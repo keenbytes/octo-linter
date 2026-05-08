@@ -3,10 +3,10 @@ package required
 import (
 	"fmt"
 
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/workflow"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/glitch"
+	"octo-linter/internal/linter/rule"
+	"octo-linter/internal/workflow"
 )
 
 // Workflow checks if required fields within workflow are defined.

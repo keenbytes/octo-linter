@@ -37,4 +37,4 @@ rules:
 
 overrides:
   external_actions_paths:
-    mikolajgasior/read-from-local-path: ./overrides/local-source
+    mikolajgasior/read-from-local-path: /overrides/local-source

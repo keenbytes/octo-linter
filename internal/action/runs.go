@@ -1,7 +1,7 @@
 package action
 
 import (
-	"github.com/mikolajgasior/octo-linter/v2/pkg/step"
+	"octo-linter/internal/step"
 )
 
 // Runs represents a 'runs' field in a GitHub Actions action parsed from YAML.

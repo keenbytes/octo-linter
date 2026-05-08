@@ -1,11 +1,11 @@
 package filenames
 
 import (
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/glitch"
-	"github.com/mikolajgasior/octo-linter/v2/internal/linter/rule"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/action"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/casematch"
-	"github.com/mikolajgasior/octo-linter/v2/pkg/dotgithub"
+	"octo-linter/internal/action"
+	"octo-linter/internal/casematch"
+	"octo-linter/internal/dotgithub"
+	"octo-linter/internal/linter/glitch"
+	"octo-linter/internal/linter/rule"
 )
 
 // ActionDirectoryNameFormat checks if the directory containing the action adheres to the selected naming convention.

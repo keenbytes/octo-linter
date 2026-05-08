@@ -2,16 +2,15 @@
 
 ## Clone and run
 An example configuration file and `.github` directory structure can be found in the `example` directory of the 
-repository. Use below commands to see octo-linter in action:
+repository. Use below commands to see octo-linter in action after cloning the repository.
 
 ````
-git clone https://github.com/mikolajgasior/octo-linter.git
-
 cd octo-linter/example
 docker run --platform=linux/amd64 --rm --name octo-linter \
   -v $(pwd)/dot-github:/dot-github \
   -v $(pwd):/config \
-  mikolajgasior/octo-linter:v2.6.1 \
+  -v $(pwd)/overrides:/overrides \
+  mikolajgasior/octo-linter:v3.0.0 \
   lint -p /dot-github -l WARN -c /config/config.yml
 ````
 
@@ -59,7 +58,7 @@ for example `output`, and add `--output output` (`-o`) flag to the command to ge
 
 Markdown can be limited to print out only certain amount of errors.  This can be set with `--output-errors` (`-u`) flag.
 
-Please see modified code below:
+Please see the modified code below:
 
 ````
 mkdir output
@@ -68,7 +67,8 @@ docker run --platform=linux/amd64 --rm --name octo-linter \
   -v $(pwd)/dot-github:/dot-github \
   -v $(pwd):/config \
   -v $(pwd)/output:/output \
-  mikolajgasior/octo-linter:v2.6.1 \
+  -v $(pwd)/overrides:/overrides \
+  mikolajgasior/octo-linter:v3.0.0 \
   lint -p /dot-github -l WARN -c /config/config.yml -o /output -u 5
 ````
 
@@ -89,7 +89,7 @@ or `var` that is not on the list, tool will output info about it.  See below run
 docker run --platform=linux/amd64 --rm --name octo-linter \
   -v $(pwd)/dot-github:/dot-github \
   -v $(pwd):/config \
-  mikolajgasior/octo-linter:v2.6.1 \
+  mikolajgasior/octo-linter:v3.0.0 \
   lint -p /dot-github -l WARN -c /config/config.yml \
   -s /config/secrets_list.txt \
   -z /config/vars_list.txt \
